@@ -1,0 +1,265 @@
+% ============================================================================
+% SECCION 2: MATERIALES Y METODOS
+% ============================================================================
+
+\section{Materiales y M\'etodos}
+\label{sec:materiales_metodos}
+
+\subsection{Fuentes de datos}
+\label{subsec:fuentes_datos}
+
+El presente estudio integra informaci\'on de tres fuentes de datos p\'ublicas complementarias, cuya combinaci\'on permite establecer correspondencias fiables entre estructuras prote\'icas experimentales y sus predicciones computacionales.
+
+\subsubsection{Base de datos SIFTS}
+\label{subsubsec:sifts}
+
+El servicio SIFTS (\textit{Structure Integration with Function, Taxonomy and Sequence}), mantenido por el Instituto Europeo de Bioinform\'atica (EBI), proporciona mapeos curados entre las entradas del Protein Data Bank (PDB) y diversas bases de datos de secuencias y anotaciones, incluyendo UniProt, Pfam, SCOP, CATH e InterPro \citep{Velankar2013}. SIFTS constituye el eslab\'on cr\'itico de nuestro \textit{pipeline}, ya que establece la correspondencia entre c\'odigos PDB (identificadores de estructuras experimentales) y c\'odigos de acceso UniProt (identificadores de secuencias prote\'icas), que a su vez permiten acceder a las predicciones de AlphaFold2.
+
+El mapeo SIFTS resuelve m\'ultiples complicaciones t\'ecnicas que dificultan la correspondencia directa entre PDB y UniProt: una misma entrada PDB puede contener m\'ultiples cadenas correspondientes a diferentes prote\'inas, una prote\'ina puede estar representada en m\'ultiples entradas PDB con diferentes condiciones experimentales, y las numeraciones de residuos en PDB no siempre coinciden con la numeraci\'on can\'onica de UniProt.
+
+\textbf{Cr\'iticamente}, el archivo SIFTS proporciona columnas de mapeo posicional (\texttt{PDB\_BEG}, \texttt{PDB\_END}, \texttt{SP\_BEG}, \texttt{SP\_END}) que permiten traducir la numeraci\'on de residuos del archivo PDB a la numeraci\'on can\'onica de UniProt. Este mapeo es esencial porque AlphaFold2 utiliza la numeraci\'on UniProt en sus modelos predichos, mientras que los archivos PDB frecuentemente utilizan numeraciones arbitrarias o desfasadas (por ejemplo, la lisozima de clara de huevo P00698 numera sus residuos 1--129 en muchos archivos PDB, pero la secuencia UniProt completa va de 19 a 147, incluyendo el p\'eptido se\~nal). Sin este mapeo expl\'icito, la comparaci\'on por n\'umero de posici\'on resulta en alineamientos err\'oneos que inflanan artificialmente el RMSD.
+
+\subsubsection{RCSB Protein Data Bank (PDB)}
+\label{subsubsec:pdb}
+
+El Protein Data Bank (PDB) es el repositorio internacional de estructuras tridimensionales de macromol\'eculas biol\'ogicas determinadas experimentalmente \citep{Berman2000}. Fundado en 1971 con apenas 7 estructuras, el PDB contiene actualmente m\'as de 210.000 entradas determinadas mediante cristalograf\'ia de rayos X, resonancia magn\'etica nuclear (RMN), criomicroscop\'ia electr\'onica (cryo-EM) y otros m\'etodos. Cada entrada incluye las coordenadas at\'omicas tridimensionales, informaci\'on sobre el m\'etodo experimental, la resoluci\'on (cuando aplica), factores de temperatura ($B$-factors) y metadatos extensivos.
+
+En nuestro estudio, las estructuras experimentales del PDB sirven como referencia (\textit{ground truth}) contra la cual se eval\'uan las predicciones de AlphaFold2. Las estructuras se obtuvieron en formato PDB (\texttt{.pdb}) desde los servidores del RCSB (\url{https://files.rcsb.org/download/}).
+
+\subsubsection{EBI AlphaFold Protein Structure Database}
+\label{subsubsec:alphafold_db}
+
+La AlphaFold Protein Structure Database, operada conjuntamente por DeepMind y el EBI, proporciona acceso p\'ublico a las predicciones estructurales generadas por AlphaFold2 para proteomas completos. Cada entrada incluye las coordenadas at\'omicas predichas en formato PDB o mmCIF, junto con los valores de confianza pLDDT por residuo almacenados en el campo de $B$-factor del archivo de coordenadas.
+
+Las predicciones de AlphaFold2 se descargaron desde la URL base \url{https://alphafold.ebi.ac.uk/files/}, utilizando el formato est\'andar de nomenclatura \texttt{AF-\{uniprot\_id\}-F1-model\_v4.pdb}, donde \texttt{v4} corresponde a la versi\'on m\'as reciente del modelo disponible al momento de la descarga.
+
+\subsection{Pipeline de descarga}
+\label{subsec:pipeline_descarga}
+
+El proceso de descarga se dise\~n\'o para maximizar la cobertura del conjunto de datos partiendo de los mapeos SIFTS disponibles.
+
+\subsubsection{Mapeo SIFTS: PDB $\rightarrow$ UniProt $\rightarrow$ AlphaFold}
+\label{subsubsec:mapeo}
+
+La estrategia de emparejamiento sigue un esquema de tres pasos:
+
+\begin{enumerate}
+    \item \textbf{Obtenci\'on de mapeos SIFTS}: Se descarg\'o el archivo de mapeos completo de SIFTS, que contiene las correspondencias PDB--UniProt con informaci\'on de cadena, rango de residuos y cobertura.
+
+    \item \textbf{Construcci\'on de pares}: Para cada entrada PDB con mapeo a UniProt, se gener\'o un par (PDB, UniProt) que define una comparaci\'on estructural. Un mismo c\'odigo PDB puede generar m\'ultiples pares si contiene cadenas mapeadas a diferentes accesiones de UniProt.
+
+    \item \textbf{Descarga simult\'anea}: Para cada par, se descarg\'o la estructura experimental desde RCSB PDB y la predicci\'on de AlphaFold2 desde el servidor EBI, utilizando el c\'odigo UniProt para construir la URL de AlphaFold.
+\end{enumerate}
+
+\subsubsection{Estrategia de descarga con URLs de respaldo}
+
+Para maximizar la tasa de \'exito de las descargas, se implementaron m\'ultiples URLs de respaldo (\textit{fallback URLs}) tanto para las estructuras experimentales como para las predicciones de AlphaFold:
+
+\begin{itemize}
+    \item \textbf{Estructuras PDB}: URL primaria de RCSB (\texttt{files.rcsb.org}), con respaldo en los espejos europeo (PDBe) y japon\'es (PDBj).
+    \item \textbf{Predicciones AlphaFold}: URL primaria del EBI, con respaldo utilizando diferentes versiones del modelo (v4, v3, v2) y, como \'ultimo recurso, el formato mmCIF.
+\end{itemize}
+
+\subsubsection{Descarga multihilo}
+
+La descarga se paraleliz\'o utilizando un pool de hilos (\textit{thread pool}) con un m\'aximo de 10 conexiones simult\'aneas, implementado mediante el m\'odulo \texttt{concurrent.futures} de Python. Se incorporaron mecanismos de reintentos exponenciales (\textit{exponential backoff}) para manejar errores transitorios del servidor, con un m\'aximo de 3 intentos por descarga y tiempos de espera crecientes (1, 2 y 4 segundos).
+
+Para maximizar la diversidad del dataset, se seleccion\'o un PDB representativo por cada identificador UniProt, priorizando la entrada con mayor cobertura de residuos seg\'un SIFTS. Se incluy\'o la informaci\'on de cadena correcta (columna \texttt{CHAIN} de SIFTS) en el archivo de pares. El proceso parti\'o de un total de \textbf{10.000 prote\'inas diversas} (UniProt IDs \'unicos) seleccionadas del archivo SIFTS, que contiene 68.591 UniProt IDs \'unicos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{distribucion_pares.png}
+    \caption{Cobertura del dataset. (Izquierda) Distribuci\'on del n\'umero de entradas PDB por proteína UniProt (escala logar\'itmica): la mayor\'ia de las prote\'inas tienen s\'olo 1--2 entradas PDB disponibles. (Derecha) Top 20 prote\'inas con mayor n\'umero de cristales depositados, que representan los sistemas m\'as estudiados en el PDB.}
+    \label{fig:distribucion_pares}
+\end{figure}
+
+\subsection{Pipeline de procesamiento}
+\label{subsec:pipeline_procesamiento}
+
+El procesamiento de las estructuras descargadas se organiz\'o en tres objetivos secuenciales, cada uno abordando un aspecto cr\'itico de la preparaci\'on de los datos para la comparaci\'on estructural cuantitativa.
+
+\subsubsection{Objetivo 1: Limpieza estructural}
+\label{subsubsec:limpieza}
+
+La limpieza de las estructuras experimentales es un paso esencial, dado que los archivos PDB frecuentemente contienen informaci\'on adicional que no es relevante para la comparaci\'on estructural y que puede interferir con los c\'alculos de RMSD. El proceso de limpieza incluy\'o:
+
+\begin{itemize}
+    \item \textbf{Eliminaci\'on de hetero\'atomos} (registros \texttt{HETATM}): Se eliminaron todas las mol\'eculas peque\~nas no proteicas, incluyendo ligandos, cofactores, iones met\'alicos y mol\'eculas de cristalizaci\'on. Estos hetero\'atomos est\'an presentes en las estructuras experimentales pero ausentes en las predicciones de AlphaFold2, por lo que su inclusi\'on distorsionar\'ia la comparaci\'on.
+
+    \item \textbf{Eliminaci\'on de mol\'eculas de agua}: Las mol\'eculas de agua cristalogr\'afica (registros \texttt{HOH} o \texttt{WAT}) se eliminaron sistem\'aticamente.
+
+    \item \textbf{Validaci\'on de \'atomos}: Se verific\'o que cada residuo contuviera al menos los \'atomos m\'inimos necesarios para la comparaci\'on (\'atomos del esqueleto pept\'idico). Los residuos con \'atomos faltantes o con ocupaciones alternativas se procesaron seleccionando la conformaci\'on de mayor ocupancia.
+
+    \item \textbf{Selecci\'on de cadena}: Cuando la estructura experimental conten\'ia m\'ultiples cadenas, se seleccion\'o la cadena correspondiente al mapeo SIFTS. En casos de ambig\"uedad, se prioriz\'o la cadena con mayor cobertura de secuencia.
+\end{itemize}
+
+\subsubsection{Objetivo 2: Estandarizaci\'on}
+\label{subsubsec:estandarizacion}
+
+La estandarizaci\'on garantiza que las dos estructuras comparadas (experimental y predicha) contengan exactamente el mismo conjunto de \'atomos, condici\'on necesaria para el c\'alculo v\'alido del RMSD:
+
+\begin{itemize}
+    \item \textbf{Identificaci\'on de residuos comunes}: Se determinaron los residuos presentes en ambas estructuras mediante el mapeo SIFTS de posiciones (\texttt{PDB\_BEG:PDB\_END} $\rightarrow$ \texttt{SP\_BEG:SP\_END}). Cada residuo del PDB se mape\'o a su posici\'on equivalente en UniProt, y solo se retuvieron los residuos con correspondencia en el modelo AlphaFold.
+
+    \item \textbf{Selecci\'on de \'atomos del esqueleto pept\'idico}: Para cada residuo com\'un, se extrajeron los \'atomos del \textit{backbone}: nitr\'ogeno amida (N), carbono alfa (C$\alpha$), carbono carbonilo (C) y ox\'igeno carbonilo (O). Adicionalmente, se incluy\'o el carbono beta (C$\beta$) cuando estaba disponible en ambas estructuras, dado que C$\beta$ proporciona informaci\'on sobre la orientaci\'on de la cadena lateral:
+
+    \begin{equation}
+        \text{\'Atomos backbone} = \{N, C\alpha, C, O, C\beta\}
+        \label{eq:atomos_backbone}
+    \end{equation}
+
+    \item \textbf{Verificaci\'on de correspondencia}: Se verific\'o que cada \'atomo seleccionado existiera en ambas estructuras. Los \'atomos presentes solo en una de las dos estructuras se descartaron para mantener la correspondencia biun\'ivoca necesaria para el c\'alculo de RMSD.
+\end{itemize}
+
+\subsubsection{Objetivo 3: Superposici\'on y c\'alculo de RMSD}
+\label{subsubsec:superposicion}
+
+La superposici\'on estructural y el c\'alculo de RMSD se realizaron utilizando el m\'odulo \texttt{Superimposer} de la biblioteca BioPython \citep{Cock2009}:
+
+\begin{enumerate}
+    \item \textbf{Extracci\'on de coordenadas}: Se extrajeron las coordenadas cartesianas $(x, y, z)$ de los \'atomos seleccionados en ambas estructuras, generando dos matrices de dimensi\'on $n \times 3$, donde $n$ es el n\'umero de \'atomos comunes.
+
+    \item \textbf{Centrado}: Ambos conjuntos de coordenadas se trasladaron para que sus centroides coincidieran con el origen:
+    \begin{equation}
+        \bar{\mathbf{r}} = \frac{1}{n} \sum_{i=1}^{n} \mathbf{r}_i, \quad \mathbf{r}_i' = \mathbf{r}_i - \bar{\mathbf{r}}
+        \label{eq:centrado}
+    \end{equation}
+
+    \item \textbf{Rotaci\'on \'optima}: Se aplic\'o el algoritmo de Kabsch para encontrar la matriz de rotaci\'on $\mathbf{R}$ que minimiza el RMSD entre las dos estructuras centradas.
+
+    \item \textbf{C\'alculo de RMSD}: Se calcul\'o el RMSD seg\'un la ecuaci\'on~\ref{eq:rmsd} utilizando las coordenadas rotadas y trasladadas.
+
+    \item \textbf{Almacenamiento de resultados}: Los valores de RMSD, junto con metadatos (n\'umero de \'atomos alineados, n\'umero de residuos comunes, identidad de secuencia estimada), se almacenaron en formato CSV para el an\'alisis posterior.
+\end{enumerate}
+
+El \texttt{Superimposer} de BioPython implementa internamente el algoritmo de Kabsch mediante descomposici\'on en valores singulares (SVD), proporcionando tanto la matriz de rotaci\'on \'optima como el RMSD resultante en una \'unica operaci\'on eficiente.
+
+\subsection{Validaci\'on de pares}
+\label{subsec:validacion_pares}
+
+No todos los pares descargados resultan v\'alidos para la comparaci\'on estructural. Se implementaron m\'ultiples criterios de validaci\'on para asegurar la calidad del conjunto de datos final:
+
+\subsubsection{Identidad de secuencia}
+
+Se verific\'o que las secuencias de amino\'acidos de la estructura experimental y la predicci\'on de AlphaFold2 correspondieran a la misma prote\'ina. Aunque el mapeo SIFTS proporciona esta garant\'ia a nivel de base de datos, la verificaci\'on directa de la identidad de secuencia act\'ua como control de calidad adicional. Se calcul\'o el porcentaje de residuos id\'enticos en posiciones correspondientes entre ambas secuencias.
+
+\subsubsection{Correspondencia de cadena}
+
+Para estructuras experimentales multim\'ericas, se verific\'o que la cadena seleccionada correspondiera efectivamente a la prote\'ina mapeada por SIFTS. Esto es particularmente importante para complejos heterolig\'americos donde diferentes cadenas corresponden a prote\'inas distintas.
+
+\subsubsection{Compatibilidad de longitud}
+
+Se estableci\'o un requisito m\'inimo de residuos comunes entre la estructura experimental y la predicci\'on para que el par fuera considerado v\'alido. Pares con menos de 3 residuos comunes se descartaron, ya que el RMSD calculado sobre tan pocos puntos carece de significaci\'on estad\'istica.
+
+La Tabla~\ref{tab:parametros_calidad} resume los par\'ametros de calidad aplicados durante la validaci\'on.
+
+\begin{table}[H]
+    \centering
+    \caption{Par\'ametros de calidad aplicados en la validaci\'on de pares de estructuras.}
+    \label{tab:parametros_calidad}
+    \begin{tabular}{@{}lll@{}}
+        \toprule
+        \textbf{Par\'ametro} & \textbf{Valor} & \textbf{Descripci\'on} \\
+        \midrule
+        Residuos m\'inimos comunes & 3 & N\'umero m\'inimo de residuos presentes en ambas estructuras \\
+        \'Atomos m\'inimos por residuo & 1 & Al menos un \'atomo backbone debe estar presente \\
+        \'Atomos del backbone & N, C$\alpha$, C, O, C$\beta$ & Conjunto de \'atomos utilizados para la superposici\'on \\
+        Formato de entrada & PDB & Formato de archivo de coordenadas at\'omicas \\
+        Algoritmo de superposici\'on & Kabsch (SVD) & Implementado en BioPython Superimposer \\
+        Selecci\'on de conformaci\'on & Mayor ocupancia & Para residuos con conformaciones alternativas \\
+        Eliminaci\'on HETATM & S\'i & Todos los hetero\'atomos eliminados \\
+        Eliminaci\'on de agua & S\'i & Todas las mol\'eculas de solvente eliminadas \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+La Tabla~\ref{tab:resumen_pipeline} presenta un resumen cuantitativo de las etapas del \textit{pipeline} y el n\'umero de pares en cada fase.
+
+\begin{table}[H]
+    \centering
+    \caption{Resumen cuantitativo del pipeline de procesamiento de datos.}
+    \label{tab:resumen_pipeline}
+    \begin{tabular}{@{}lrrl@{}}
+        \toprule
+        \textbf{Etapa} & \textbf{Pares} & \textbf{UniProt} & \textbf{Descripci\'on} \\
+        \midrule
+        Selecci\'on diversa (SIFTS) & 10.000 & 10.000 & 1 PDB representativo por UniProt \\
+        Descarga exitosa & --- & --- & PDB + AlphaFold descargados \\
+        Mapeo SIFTS & --- & --- & Cadena + posiciones mapeadas \\
+        Superposici\'on Kabsch & --- & --- & RMSD sobre residuos correspondientes \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+La p\'erdida de pares entre las etapas se debe principalmente a tres factores: (1) estructuras experimentales sin la cadena especificada por SIFTS (etapa de limpieza), (2) falta de solapamiento significativo entre los rangos de residuos de la estructura experimental y la predicci\'on (etapa de estandarizaci\'on), y (3) pares que no cumpl\'ian los criterios m\'inimos de calidad (etapa de validaci\'on final).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{procesamiento_stats.png}
+    \caption{Estad\'isticas del pipeline de procesamiento para los 10.432 pares certificados. (Izquierda) Distribuci\'on de RMSD con mediana indicada. (Centro) Distribuci\'on del n\'umero de residuos alineados por par. (Derecha) Relaci\'on entre tama\~no de la prote\'ina y RMSD, mostrando alta densidad en el rango de bajos valores de RMSD independientemente del tama\~no.}
+    \label{fig:procesamiento_stats}
+\end{figure}
+
+\subsection{M\'etodos estad\'isticos}
+\label{subsec:metodos_estadisticos}
+
+El an\'alisis estad\'istico de los resultados se realiz\'o utilizando m\'ultiples enfoques complementarios, implementados en Python mediante las bibliotecas NumPy, SciPy y Pandas.
+
+\subsubsection{Estad\'istica descriptiva}
+
+Se calcularon las siguientes medidas de tendencia central y dispersi\'on para la distribuci\'on de RMSD:
+
+\begin{itemize}
+    \item \textbf{Media aritm\'etica}: $\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i$
+    \item \textbf{Mediana}: Valor central de la distribuci\'on ordenada, robusto frente a valores at\'ipicos.
+    \item \textbf{Desviaci\'on est\'andar}: $s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2}$
+    \item \textbf{Rango intercuart\'ilico} (IQR): $Q_3 - Q_1$, medida robusta de dispersi\'on.
+    \item \textbf{Percentiles}: Se calcularon los percentiles 5, 25, 50, 75 y 95 para caracterizar la forma de la distribuci\'on.
+\end{itemize}
+
+\subsubsection{Pruebas de hip\'otesis}
+
+Para evaluar las diferencias entre subgrupos (por ejemplo, prote\'inas en el \textit{sweet spot} frente al resto), se emplearon dos pruebas complementarias:
+
+\begin{itemize}
+    \item \textbf{Prueba $t$ de Student para muestras independientes}: Evalua si las medias de dos grupos son significativamente diferentes, asumiendo distribuci\'on normal de las medias muestrales (justificado por el teorema central del l\'imite dado el gran tama\~no muestral):
+    \begin{equation}
+        t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}
+        \label{eq:t_test}
+    \end{equation}
+
+    \item \textbf{Prueba U de Mann-Whitney}: Prueba no param\'etrica que eval\'ua si las distribuciones de dos grupos difieren, sin asumir normalidad. Es particularmente apropiada para distribuciones asim\'etricas como la del RMSD.
+\end{itemize}
+
+\subsubsection{Tama\~no del efecto}
+
+La significancia estad\'istica por s\'i sola no informa sobre la magnitud pr\'actica de las diferencias observadas. Se calcularon dos medidas de tama\~no del efecto:
+
+\begin{itemize}
+    \item \textbf{$d$ de Cohen}: Cuantifica la diferencia entre medias en unidades de desviaci\'on est\'andar agrupada:
+    \begin{equation}
+        d = \frac{\bar{x}_1 - \bar{x}_2}{s_p}, \quad s_p = \sqrt{\frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2}{n_1 + n_2 - 2}}
+        \label{eq:cohen_d}
+    \end{equation}
+
+    Se interpretan seg\'un las convenciones de Cohen: $|d| < 0,2$ efecto peque\~no, $0,2 \leq |d| < 0,5$ efecto pequeno-mediano, $0,5 \leq |d| < 0,8$ efecto mediano, $|d| \geq 0,8$ efecto grande.
+
+    \item \textbf{Raz\'on de momios} (\textit{Odds Ratio}, OR): Compara la probabilidad de obtener una predicci\'on excelente (RMSD $< \SI{1}{\angstrom}$) entre el grupo del \textit{sweet spot} y el resto:
+    \begin{equation}
+        \text{OR} = \frac{p_{\text{sweet}} / (1 - p_{\text{sweet}})}{p_{\text{rest}} / (1 - p_{\text{rest}})}
+        \label{eq:odds_ratio}
+    \end{equation}
+
+    donde $p_{\text{sweet}}$ y $p_{\text{rest}}$ son las proporciones de predicciones excelentes en cada grupo.
+\end{itemize}
+
+\subsubsection{Correlaci\'on}
+
+Se calcul\'o el coeficiente de correlaci\'on de Pearson ($r$) para evaluar la relaci\'on lineal entre variables continuas, particularmente entre pLDDT y RMSD:
+
+\begin{equation}
+    r = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_{i=1}^{n}(x_i - \bar{x})^2 \sum_{i=1}^{n}(y_i - \bar{y})^2}}
+    \label{eq:pearson}
+\end{equation}
+
+Todos los an\'alisis se realizaron con un nivel de significancia $\alpha = 0,05$, con correcci\'on de Bonferroni para comparaciones m\'ultiples cuando fue aplicable.

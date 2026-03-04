@@ -1,0 +1,284 @@
+{
+  "C": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 15.759920067462023,
+        "std_rmsd": 10.68687632848185,
+        "accuracy_1A": 0.25131216626065644,
+        "accuracy_2A": 0.7095335133533491,
+        "chemical_environment": 50.237233784235265,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 4.655911299646225,
+        "std_rmsd": 4.0228365627914355,
+        "accuracy_1A": 10.736610318736728,
+        "accuracy_2A": 26.042099127579526,
+        "chemical_environment": 50.33700538008696,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 1.3397856293111199,
+        "std_rmsd": 1.4202002438072194,
+        "accuracy_1A": 48.02109002807355,
+        "accuracy_2A": 72.17237024084461,
+        "chemical_environment": 81.49902877416696,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 5.9140267947940774,
+        "std_rmsd": 4.392284093790664,
+        "accuracy_1A": 4.4675925818684785,
+        "accuracy_2A": 12.909481792254187,
+        "chemical_environment": 50.222962744003375,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 13.875202582635248,
+        "std_rmsd": 6.278112832402623,
+        "accuracy_1A": 0.0106387504852766,
+        "accuracy_2A": 0.07177426559486207,
+        "chemical_environment": 49.559767617705326,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Carbon",
+    "description": "Backbone and side-chain carbon atoms"
+  },
+  "N": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 12.583819917009588,
+        "std_rmsd": 8.493785585489059,
+        "accuracy_1A": 0.42043528255732776,
+        "accuracy_2A": 1.306953025980273,
+        "chemical_environment": 49.88305716193862,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 3.6794102943641698,
+        "std_rmsd": 3.19389883554588,
+        "accuracy_1A": 15.551799021606108,
+        "accuracy_2A": 34.71471918390006,
+        "chemical_environment": 49.880308074785674,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 1.0426711227355734,
+        "std_rmsd": 1.1091423100157645,
+        "accuracy_1A": 54.5656998047312,
+        "accuracy_2A": 79.0201564562403,
+        "chemical_environment": 82.11176199704191,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 4.653818115911901,
+        "std_rmsd": 3.419911054204147,
+        "accuracy_1A": 7.702914107730405,
+        "accuracy_2A": 20.433718086946495,
+        "chemical_environment": 50.17847106542549,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 11.066465139686715,
+        "std_rmsd": 5.115787115387401,
+        "accuracy_1A": 0.15314918075484812,
+        "accuracy_2A": 0.3432460868085215,
+        "chemical_environment": 48.94660010179973,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Nitrogen",
+    "description": "Backbone amide and side-chain amino groups"
+  },
+  "O": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 15.552951689010666,
+        "std_rmsd": 10.93119044006721,
+        "accuracy_1A": 0.2690122809688865,
+        "accuracy_2A": 0.7553528286135162,
+        "chemical_environment": 50.297191524695975,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 4.516269546651964,
+        "std_rmsd": 3.8899759808239116,
+        "accuracy_1A": 11.34378449903047,
+        "accuracy_2A": 27.05174520946993,
+        "chemical_environment": 50.09348106472386,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 1.3056967725441266,
+        "std_rmsd": 1.386795701674285,
+        "accuracy_1A": 48.623299098286545,
+        "accuracy_2A": 72.89150355079558,
+        "chemical_environment": 81.95730064609904,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 5.738756118111369,
+        "std_rmsd": 4.216148678801362,
+        "accuracy_1A": 4.946711360557122,
+        "accuracy_2A": 13.893883236821646,
+        "chemical_environment": 49.68383087269347,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 13.195526981723111,
+        "std_rmsd": 5.844931064489541,
+        "accuracy_1A": 0.015604979416843367,
+        "accuracy_2A": 0.09980789472593508,
+        "chemical_environment": 51.1946159605973,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Oxygen",
+    "description": "Backbone carbonyl and side-chain hydroxyl/carboxyl"
+  },
+  "S": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 21.643373131028294,
+        "std_rmsd": 14.739808070421038,
+        "accuracy_1A": 0.1613273714467361,
+        "accuracy_2A": 0.32415045382998386,
+        "chemical_environment": 50.01331612851397,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 6.3945511964381865,
+        "std_rmsd": 5.418111928727289,
+        "accuracy_1A": 5.737458302841061,
+        "accuracy_2A": 15.607874817298088,
+        "chemical_environment": 49.98508800840775,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 1.8813147726506743,
+        "std_rmsd": 1.9714316933661526,
+        "accuracy_1A": 39.345246000929166,
+        "accuracy_2A": 61.74090282862925,
+        "chemical_environment": 81.6788491277579,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 8.101618425204757,
+        "std_rmsd": 5.853585360902639,
+        "accuracy_1A": 2.3043235296507207,
+        "accuracy_2A": 6.844869161378588,
+        "chemical_environment": 49.85621546117438,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 19.321420789299278,
+        "std_rmsd": 8.546373055945548,
+        "accuracy_1A": 0.002190944500807836,
+        "accuracy_2A": 0.01564539253687957,
+        "chemical_environment": 49.04949146582386,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Sulfur",
+    "description": "Disulfide bonds and methionine side-chains"
+  },
+  "H": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 34.45437147548425,
+        "std_rmsd": 23.382226239666537,
+        "accuracy_1A": 0.09583941922423259,
+        "accuracy_2A": 0.16404622523129753,
+        "chemical_environment": 50.17101159463129,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 10.117496586915742,
+        "std_rmsd": 8.592868623988025,
+        "accuracy_1A": 2.142802021692415,
+        "accuracy_2A": 6.263401698879063,
+        "chemical_environment": 50.14669230264494,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 3.0030162299834107,
+        "std_rmsd": 3.0705466090457976,
+        "accuracy_1A": 28.473894814404613,
+        "accuracy_2A": 46.615735262107755,
+        "chemical_environment": 81.70995735687183,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 12.812366593952795,
+        "std_rmsd": 9.301610311031888,
+        "accuracy_1A": 0.8421849385953463,
+        "accuracy_2A": 2.4788668469561963,
+        "chemical_environment": 49.80724187732896,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 29.7372465310041,
+        "std_rmsd": 13.017779498042023,
+        "accuracy_1A": 8.502820927135505e-06,
+        "accuracy_2A": 6.281818307959114e-05,
+        "chemical_environment": 49.942207261137206,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Hydrogen",
+    "description": "Polar hydrogens in H-bonds"
+  },
+  "P": {
+    "stats_by_size": {
+      "Peque\u00f1a": {
+        "mean_rmsd": 8.841337210347378,
+        "std_rmsd": 6.034257426985651,
+        "accuracy_1A": 1.0327300835034172,
+        "accuracy_2A": 3.6557167486720856,
+        "chemical_environment": 49.67996531923523,
+        "count": 4296
+      },
+      "Pre-Sweet": {
+        "mean_rmsd": 2.551477770322367,
+        "std_rmsd": 2.226436321323229,
+        "accuracy_1A": 25.038467192172256,
+        "accuracy_2A": 49.36599903714348,
+        "chemical_environment": 49.84528054180468,
+        "count": 3577
+      },
+      "Sweet Spot": {
+        "mean_rmsd": 0.7137616757796038,
+        "std_rmsd": 0.7845541317868446,
+        "accuracy_1A": 63.871607434712935,
+        "accuracy_2A": 87.19155046576941,
+        "chemical_environment": 81.94624801833533,
+        "count": 2146
+      },
+      "Post-Sweet": {
+        "mean_rmsd": 3.246687985205349,
+        "std_rmsd": 2.367758553176506,
+        "accuracy_1A": 14.543605513839237,
+        "accuracy_2A": 34.948907838258876,
+        "chemical_environment": 49.6393555943566,
+        "count": 3577
+      },
+      "Grande": {
+        "mean_rmsd": 7.628222269094392,
+        "std_rmsd": 3.5113621617087487,
+        "accuracy_1A": 0.2518183250548055,
+        "accuracy_2A": 1.262192648107367,
+        "chemical_environment": 50.037175447951924,
+        "count": 715
+      }
+    },
+    "total_count": 14311,
+    "atom_name": "Phosphorus",
+    "description": "Phosphorylation sites and nucleotide binding"
+  }
+}

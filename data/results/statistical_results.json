@@ -1,0 +1,24 @@
+{
+  "sample_sizes": {
+    "sweet_spot": 1988,
+    "other_sizes": 12323,
+    "total": 14311
+  },
+  "descriptive_statistics": {
+    "sweet_spot_rmsd_mean": 16.565358613258443,
+    "sweet_spot_rmsd_std": 30.101242535868835,
+    "other_sizes_rmsd_mean": 30.300879800947317,
+    "other_sizes_rmsd_std": 28.482641947615296
+  },
+  "significance_tests": {
+    "t_test_statistic": -19.018319284058872,
+    "t_test_p_value": 1.3292130003009587e-75,
+    "mannwhitney_u_statistic": 6897365.0,
+    "mannwhitney_p_value": 3.548913315401945e-215
+  },
+  "effect_sizes": {
+    "cohens_d": -0.4783751906508349,
+    "cohens_d_interpretation": "peque\u00f1o-mediano",
+    "odds_ratio": 4.5973105606540665
+  }
+}

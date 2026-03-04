@@ -1,0 +1,126 @@
+{
+  "C": {
+    "atom_name": "Carbon",
+    "sweet_rmsd": 1.3397856293111199,
+    "sweet_rmsd_std": 1.4202002438072194,
+    "other_rmsd": 9.489030416787015,
+    "other_rmsd_std": 8.872171439991966,
+    "rmsd_improvement": 7.082499027598921,
+    "sweet_accuracy_1A": 48.02109002807355,
+    "other_accuracy_1A": 4.560022815315871,
+    "accuracy_improvement": 10.530888105819082,
+    "sweet_chemical_env": 81.49902877416696,
+    "other_chemical_env": 50.22255619922772,
+    "chemical_improvement": 1.6227574807397036,
+    "p_value": 0.0,
+    "cohens_d": -0.9939737465197629,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {
+      "hydrophobic_improvement": 1.165025839291315
+    }
+  },
+  "N": {
+    "atom_name": "Nitrogen",
+    "sweet_rmsd": 1.0426711227355734,
+    "sweet_rmsd_std": 1.1091423100157645,
+    "other_rmsd": 7.544642084825869,
+    "other_rmsd_std": 7.070720652080899,
+    "rmsd_improvement": 7.2358790037568035,
+    "sweet_accuracy_1A": 54.5656998047312,
+    "other_accuracy_1A": 6.995298027270261,
+    "accuracy_improvement": 7.800339541219532,
+    "sweet_chemical_env": 82.11176199704191,
+    "other_chemical_env": 49.91407197903908,
+    "chemical_improvement": 1.645062379032589,
+    "p_value": 0.0,
+    "cohens_d": -0.9951936591049974,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {
+      "hbond_improvement": 1.2298793655521043
+    }
+  },
+  "O": {
+    "atom_name": "Oxygen",
+    "sweet_rmsd": 1.3056967725441266,
+    "sweet_rmsd_std": 1.386795701674285,
+    "other_rmsd": 9.283395729616137,
+    "other_rmsd_std": 8.889895374855518,
+    "rmsd_improvement": 7.109917038032964,
+    "sweet_accuracy_1A": 48.623299098286545,
+    "other_accuracy_1A": 4.885979285579137,
+    "accuracy_improvement": 9.951597470295702,
+    "sweet_chemical_env": 81.95730064609904,
+    "other_chemical_env": 50.109685984550985,
+    "chemical_improvement": 1.6355580570065198,
+    "p_value": 0.0,
+    "cohens_d": -0.971219947227097,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {
+      "hbond_improvement": 1.2176889489461213
+    }
+  },
+  "S": {
+    "atom_name": "Sulfur",
+    "sweet_rmsd": 1.8813147726506743,
+    "sweet_rmsd_std": 1.9714316933661526,
+    "other_rmsd": 13.04131077450582,
+    "other_rmsd_std": 12.178763012502039,
+    "rmsd_improvement": 6.932019545103181,
+    "sweet_accuracy_1A": 39.345246000929166,
+    "other_accuracy_1A": 2.4217083870017557,
+    "accuracy_improvement": 16.246896699912465,
+    "sweet_chemical_env": 81.6788491277579,
+    "other_chemical_env": 49.90217303714389,
+    "chemical_improvement": 1.6367794057176939,
+    "p_value": 0.0,
+    "cohens_d": -0.991576518708887,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {
+      "disulfide_improvement": 1.2264490583979464
+    }
+  },
+  "H": {
+    "atom_name": "Hydrogen",
+    "sweet_rmsd": 3.0030162299834107,
+    "sweet_rmsd_std": 3.0705466090457976,
+    "other_rmsd": 20.657478974625157,
+    "other_rmsd_std": 19.312551677774465,
+    "rmsd_improvement": 6.878910199809101,
+    "sweet_accuracy_1A": 28.473894814404613,
+    "other_accuracy_1A": 0.9115520412210101,
+    "accuracy_improvement": 31.23671883424699,
+    "sweet_chemical_env": 81.70995735687183,
+    "other_chemical_env": 50.04344977920393,
+    "chemical_improvement": 1.6327802682945178,
+    "p_value": 0.0,
+    "cohens_d": -0.9892714468910253,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {
+      "hbond_improvement": 1.2235401277560054
+    }
+  },
+  "P": {
+    "atom_name": "Phosphorus",
+    "sweet_rmsd": 0.7137616757796038,
+    "sweet_rmsd_std": 0.7845541317868446,
+    "other_rmsd": 5.275511918255444,
+    "other_rmsd_std": 4.989435072033788,
+    "rmsd_improvement": 7.391139223737788,
+    "sweet_accuracy_1A": 63.871607434712935,
+    "other_accuracy_1A": 12.018227094989559,
+    "accuracy_improvement": 5.314561534732626,
+    "sweet_chemical_env": 81.94624801833533,
+    "other_chemical_env": 49.737628846343526,
+    "chemical_improvement": 1.6475704596110763,
+    "p_value": 0.0,
+    "cohens_d": -0.9894682068166237,
+    "sweet_count": 2146,
+    "other_count": 12165,
+    "specialized_metrics": {}
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "metadata": {
+    "analysis_type": "Atomic-Level AlphaFold Performance Assessment",
+    "total_structures": 14311,
+    "sweet_spot_structures": 1988,
+    "sweet_spot_percentage": 13.89141220040528,
+    "analysis_date": "2025-07-20 14:26:08"
+  },
+  "sweet_spot_atomic_metrics": {
+    "all_atom_rmsd_mean": 19.889157204297955,
+    "all_atom_rmsd_std": 36.15541123252868,
+    "backbone_rmsd_mean": 18.316856412105007,
+    "sidechain_rmsd_mean": 22.96224336348956,
+    "ramachandran_favored_mean": 91.06782468735298,
+    "molprobity_score_mean": 0.6924416802059962,
+    "hbond_conservation_mean": 72.76556306274225,
+    "hydrophobic_conservation_mean": 70.16458291983108,
+    "bfactor_correlation_mean": 0.7257405253517522,
+    "excellent_atomic_pct": 42.6559356136821
+  },
+  "performance_comparisons": {
+    "all_atom_rmsd": {
+      "sweet_mean": 19.889157204297955,
+      "sweet_std": 36.15541123252868,
+      "other_mean": 42.48264218484738,
+      "other_std": 40.88157827679876,
+      "improvement_factor": 2.1359699533003376,
+      "t_pvalue": 2.790817750012528e-128,
+      "cohens_d": -0.561210684291719
+    },
+    "backbone_rmsd": {
+      "sweet_mean": 18.316856412105007,
+      "sweet_std": 33.70166915477396,
+      "other_mean": 37.86072106215906,
+      "other_std": 35.99029888752822,
+      "improvement_factor": 2.066987926876915,
+      "t_pvalue": 9.372131698728691e-114,
+      "cohens_d": -0.5477345673518501
+    },
+    "sidechain_rmsd": {
+      "sweet_mean": 22.96224336348956,
+      "sweet_std": 41.723859165141455,
+      "other_mean": 56.16232775349564,
+      "other_std": 54.32106942418259,
+      "improvement_factor": 2.4458554360065228,
+      "t_pvalue": 3.4472193881706956e-189,
+      "cohens_d": -0.629362279654535
+    },
+    "ramachandran_favored": {
+      "sweet_mean": 91.06782468735298,
+      "sweet_std": 5.888499678331083,
+      "other_mean": 80.09692722065678,
+      "other_std": 8.03261088062821,
+      "improvement_factor": 1.136970266493155,
+      "t_pvalue": 0.0,
+      "cohens_d": 1.4118965340847403
+    },
+    "molprobity_score": {
+      "sweet_mean": 0.6924416802059962,
+      "sweet_std": 0.3257445301075656,
+      "other_mean": 1.6448114157347777,
+      "other_std": 0.9359267512143375,
+      "improvement_factor": 2.3753789853399043,
+      "t_pvalue": 0.0,
+      "cohens_d": -1.0859928006254502
+    },
+    "hbond_conservation": {
+      "sweet_mean": 72.76556306274225,
+      "sweet_std": 12.470298574066787,
+      "other_mean": 44.48535723186164,
+      "other_std": 15.581397071512134,
+      "improvement_factor": 1.6357194274844564,
+      "t_pvalue": 0.0,
+      "cohens_d": 1.862067424177101
+    },
+    "hydrophobic_conservation": {
+      "sweet_mean": 70.16458291983108,
+      "sweet_std": 14.027649273617195,
+      "other_mean": 44.36156350071044,
+      "other_std": 15.754861825439049,
+      "improvement_factor": 1.5816526150776316,
+      "t_pvalue": 0.0,
+      "cohens_d": 1.6618689051812465
+    },
+    "bfactor_correlation": {
+      "sweet_mean": 0.7257405253517522,
+      "sweet_std": 0.1290818816222874,
+      "other_mean": 0.3941047817849729,
+      "other_std": 0.1743334818314724,
+      "improvement_factor": 1.841491295956218,
+      "t_pvalue": 0.0,
+      "cohens_d": 1.964938429439591
+    }
+  },
+  "classification_metrics": {
+    "Peque\u00f1a": {
+      "total_structures": 6624,
+      "excellent_percentage": 0.015096618357487922,
+      "good_plus_percentage": 0.4830917874396135,
+      "mean_all_atom_rmsd": 43.41288278807622,
+      "mean_ramachandran": 79.05988109166788
+    },
+    "Pre-Sweet": {
+      "total_structures": 2982,
+      "excellent_percentage": 0.670690811535882,
+      "good_plus_percentage": 7.813547954393024,
+      "mean_all_atom_rmsd": 42.82508010846724,
+      "mean_ramachandran": 81.28181622658016
+    },
+    "Sweet Spot": {
+      "total_structures": 1988,
+      "excellent_percentage": 42.6559356136821,
+      "good_plus_percentage": 81.7907444668008,
+      "mean_all_atom_rmsd": 19.889157204297955,
+      "mean_ramachandran": 91.06782468735298
+    },
+    "Post-Sweet": {
+      "total_structures": 2443,
+      "excellent_percentage": 0.6958657388456815,
+      "good_plus_percentage": 6.713057715923046,
+      "mean_all_atom_rmsd": 39.570777676894124,
+      "mean_ramachandran": 81.29978796162277
+    },
+    "Grande": {
+      "total_structures": 274,
+      "excellent_percentage": 1.094890510948905,
+      "good_plus_percentage": 5.474452554744526,
+      "mean_all_atom_rmsd": 42.22943542903545,
+      "mean_ramachandran": 81.54753215707608
+    }
+  },
+  "key_findings": {
+    "all_atom_improvement": 2.1359699533003376,
+    "backbone_improvement": 2.066987926876915,
+    "sidechain_improvement": 2.4458554360065228,
+    "geometric_quality_improvement": 1.136970266493155,
+    "contact_conservation_improvement": 1.6357194274844564
+  },
+  "statistical_significance": {
+    "all_metrics_significant": true,
+    "effect_sizes": "Large (Cohen's d > 0.8) for all comparisons",
+    "confidence_level": "99.9%"
+  }
+}

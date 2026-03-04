@@ -1,0 +1,117 @@
+% ============================================================================
+% Evaluacion Sistematica de la Precision Estructural de AlphaFold2
+% Autor: Antonio Tapia
+% ============================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% --- Paquetes ---
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage[round,sort&compress]{natbib}
+\usepackage{longtable}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{siunitx}
+\usepackage{caption}
+\usepackage{listings}
+
+% --- Ruta de figuras ---
+\graphicspath{{figures/}}
+
+% --- Configuracion de hyperref ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=NavyBlue,
+    citecolor=ForestGreen,
+    urlcolor=BrickRed,
+    pdfauthor={Antonio Tapia},
+    pdftitle={Evaluacion Sistematica de la Precision Estructural de AlphaFold2},
+    pdfsubject={Biologia Estructural Computacional},
+    pdfkeywords={AlphaFold2, RMSD, estructura proteica, validacion}
+}
+
+% --- Configuracion de listings ---
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{ForestGreen},
+    stringstyle=\color{BrickRed}
+}
+
+% --- Configuracion de caption ---
+\captionsetup{
+    font=small,
+    labelfont=bf,
+    textfont=it,
+    margin=1cm
+}
+
+% --- Configuracion de siunitx ---
+\sisetup{
+    output-decimal-marker={,},
+    group-separator={.},
+    group-minimum-digits=4
+}
+
+% ============================================================================
+% DOCUMENTO
+% ============================================================================
+
+\begin{document}
+
+% --- Portada ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\Huge\bfseries Evaluaci\'on Sistem\'atica de la Precisi\'on Estructural de AlphaFold2\par}
+    \vspace{1cm}
+    {\LARGE An\'alisis Comparativo con Mapeo SIFTS de 10.432 Prote\'inas Diversas\par}
+    \vspace{2cm}
+    {\Large\itshape Antonio Tapia\par}
+    \vspace{1cm}
+    {\large \today\par}
+    \vfill
+    {\large Biolog\'ia Estructural Computacional\par}
+\end{titlepage}
+
+% --- Indices ---
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+\newpage
+
+% --- Secciones ---
+\input{sections/01_introduccion}
+\newpage
+\input{sections/02_materiales_metodos}
+\newpage
+\input{sections/03_resultados}
+\newpage
+\input{sections/04_discusion}
+\newpage
+\input{sections/05_conclusiones}
+\newpage
+\input{sections/apendices}
+
+% --- Bibliografia ---
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

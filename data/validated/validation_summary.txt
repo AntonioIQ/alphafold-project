@@ -1,0 +1,10 @@
+VALIDATION SUMMARY
+============================================================
+
+Total pairs: 100
+
+  SUSPICIOUS: 96 (96.0%)
+  FAILED: 3 (3.0%)
+  REJECTED: 1 (1.0%)
+
+Validated pairs: 0

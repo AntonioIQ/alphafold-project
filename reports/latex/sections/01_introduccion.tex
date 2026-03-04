@@ -1,0 +1,120 @@
+% ============================================================================
+% SECCION 1: INTRODUCCION
+% ============================================================================
+
+\section{Introducci\'on}
+\label{sec:introduccion}
+
+\subsection{La revoluci\'on de AlphaFold2 en la biolog\'ia estructural}
+\label{subsec:revolucion_alphafold}
+
+La predicci\'on de la estructura tridimensional de las prote\'inas a partir de su secuencia de amino\'acidos constituye uno de los desaf\'ios fundamentales de la biolog\'ia molecular contempor\'anea. Durante m\'as de cinco d\'ecadas, la comunidad cient\'ifica ha invertido recursos considerables en el desarrollo de m\'etodos computacionales capaces de resolver este problema, conocido coloquialmente como el \textit{protein folding problem}. En noviembre de 2020, DeepMind present\'o AlphaFold2 en la competici\'on CASP14 (\textit{Critical Assessment of protein Structure Prediction}), logrando resultados sin precedentes que transformaron radicalmente el panorama de la biolog\'ia estructural \citep{Jumper2021}.
+
+AlphaFold2 alcanz\'o una puntuaci\'on media GDT (\textit{Global Distance Test}) de 92,4 sobre 100 en el conjunto de evaluaci\'on de CASP14, superando ampliamente a todos los m\'etodos competidores y, en muchos casos, aproxim\'andose a la precisi\'on experimental. Este logro fue publicado en \textit{Nature} por \citet{Jumper2021}, donde los autores describieron la arquitectura basada en redes neuronales de atenci\'on (\textit{attention-based neural networks}) denominada Evoformer, que integra informaci\'on evolutiva proveniente de alineamientos m\'ultiples de secuencias (MSA, \textit{Multiple Sequence Alignments}) con representaciones geom\'etricas tridimensionales.
+
+El impacto de AlphaFold2 trasciende el \'ambito acad\'emico. La base de datos p\'ublica AlphaFold Protein Structure Database, mantenida por el Instituto Europeo de Bioinform\'atica (EBI) en colaboraci\'on con DeepMind, contiene actualmente predicciones estructurales para m\'as de 200 millones de prote\'inas, cubriendo pr\'acticamente la totalidad de las secuencias conocidas en la base de datos UniProt. Esta disponibilidad masiva de modelos estructurales ha acelerado la investigaci\'on en \'areas tan diversas como el dise\~no de f\'armacos, la ingenier\'ia de prote\'inas, la biolog\'ia evolutiva y la comprensi\'on de mecanismos patol\'ogicos.
+
+\subsection{El problema del plegamiento de prote\'inas: perspectiva hist\'orica}
+\label{subsec:problema_plegamiento}
+
+El problema del plegamiento de prote\'inas tiene sus ra\'ices en el trabajo seminal de Christian Anfinsen, quien en 1961 demostr\'o que la secuencia de amino\'acidos de una prote\'ina contiene toda la informaci\'on necesaria para determinar su estructura tridimensional nativa. Este principio, conocido como el \textit{dogma de Anfinsen} o hip\'otesis termodin\'amica, establece que la conformaci\'on nativa de una prote\'ina corresponde al m\'inimo global de energ\'ia libre de Gibbs del sistema:
+
+\begin{equation}
+    \Delta G_{\text{plegamiento}} = G_{\text{plegada}} - G_{\text{desplegada}} < 0
+    \label{eq:energia_plegamiento}
+\end{equation}
+
+Sin embargo, la paradoja de Levinthal (1969) ilustra la complejidad computacional inherente al problema: una prote\'ina t\'ipica de 100 residuos, con tres posibles conformaciones por enlace rotable, tendr\'ia aproximadamente $3^{198} \approx 10^{94}$ conformaciones posibles. Explorar este espacio conformacional de manera exhaustiva requerir\'ia un tiempo superior a la edad del universo, mientras que las prote\'inas se pliegan \textit{in vivo} en escalas de microsegundos a segundos.
+
+Los primeros intentos computacionales de predicci\'on estructural se basaron en m\'etodos de mec\'anica molecular y din\'amica molecular, que simulan las fuerzas f\'isicas interat\'omicas. Aunque estos m\'etodos proporcionan informaci\'on valiosa sobre la termodin\'amica y la cin\'etica del plegamiento, su coste computacional los hace impracticables para la predicci\'on rutinaria de estructuras. Posteriormente, los m\'etodos basados en homolog\'ia (\textit{template-based modeling}) aprovechan la observaci\'on de que prote\'inas con secuencias similares tienden a adoptar estructuras similares, utilizando estructuras experimentales conocidas como plantillas. Estos m\'etodos, implementados en programas como MODELLER y SWISS-MODEL, han sido \'utiles cuando existe un hom\'ologo estructural disponible, pero fallan ante prote\'inas sin plantillas adecuadas.
+
+La aparici\'on de m\'etodos basados en coevoluci\'on, que explotan la informaci\'on contenida en los patrones de mutaciones correlacionadas en familias de prote\'inas, marc\'o un avance significativo. Estos patrones reflejan restricciones estructurales: residuos en contacto espacial tienden a coevolucionar para mantener interacciones favorables. AlphaFold1, el predecesor de AlphaFold2, ya incorporaba esta informaci\'on mediante redes neuronales profundas \citep{Senior2020}, pero fue AlphaFold2 el que logr\'o integrar de manera efectiva la informaci\'on evolutiva con la geometr\'ia tridimensional a trav\'es de su arquitectura Evoformer.
+
+\subsection{La necesidad de validaci\'on experimental}
+\label{subsec:necesidad_validacion}
+
+A pesar de los resultados extraordinarios de AlphaFold2, la comunidad cient\'ifica ha se\~nalado con raz\'on que las predicciones computacionales no sustituyen a la determinaci\'on experimental de estructuras. Existen m\'ultiples razones por las que la validaci\'on sistem\'atica de las predicciones de AlphaFold2 contra estructuras experimentales resulta imprescindible:
+
+\begin{enumerate}
+    \item \textbf{Limitaciones inherentes al modelo}: AlphaFold2 predice una \'unica conformaci\'on est\'atica, mientras que las prote\'inas son entidades din\'amicas que adoptan m\'ultiples conformaciones funcionales. Las regiones intr\'insecamente desordenadas (\textit{intrinsically disordered regions}, IDR) y los bucles flexibles son particularmente dif\'iciles de predecir.
+
+    \item \textbf{Ausencia de contexto biol\'ogico}: el modelo predice la estructura de la prote\'ina aislada (forma \textit{apo}), sin considerar la presencia de ligandos, cofactores, iones met\'alicos o prote\'inas interactuantes que pueden modificar significativamente la conformaci\'on (forma \textit{holo}).
+
+    \item \textbf{Variabilidad en la confianza}: el propio AlphaFold2 proporciona una m\'etrica de confianza por residuo denominada pLDDT (\textit{predicted Local Distance Difference Test}), que oscila entre 0 y 100. Valores superiores a 90 indican predicciones de alta confianza, valores entre 70 y 90 corresponden a predicciones razonables, y valores inferiores a 50 sugieren regiones donde la predicci\'on es poco fiable. Sin embargo, la relaci\'on entre pLDDT y el error real de la predicci\'on no es perfectamente lineal.
+
+    \item \textbf{Dependencia del tama\~no y tipo de prote\'ina}: diversos estudios han sugerido que la precisi\'on de AlphaFold2 puede variar en funci\'on del tama\~no de la prote\'ina, su familia estructural, su contenido de estructura secundaria y otros factores. Una evaluaci\'on sistem\'atica a gran escala es necesaria para cuantificar estas dependencias.
+
+    \item \textbf{Aplicaciones cr\'iticas}: en contextos como el dise\~no de f\'armacos basado en estructura (\textit{structure-based drug design}, SBDD), errores peque\~nos en la geometr\'ia del sitio activo pueden tener consecuencias significativas en la predicci\'on de afinidades de uni\'on. Es fundamental conocer los l\'imites de precisi\'on de AlphaFold2 para estas aplicaciones.
+\end{enumerate}
+
+Estudios previos han abordado parcialmente esta cuesti\'on. \citet{Akdel2022} realizaron una evaluaci\'on comprehensiva de las predicciones de AlphaFold2, encontrando que, si bien la precisi\'on global es notable, existen variaciones significativas dependiendo de la regi\'on de la prote\'ina y las condiciones experimentales. \citet{Bryant2022} evaluaron el rendimiento de AlphaFold2 en la predicci\'on de complejos proteicos, mientras que \citet{Mariani2023} examinaron la relaci\'on entre las m\'etricas de confianza y la calidad real de las predicciones.
+
+\subsection{RMSD: el est\'andar de oro para la comparaci\'on estructural}
+\label{subsec:rmsd}
+
+La m\'etrica fundamental empleada en este estudio para cuantificar la similitud entre estructuras predichas y experimentales es la ra\'iz cuadrada de la desviaci\'on cuadr\'atica media (\textit{Root Mean Square Deviation}, RMSD). Dados dos conjuntos de $n$ \'atomos correspondientes, con coordenadas $\mathbf{r}_i^{\text{exp}}$ (estructura experimental) y $\mathbf{r}_i^{\text{pred}}$ (estructura predicha), tras la superposici\'on \'optima, el RMSD se define como:
+
+\begin{equation}
+    \text{RMSD} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \left\| \mathbf{r}_i^{\text{exp}} - \mathbf{r}_i^{\text{pred}} \right\|^2}
+    \label{eq:rmsd}
+\end{equation}
+
+donde $\left\| \cdot \right\|$ denota la norma eucl\'idea tridimensional. Expandiendo esta expresi\'on en coordenadas cartesianas:
+
+\begin{equation}
+    \text{RMSD} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \left[ (x_i^{\text{exp}} - x_i^{\text{pred}})^2 + (y_i^{\text{exp}} - y_i^{\text{pred}})^2 + (z_i^{\text{exp}} - z_i^{\text{pred}})^2 \right]}
+    \label{eq:rmsd_cartesiano}
+\end{equation}
+
+La superposici\'on \'optima se obtiene mediante el algoritmo de Kabsch, que minimiza el RMSD mediante una rotaci\'on r\'igida del cuerpo. El algoritmo emplea la descomposici\'on en valores singulares (SVD) de la matriz de covarianza cruzada $\mathbf{H}$:
+
+\begin{equation}
+    \mathbf{H} = \sum_{i=1}^{n} (\mathbf{r}_i^{\text{pred}} - \bar{\mathbf{r}}^{\text{pred}})(\mathbf{r}_i^{\text{exp}} - \bar{\mathbf{r}}^{\text{exp}})^T
+    \label{eq:covarianza_cruzada}
+\end{equation}
+
+donde $\bar{\mathbf{r}}^{\text{pred}}$ y $\bar{\mathbf{r}}^{\text{exp}}$ son los centroides de cada conjunto de coordenadas. La rotaci\'on \'optima $\mathbf{R}$ se obtiene a partir de la SVD de $\mathbf{H}$:
+
+\begin{equation}
+    \mathbf{H} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T, \quad \mathbf{R} = \mathbf{V} \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & d \end{pmatrix} \mathbf{U}^T
+    \label{eq:rotacion_optima}
+\end{equation}
+
+donde $d = \text{sign}(\det(\mathbf{V}\mathbf{U}^T))$ asegura una rotaci\'on propia (sin reflexi\'on).
+
+En el contexto de la comparaci\'on de estructuras prote\'icas, se consideran generalmente los siguientes umbrales interpretativos:
+
+\begin{itemize}
+    \item RMSD $< \SI{1}{\angstrom}$: Predicci\'on excelente, comparable a la precisi\'on experimental.
+    \item RMSD entre \SI{1}{\angstrom} y \SI{2}{\angstrom}: Predicci\'on buena, \'util para la mayor\'ia de aplicaciones.
+    \item RMSD entre \SI{2}{\angstrom} y \SI{4}{\angstrom}: Predicci\'on aceptable, plegamiento global correcto.
+    \item RMSD $> \SI{4}{\angstrom}$: Predicci\'on deficiente o posible error en el alineamiento/emparejamiento.
+\end{itemize}
+
+Es importante se\~nalar que el RMSD es sensible al tama\~no de la prote\'ina: a mayor n\'umero de residuos, mayor es el RMSD esperado incluso para predicciones precisas, debido a la acumulaci\'on de peque\~nas desviaciones a lo largo de la cadena. Esta dependencia del tama\~no es relevante para la interpretaci\'on de los resultados presentados en este estudio.
+
+\subsection{Objetivos del estudio}
+\label{subsec:objetivos}
+
+El presente estudio tiene como objetivo general realizar una evaluaci\'on sistem\'atica y a gran escala de la precisi\'on de las predicciones estructurales de AlphaFold2 mediante la comparaci\'on directa con estructuras experimentales depositadas en el Protein Data Bank (PDB). Los objetivos espec\'ificos son:
+
+\begin{enumerate}
+    \item \textbf{Cuantificar la precisi\'on global}: Calcular el RMSD entre las estructuras predichas por AlphaFold2 y sus correspondientes estructuras experimentales para un conjunto de 14.311 pares de estructuras, constituyendo uno de los an\'alisis comparativos m\'as extensos realizados hasta la fecha.
+
+    \item \textbf{Identificar dependencias del tama\~no}: Analizar c\'omo var\'ia la precisi\'on de AlphaFold2 en funci\'on del n\'umero de residuos de la prote\'ina, identificando rangos de tama\~no donde el modelo muestra un rendimiento superior (\textit{sweet spot}).
+
+    \item \textbf{Caracterizar la precisi\'on a nivel at\'omico}: Evaluar la precisi\'on diferencial entre \'atomos del esqueleto pept\'idico (\textit{backbone}: N, C$\alpha$, C, O) y \'atomos de las cadenas laterales (\textit{sidechain}), as\'i como el an\'alisis por tipo de elemento qu\'imico (C, H, O, N, S, P).
+
+    \item \textbf{Evaluar la utilidad predictiva del pLDDT}: Analizar la correlaci\'on entre la m\'etrica de confianza pLDDT de AlphaFold2 y el error real de predicci\'on medido por RMSD.
+
+    \item \textbf{Generar conjuntos de datos estrat\'egicos}: Definir y caracterizar subconjuntos de pares de estructuras clasificados seg\'un la calidad de la predicci\'on (Platinum, Gold, Extended Sweet Spot, Scientific), proporcionando recursos curados para la comunidad investigadora.
+
+    \item \textbf{Formular recomendaciones pr\'acticas}: Ofrecer directrices basadas en evidencia para investigadores que utilicen predicciones de AlphaFold2 en sus estudios.
+\end{enumerate}
+
+\subsection{Significancia del estudio}
+\label{subsec:significancia}
+
+La relevancia de este trabajo reside en varios aspectos. En primer lugar, el tama\~no del conjunto de datos analizado (14.311 pares) proporciona una potencia estad\'istica considerable para detectar diferencias sutiles en el rendimiento de AlphaFold2 bajo diferentes condiciones. En segundo lugar, el an\'alisis multinivel ---desde el nivel de estructura global hasta el nivel at\'omico individual y elemental--- ofrece una visi\'on comprehensiva de las fortalezas y debilidades del modelo. En tercer lugar, la identificaci\'on de un \textit{sweet spot} en el rango de 250--300 residuos, con una mejora de 2,05 veces en la proporci\'on de predicciones excelentes, tiene implicaciones directas para la priorizaci\'on de objetivos en proyectos de investigaci\'on estructural y dise\~no de f\'armacos.
+
+Adem\'as, la definici\'on de conjuntos de datos estrat\'egicos (Platinum, Gold, etc.) proporciona a la comunidad investigadora recursos curados que pueden servir como \textit{benchmarks} para futuras evaluaciones de m\'etodos de predicci\'on estructural, incluyendo versiones posteriores de AlphaFold y m\'etodos competidores como RoseTTAFold, ESMFold y OpenFold.

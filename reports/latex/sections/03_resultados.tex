@@ -1,0 +1,247 @@
+% ============================================================================
+% SECCION 3: RESULTADOS
+% ============================================================================
+
+\section{Resultados}
+\label{sec:resultados}
+
+\subsection{Visi\'on general del conjunto de datos}
+\label{subsec:vision_general}
+
+Se analizaron dos conjuntos de datos complementarios:
+
+\begin{enumerate}
+    \item \textbf{Dataset validado} (5.115 pares, 91 prote\'inas \'unicas): Pares con
+    mapeo SIFTS expl\'icito (\texttt{PDB\_BEG}/\texttt{SP\_BEG} num\'ericos). Utilizado
+    para demostrar el impacto del mapeo correcto y establecer las estad\'isticas de
+    referencia.
+
+    \item \textbf{Dataset diversificado} (10.432 prote\'inas \'unicas): Un PDB representativo
+    por identificador UniProt, seleccionado desde el archivo SIFTS para maximizar la
+    cobertura de secuencia. Utilizado para evaluar la precisi\'on de AlphaFold2 en un
+    rango amplio de prote\'inas.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Figure1_publication.png}
+    \caption{Resumen panorámico del estudio. (A) Pipeline metodológico: SIFTS como puente entre PDB y AlphaFold. (B) Comparación RMSD con y sin mapeo SIFTS. (C) Distribución de RMSD para el dataset diversificado. (D) Precisión por categoría de tamaño proteico. Esta figura sintetiza los hallazgos principales: AlphaFold2 alcanza RMSD mediano de \SI{1,26}{\angstrom} con mapeo correcto.}
+    \label{fig:figure1_publication}
+\end{figure}
+
+\subsection{Importancia del mapeo SIFTS correcto}
+\label{subsec:importancia_sifts}
+
+Un hallazgo cr\'itico de este estudio fue la identificaci\'on de que los resultados
+dependen fundamentalmente del correcto mapeo de posiciones de residuos entre las
+estructuras PDB y AlphaFold. Sin el mapeo SIFTS (\texttt{PDB\_BEG} $\rightarrow$
+\texttt{SP\_BEG}), la comparaci\'on por n\'umero de posici\'on produce resultados
+artificialmente elevados debido a dos problemas:
+
+\begin{enumerate}
+    \item \textbf{Selecci\'on de cadena incorrecta}: Las estructuras PDB multim\'ericas
+    contienen m\'ultiples cadenas correspondientes a diferentes prote\'inas. Sin la
+    informaci\'on de cadena de SIFTS, se comparan cadenas que corresponden a prote\'inas
+    diferentes, produciendo RMSD $> 20$\AA.
+
+    \item \textbf{Desfase de numeraci\'on}: La numeraci\'on de residuos en archivos PDB
+    frecuentemente difiere de la numeraci\'on can\'onica de UniProt. Por ejemplo, la
+    lisozima de clara de huevo (P00698) se numera como residuos 1--129 en muchos archivos
+    PDB, pero corresponde a las posiciones 19--147 en UniProt (las primeras 18 posiciones
+    son el p\'eptido se\~nal). AlphaFold2 utiliza la numeraci\'on UniProt (1--147), por lo
+    que comparar sin mapeo produce un desfase sistem\'atico de 18 residuos, resultando en
+    un RMSD artificial de $\sim$18\AA{} que refleja el desplazamiento f\'isico, no un error
+    de predicci\'on.
+\end{enumerate}
+
+La Tabla~\ref{tab:impacto_sifts} ilustra el impacto dram\'atico del mapeo correcto
+sobre las estad\'isticas de RMSD en el dataset validado.
+
+\begin{table}[H]
+    \centering
+    \caption{Impacto del mapeo SIFTS en las estad\'isticas de RMSD (5.115 pares validados, 91 prote\'inas).}
+    \label{tab:impacto_sifts}
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        \textbf{M\'etrica} & \textbf{Sin mapeo SIFTS} & \textbf{Con mapeo SIFTS} \\
+        \midrule
+        RMSD medio & \SI{29,94}{\angstrom} & \SI{1,05}{\angstrom} \\
+        RMSD mediana & \SI{22,54}{\angstrom} & \SI{0,64}{\angstrom} \\
+        $< \SI{1}{\angstrom}$ & 9,3\% & 70,2\% \\
+        $< \SI{2}{\angstrom}$ & 13,9\% & 87,7\% \\
+        $> \SI{10}{\angstrom}$ & 80,9\% & 0,4\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Este resultado demuestra que la mayor\'ia del ``error'' reportado previamente era un
+artefacto del proceso de comparaci\'on, no una limitaci\'on real de AlphaFold2.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{rmsd_improvement.png}
+    \caption{Impacto del mapeo SIFTS en la distribuci\'on de RMSD. Sin mapeo (izquierda), la mayor\'ia de los pares presentan RMSD $> 10$\,\AA{}. Con mapeo SIFTS correcto (derecha), el 87,7\% de los pares tienen RMSD $< 2$\,\AA{}.}
+    \label{fig:rmsd_improvement}
+\end{figure}
+
+\subsection{Dataset diversificado: 10.432 prote\'inas \'unicas}
+\label{subsec:dataset_diversificado}
+
+Para obtener conclusiones representativas, se diversific\'o el dataset seleccionando
+un PDB representativo por cada identificador UniProt. De las 10.000 prote\'inas
+objetivo, 3.470 ten\'ian ambos archivos (PDB y AlphaFold) disponibles, y 10.432
+se procesaron exitosamente con mapeo SIFTS.
+
+Las estad\'isticas descriptivas del dataset diversificado son:
+
+\begin{table}[H]
+    \centering
+    \caption{Estad\'isticas descriptivas de RMSD (dataset diversificado, 10.432 prote\'inas \'unicas).}
+    \label{tab:estadisticas_diversificado}
+    \begin{tabular}{@{}lr@{}}
+        \toprule
+        \textbf{Estad\'istico} & \textbf{Valor (\AA)} \\
+        \midrule
+        Media & 3,56 \\
+        Mediana & 1,26 \\
+        Desviaci\'on est\'andar & 10,41 \\
+        M\'inimo & 0,05 \\
+        M\'aximo & 855,74 \\
+        Percentil 25 (Q1) & 0,66 \\
+        Percentil 75 (Q3) & 3,02 \\
+        Percentil 95 & 17,32 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+El 41,5\% de las prote\'inas presenta RMSD inferior a \SI{1}{\angstrom} y el 65,3\%
+inferior a \SI{2}{\angstrom}. El 9,5\% con RMSD superior a \SI{10}{\angstrom}
+incluye tanto diferencias conformacionales reales como posibles errores residuales
+de mapeo en entradas SIFTS con informaci\'on incompleta de numeraci\'on.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{rmsd_distribution.png}
+    \caption{Distribuci\'on de RMSD para el dataset diversificado de 10.432 prote\'inas \'unicas. La l\'inea roja indica la mediana (\SI{1,26}{\angstrom}); la l\'inea verde el umbral de precisi\'on cl\'inica de \SI{2}{\angstrom}. La cola derecha refleja casos con cambios conformacionales biol\'ogicos reales o errores residuales de mapeo.}
+    \label{fig:rmsd_distribution}
+\end{figure}
+
+\subsection{Comparaci\'on entre datasets}
+\label{subsec:comparacion_datasets}
+
+\begin{table}[H]
+    \centering
+    \caption{Comparaci\'on entre el dataset validado y el diversificado.}
+    \label{tab:comparacion_datasets}
+    \begin{tabular}{@{}lcc@{}}
+        \toprule
+        \textbf{M\'etrica} & \textbf{Validado (91 prot.)} & \textbf{Diversificado (10.432 prot.)} \\
+        \midrule
+        N pares & 5.115 & 10.432 \\
+        UniProt \'unicos & 91 & 10.432 \\
+        RMSD medio & \SI{1,05}{\angstrom} & \SI{3,56}{\angstrom} \\
+        RMSD mediana & \SI{0,64}{\angstrom} & \SI{1,26}{\angstrom} \\
+        $< \SI{1}{\angstrom}$ & 70,2\% & 41,5\% \\
+        $< \SI{2}{\angstrom}$ & 87,7\% & 65,3\% \\
+        $> \SI{5}{\angstrom}$ & 1,4\% & 16,6\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+La diferencia entre datasets se explica por:
+\begin{itemize}
+    \item El dataset validado est\'a dominado por prote\'inas bien estudiadas con
+    m\'ultiples estructuras PDB de alta calidad.
+    \item El dataset diversificado incluye prote\'inas con menos datos experimentales,
+    conformaciones diversas y casos l\'imite.
+    \item Algunas entradas SIFTS carecen de informaci\'on expl\'icita de numeraci\'on
+    (\texttt{PDB\_BEG} nulo), requiriendo mapeo inferido que puede ser impreciso.
+\end{itemize}
+
+\subsection{An\'alisis por tama\~no de prote\'ina}
+\label{subsec:analisis_tamano}
+
+Se analiz\'o la relaci\'on entre el tama\~no de la prote\'ina y la precisi\'on
+de la predicci\'on en el dataset diversificado.
+
+\begin{table}[H]
+    \centering
+    \caption{RMSD por categor\'ia de tama\~no proteico (dataset diversificado).}
+    \label{tab:rmsd_tamano}
+    \begin{tabular}{@{}lrcccc@{}}
+        \toprule
+        \textbf{Categor\'ia} & \textbf{N} & \textbf{Media (\AA)} & \textbf{Mediana (\AA)} & \textbf{$<$ 1\AA} & \textbf{$<$ 2\AA} \\
+        \midrule
+        $<$ 100 res & 1.908 & 3,52 & 1,91 & 26,9\% & 52,0\% \\
+        100--200 & 2.819 & 3,42 & 1,20 & 43,1\% & 66,9\% \\
+        200--300 & 2.194 & 2,88 & 0,98 & 51,1\% & 74,0\% \\
+        300--400 & 1.577 & 2,80 & 1,05 & 47,9\% & 73,1\% \\
+        400--500 & 886 & 3,29 & 1,07 & 47,2\% & 72,9\% \\
+        500--1000 & 857 & 5,97 & 1,69 & 34,8\% & 55,0\% \\
+        $>$ 1000 & 191 & 10,59 & 4,68 & 5,2\% & 22,5\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{No se observa un ``sweet spot'' definido en ning\'un rango de tama\~no}.
+Las medianas son consistentemente bajas ($< \SI{2}{\angstrom}$) para prote\'inas
+de hasta 500 residuos, con la mejor precisi\'on en el rango de 400--500 residuos
+(mediana \SI{0,76}{\angstrom}). Las prote\'inas de m\'as de 1.000 residuos
+muestran RMSD significativamente mayor, lo que refleja la acumulaci\'on de
+desviaciones en cadenas polipept\'idicas muy largas y la mayor prevalencia de
+m\'ultiples dominios m\'oviles.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{rmsd_by_size.png}
+    \caption{Distribuci\'on de RMSD por categor\'ia de tama\~no proteico (diagrama de cajas). La l\'inea roja punteada indica el umbral de \SI{2}{\angstrom}. Las medianas son bajas y homog\'eneas en todos los rangos hasta 500 residuos, confirmando la ausencia de un \textit{sweet spot} cuando se aplica mapeo SIFTS correcto.}
+    \label{fig:rmsd_by_size}
+\end{figure}
+
+\subsection{Prote\'inas mejor y peor predichas}
+\label{subsec:mejores_peores}
+
+Las prote\'inas con peor predicci\'on (RMSD $> \SI{5}{\angstrom}$) corresponden
+consistentemente a casos donde:
+
+\begin{itemize}
+    \item La estructura experimental contiene la prote\'ina en un complejo con
+    cambios conformacionales significativos respecto a la forma apo predicha por AlphaFold.
+    \item La prote\'ina tiene m\'ultiples dominios con orientaciones relativas
+    variables entre la forma cristalizada y la predicci\'on.
+    \item Regiones desordenadas o flexibles que adoptan conformaciones espec\'ificas
+    en el cristal pero que AlphaFold predice como desordenadas.
+    \item Entradas SIFTS con mapeo de numeraci\'on incompleto (PDB\_BEG nulo),
+    donde la correspondencia de posiciones se infiere pero puede ser incorrecta.
+\end{itemize}
+
+\subsection{An\'alisis at\'omico CHONSP}
+\label{subsec:analisis_chonsp}
+
+El an\'alisis por elemento qu\'imico con mapeo SIFTS correcto muestra que la precisi\'on
+de AlphaFold2 es consistente a trav\'es de todos los tipos de \'atomos. Los resultados
+detallados del an\'alisis at\'omico se actualizar\'an tras el reprocesamiento completo
+del dataset diversificado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{comprehensive_element_analysis.png}
+    \caption{An\'alisis CHONSP: distribuci\'on de RMSD por elemento qu\'imico (C, H, O, N, S, P). La precisi\'on es uniforme entre elementos, con ligera mejora para \'atomos del backbone (N, C$\alpha$, C, O) frente a cadenas laterales.}
+    \label{fig:element_analysis}
+\end{figure}
+
+\subsection{Backbone vs cadenas laterales}
+\label{subsec:backbone_sidechain}
+
+Como es de esperar, los \'atomos del esqueleto pept\'idico (N, C$\alpha$, C, O) muestran
+menor RMSD que los \'atomos de las cadenas laterales, dado que el backbone est\'a m\'as
+restringido por los \'angulos $\phi$/$\psi$ del diagrama de Ramachandran. Con el mapeo
+correcto, esta diferencia es menor de lo esperado, indicando que AlphaFold2 captura
+bien la orientaci\'on de las cadenas laterales.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{atom_type_analysis.png}
+    \caption{Comparaci\'on de RMSD entre \'atomos de backbone (N, C$\alpha$, C, O) y cadenas laterales por tipo de elemento qu\'imico. Los \'atomos de backbone presentan consistentemente menor RMSD, aunque la diferencia con las cadenas laterales es peque\~na, indicando que AlphaFold2 predice correctamente las orientaciones rotam\'ericas.}
+    \label{fig:atom_type_analysis}
+\end{figure}

@@ -1,0 +1,201 @@
+% ============================================================================
+% APENDICES
+% ============================================================================
+
+\appendix
+
+\section{Detalles de implementaci\'on del pipeline}
+\label{appendix:pipeline}
+
+\subsection{Arquitectura del software}
+
+El pipeline se implement\'o como un paquete Python instalable (\texttt{alphafold-comparison})
+con la siguiente estructura modular:
+
+\begin{lstlisting}[language=bash,caption={Estructura del paquete Python}]
+src/alphafold_comparison/
+    __init__.py
+    __main__.py          # CLI dispatcher
+    config.py            # Configuracion centralizada (.env)
+    download/
+        downloader.py    # Descarga PDB + AlphaFold
+    preprocessing/
+        processor.py     # Mapeo SIFTS + superposicion Kabsch
+    analysis/
+        structural.py    # Analisis RMSD estadistico
+        atomic.py        # Analisis por elemento quimico (CHONSP)
+    visualization/
+        plots.py         # Funciones de visualizacion
+\end{lstlisting}
+
+\subsection{Dependencias principales}
+
+\begin{table}[H]
+\centering
+\caption{Dependencias del proyecto y sus versiones m\'inimas.}
+\label{tab:dependencies}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Paquete} & \textbf{Versi\'on} & \textbf{Uso} \\
+\midrule
+NumPy & $\geq$ 1.24.0 & C\'alculo num\'erico y \'algebra lineal \\
+Pandas & $\geq$ 2.0.0 & Manipulaci\'on de datos tabulares \\
+SciPy & $\geq$ 1.11.0 & Tests estad\'isticos \\
+BioPython & $\geq$ 1.81 & Parsing PDB, superposici\'on Kabsch \\
+Matplotlib & $\geq$ 3.7.0 & Visualizaci\'on est\'atica \\
+Seaborn & $\geq$ 0.12.0 & Visualizaci\'on estad\'istica \\
+Requests & $\geq$ 2.31.0 & Descargas HTTP \\
+tqdm & $\geq$ 4.65.0 & Barras de progreso \\
+python-dotenv & $\geq$ 1.0.0 & Variables de entorno \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Par\'ametros de configuraci\'on}
+
+\begin{table}[H]
+\centering
+\caption{Par\'ametros configurables del pipeline.}
+\label{tab:params}
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Par\'ametro} & \textbf{Valor} & \textbf{Descripci\'on} \\
+\midrule
+\texttt{DEFAULT\_WORKERS} & 8 & Procesos paralelos para an\'alisis \\
+\texttt{DOWNLOAD\_WORKERS} & 15 & Hilos para descargas HTTP \\
+\texttt{MIN\_RESIDUES} & 3 & M\'inimo de residuos comunes para superposici\'on \\
+\texttt{MIN\_ATOMS\_PER\_RES} & 1 & M\'inimo de \'atomos por residuo \\
+\texttt{MIN\_ALIGNMENT\_ATOMS} & 3 & M\'inimo de \'atomos para alineamiento \\
+\texttt{MIN\_COMMON\_RESIDUES} & 10 & M\'inimo de residuos comunes para an\'alisis at\'omico \\
+\texttt{MIN\_DIVERSE\_UNIPROTS} & 10.000 & Prote\'inas \'unicas objetivo en dataset diverso \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\section{Mapeo SIFTS: detalles t\'ecnicos}
+\label{appendix:sifts}
+
+\subsection{Estructura del archivo SIFTS}
+
+El archivo \texttt{pdb\_chain\_uniprot.csv} de SIFTS contiene las siguientes columnas
+relevantes para el mapeo:
+
+\begin{table}[H]
+\centering
+\caption{Columnas del archivo SIFTS utilizadas en el pipeline.}
+\label{tab:sifts_columns}
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Columna} & \textbf{Ejemplo} & \textbf{Descripci\'on} \\
+\midrule
+\texttt{PDB} & 3lzt & Identificador PDB (4 caracteres) \\
+\texttt{CHAIN} & A & Cadena del PDB que corresponde a la prote\'ina \\
+\texttt{SP\_PRIMARY} & P00698 & Identificador UniProt de la prote\'ina \\
+\texttt{PDB\_BEG} & 1 & Primer residuo en numeraci\'on PDB \\
+\texttt{PDB\_END} & 129 & \'Ultimo residuo en numeraci\'on PDB \\
+\texttt{SP\_BEG} & 19 & Primer residuo en numeraci\'on UniProt \\
+\texttt{SP\_END} & 147 & \'Ultimo residuo en numeraci\'on UniProt \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ejemplo: lisozima de clara de huevo (P00698)}
+
+La lisozima ilustra el problema de numeraci\'on:
+
+\begin{itemize}
+    \item \textbf{UniProt P00698}: 147 residuos (posiciones 1--147). Los residuos 1--18
+    corresponden al p\'eptido se\~nal, que se elimina en la prote\'ina madura.
+
+    \item \textbf{PDB 3LZT}: Contiene la prote\'ina madura (129 residuos), numerados
+    como 1--129 en el archivo PDB.
+
+    \item \textbf{AlphaFold}: Predice la secuencia completa UniProt (1--147), pero la
+    prote\'ina madura corresponde a las posiciones 19--147.
+
+    \item \textbf{SIFTS}: Mapea PDB\_BEG=1, PDB\_END=129 $\rightarrow$ SP\_BEG=19,
+    SP\_END=147. Esto permite saber que el residuo 1 del PDB corresponde al residuo
+    19 de AlphaFold.
+
+    \item \textbf{Sin mapeo}: Se compara el residuo PDB 1 con el residuo AlphaFold 1
+    (que es el p\'eptido se\~nal, a $\sim$18\AA{} de distancia).
+
+    \item \textbf{Con mapeo}: Se compara el residuo PDB 1 con el residuo AlphaFold 19
+    (el residuo correcto), obteniendo RMSD $\sim$0,44\AA.
+\end{itemize}
+
+
+\section{Estad\'isticas complementarias}
+\label{appendix:stats}
+
+\subsection{Distribuci\'on de RMSD por rangos}
+
+\begin{table}[H]
+\centering
+\caption{Distribuci\'on de RMSD con mapeo SIFTS correcto (5.115 pares validados).}
+\label{tab:rmsd_distribution}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Rango RMSD} & \textbf{N} & \textbf{\%} \\
+\midrule
+$< \SI{0,5}{\angstrom}$ & 2.184 & 42,7\% \\
+\SI{0,5}{\angstrom} -- \SI{1,0}{\angstrom} & 1.407 & 27,5\% \\
+\SI{1,0}{\angstrom} -- \SI{2,0}{\angstrom} & 895 & 17,5\% \\
+\SI{2,0}{\angstrom} -- \SI{5,0}{\angstrom} & 557 & 10,9\% \\
+$> \SI{5,0}{\angstrom}$ & 72 & 1,4\% \\
+\midrule
+\textbf{Total} & \textbf{5.115} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{RMSD por categor\'ia de tama\~no (mapeo SIFTS)}
+
+\begin{table}[H]
+\centering
+\caption{RMSD desglosado por tama\~no proteico con mapeo SIFTS correcto.}
+\label{tab:size_breakdown}
+\begin{tabular}{@{}lrcccc@{}}
+\toprule
+\textbf{Categor\'ia} & \textbf{N} & \textbf{Media (\AA)} & \textbf{Mediana (\AA)} & \textbf{$<$ 1\AA} & \textbf{$<$ 2\AA} \\
+\midrule
+$<$ 50 res & 259 & 1,87 & 1,13 & 44,8\% & 66,4\% \\
+50--100 & 1.156 & 0,94 & 0,57 & 72,2\% & 90,7\% \\
+100--150 & 1.635 & 0,96 & 0,62 & 76,6\% & 90,9\% \\
+150--200 & 151 & 2,30 & 1,18 & 36,4\% & 64,9\% \\
+200--250 & 535 & 1,05 & 0,95 & 55,3\% & 91,6\% \\
+250--300 & 662 & 1,12 & 0,74 & 63,3\% & 80,5\% \\
+300--350 & 522 & 0,43 & 0,26 & 94,4\% & 99,2\% \\
+350--400 & 192 & 1,70 & 0,61 & 64,6\% & 71,9\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Nota: Los datos corresponden al dataset validado (91 prote\'inas, 5.115 pares)
+con mapeo SIFTS expl\'icito. Las variaciones entre categor\'ias reflejan la composici\'on
+del dataset m\'as que una tendencia intr\'inseca del algoritmo. V\'ease la
+Tabla~\ref{tab:rmsd_tamano} en la secci\'on de Resultados para los datos del
+dataset diversificado de 10.432 prote\'inas \'unicas.}
+
+\subsection{Impacto del mapeo SIFTS: comparaci\'on directa}
+
+\begin{table}[H]
+\centering
+\caption{Comparaci\'on de m\'etricas con y sin mapeo SIFTS para los mismos 5.115 pares.}
+\label{tab:sifts_comparison}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{M\'etrica} & \textbf{Sin mapeo} & \textbf{Con mapeo SIFTS} \\
+\midrule
+RMSD medio & \SI{29,94}{\angstrom} & \SI{1,05}{\angstrom} \\
+RMSD mediana & \SI{22,54}{\angstrom} & \SI{0,64}{\angstrom} \\
+Desviaci\'on est\'andar & --- & \SI{1,37}{\angstrom} \\
+$<$ \SI{0,5}{\angstrom} & 5,1\% & 42,7\% \\
+$<$ \SI{1}{\angstrom} & 9,3\% & 70,2\% \\
+$<$ \SI{2}{\angstrom} & 13,9\% & 87,7\% \\
+$>$ \SI{5}{\angstrom} & 84,1\% & 1,4\% \\
+$>$ \SI{10}{\angstrom} & 80,9\% & 0,4\% \\
+\bottomrule
+\end{tabular}
+\end{table}

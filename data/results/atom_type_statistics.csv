@@ -1,0 +1,21 @@
+size_category,atom_type,mean,std,count
+Grande,Carbon,37.979,26.139,274
+Grande,Nitrogen,41.569,27.891,274
+Grande,Oxygen,46.504,32.315,274
+Grande,Sulfur,50.237,39.319,274
+Pequeña,Carbon,39.004,34.783,6624
+Pequeña,Nitrogen,43.337,39.013,6624
+Pequeña,Oxygen,47.673,43.579,6624
+Pequeña,Sulfur,51.998,48.187,6624
+Post-Sweet,Carbon,35.642,35.203,2443
+Post-Sweet,Nitrogen,39.574,38.739,2443
+Post-Sweet,Oxygen,43.756,45.218,2443
+Post-Sweet,Sulfur,47.333,48.601,2443
+Pre-Sweet,Carbon,38.604,44.362,2982
+Pre-Sweet,Nitrogen,43.005,50.037,2982
+Pre-Sweet,Oxygen,46.974,55.375,2982
+Pre-Sweet,Sulfur,51.392,59.27,2982
+Sweet Spot,Carbon,17.947,32.631,1988
+Sweet Spot,Nitrogen,19.806,36.524,1988
+Sweet Spot,Oxygen,21.89,41.073,1988
+Sweet Spot,Sulfur,23.956,44.962,1988
