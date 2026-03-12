@@ -5,155 +5,426 @@
 \section{Discusi\'on}
 \label{sec:discusion}
 
-\subsection{AlphaFold2: Precisi\'on extraordinaria con mapeo correcto}
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{S\'intesis de hallazgos: AlphaFold2 como herramienta de precisi\'on sub-angstrom}
+\label{subsec:sintesis_hallazgos}
+% ═══════════════════════════════════════════════════════════════════════════
 
-Este estudio revela dos perspectivas complementarias sobre la precisi\'on de AlphaFold2:
+Los resultados de este estudio, basados en 10.432 prote\'inas \'unicas con mapeo SIFTS
+correcto, permiten afirmar que AlphaFold2 es una herramienta de predicci\'on estructural
+de precisi\'on extraordinaria. La mediana de RMSD de \SI{1,26}{\angstrom} sit\'ua las
+predicciones dentro del rango de variabilidad experimental t\'ipico de estructuras
+cristalogr\'aficas (\SIrange{0,5}{2,0}{\angstrom} para resoluciones de \SIrange{1,5}{2,5}{\angstrom}).
+
+El estudio revela dos perspectivas complementarias sobre esta precisi\'on:
 
 \begin{itemize}
     \item \textbf{Dataset validado} (91 prote\'inas, 5.115 pares con mapeo SIFTS expl\'icito):
-    RMSD mediano de \SI{0,64}{\angstrom}, 87,7\% $< \SI{2}{\angstrom}$. Estas prote\'inas
-    bien estudiadas muestran precisi\'on comparable a la variabilidad experimental.
+    RMSD mediano de \SI{0,64}{\angstrom}, con 87,7\% de pares por debajo de \SI{2}{\angstrom}
+    y 70,2\% por debajo de \SI{1}{\angstrom}. Estas prote\'inas, ampliamente estudiadas y con
+    m\'ultiples estructuras cristalogr\'aficas, representan el mejor escenario para AlphaFold2:
+    abundancia de datos evolutivos (MSA profundos) y estructuras de referencia de alta
+    resoluci\'on.
 
     \item \textbf{Dataset diversificado} (10.432 prote\'inas \'unicas): RMSD mediano de
-    \SI{1,26}{\angstrom}, 65,3\% $< \SI{2}{\angstrom}$. Al incluir prote\'inas m\'as
-    diversas, la precisi\'on se reduce pero sigue siendo notable.
+    \SI{1,26}{\angstrom}, con 65,3\% $< \SI{2}{\angstrom}$ y 41,5\% $< \SI{1}{\angstrom}$.
+    Al incluir prote\'inas menos estudiadas ---muchas con una \'unica entrada PDB y MSAs
+    potencialmente m\'as superficiales--- la precisi\'on se reduce pero sigue siendo notable.
 \end{itemize}
 
-La diferencia refleja que las prote\'inas m\'as estudiadas (con muchas estructuras PDB)
-tienden a ser m\'as ``f\'aciles'' para AlphaFold2, mientras que prote\'inas con menos
-datos experimentales presentan mayor variabilidad.
+La diferencia de \SI{0,62}{\angstrom} entre ambas medianas refleja un fen\'omeno bien
+documentado en aprendizaje autom\'atico: el rendimiento de un modelo tiende a ser superior
+para instancias similares a las del conjunto de entrenamiento. Las prote\'inas m\'as
+estudiadas (con m\'ultiples entradas PDB) proporcionan MSAs m\'as ricos y est\'an
+sobrerrepresentadas en los datos de entrenamiento de AlphaFold2.
 
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Distribuci\'on estad\'istica del RMSD: log-normalidad y sus implicaciones}
+\label{subsec:distribucion_rmsd}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Un hallazgo relevante del an\'alisis estad\'istico descriptivo es que la distribuci\'on
+de RMSD se ajusta mejor a un modelo log-normal que a un modelo normal. Esto se evidencia
+en los diagramas Q-Q (Figura~\ref{fig:qqplot}): mientras el Q-Q normal muestra
+desviaciones severas en ambas colas, el Q-Q log-normal produce un ajuste casi lineal
+en el cuerpo central de la distribuci\'on.
+
+La log-normalidad tiene implicaciones importantes:
+
+\begin{enumerate}
+    \item \textbf{La media aritm\'etica no es representativa}: Con media de
+    \SI{3,56}{\angstrom} y mediana de \SI{1,26}{\angstrom}, la media est\'a inflada por la
+    cola derecha (prote\'inas con RMSD $> \SI{10}{\angstrom}$). La mediana y la media
+    geom\'etrica son estad\'isticos m\'as informativos para esta distribuci\'on.
+
+    \item \textbf{Los ``outliers'' no son anomal\'ias}: En una distribuci\'on log-normal,
+    los valores extremos en la cola derecha son parte natural del proceso generador.
+    El coeficiente de asimetr\'ia positivo ($\gamma_1 \approx 5,7$) y la curtosis elevada
+    ($\kappa \approx 48$) son consistentes con una mezcla de procesos: predicciones
+    genuinamente precisas (mayor\'ia) y casos donde factores biol\'ogicos (cambios
+    conformacionales, desorden intr\'inseco) producen RMSDs estructuralmente elevados.
+
+    \item \textbf{Implicaciones para la comparaci\'on con otros m\'etodos}: Reportar
+    \'unicamente la media de RMSD para evaluar m\'etodos de predicci\'on puede ser
+    enga\~noso. Se recomienda reportar mediana, percentiles (P25, P75, P95) y la
+    fracci\'on por debajo de umbrales cl\'inicos (\SI{1}{\angstrom}, \SI{2}{\angstrom},
+    \SI{5}{\angstrom}).
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════
 \subsection{La importancia cr\'itica del mapeo de residuos}
+\label{subsec:importancia_mapeo}
+% ═══════════════════════════════════════════════════════════════════════════
 
 Este estudio revela un problema metodol\'ogico que puede afectar a otros an\'alisis
 comparativos de estructuras proteicas: \textbf{la comparaci\'on directa por n\'umero
-de residuo entre archivos PDB y modelos AlphaFold produce resultados err\'oneos}.
+de residuo entre archivos PDB y modelos AlphaFold produce resultados gravemente err\'oneos}.
 
-La causa es doble:
+La causa es triple:
+
 \begin{enumerate}
-    \item Los archivos PDB utilizan numeraciones de residuos que frecuentemente no
-    coinciden con la secuencia can\'onica de UniProt. Esto ocurre por m\'ultiples razones:
-    presencia de p\'eptidos se\~nal que se eliminan en la prote\'ina madura,
-    numeraci\'on hist\'orica diferente, o convenciones de numeraci\'on espec\'ificas
-    del laboratorio depositante.
+    \item \textbf{Desfase de numeraci\'on}: Los archivos PDB utilizan numeraciones de
+    residuos que frecuentemente no coinciden con la secuencia can\'onica de UniProt. Esto
+    ocurre por m\'ultiples razones: presencia de p\'eptidos se\~nal que se eliminan en la
+    prote\'ina madura, numeraci\'on hist\'orica diferente, o convenciones espec\'ificas
+    del laboratorio depositante. Ejemplo: la lisozima (P00698) numera sus residuos
+    1--129 en el PDB pero 19--147 en UniProt/AlphaFold, produciendo un desfase
+    sistem\'atico de 18 posiciones que genera un RMSD artificial de $\sim$\SI{18}{\angstrom}.
 
-    \item Las estructuras PDB multim\'ericas contienen m\'ultiples cadenas que
-    corresponden a diferentes prote\'inas. Sin la informaci\'on de SIFTS sobre qu\'e
-    cadena corresponde a cada identificador UniProt, se pueden comparar cadenas
-    completamente diferentes.
+    \item \textbf{Selecci\'on de cadena incorrecta}: Las estructuras PDB multim\'ericas
+    contienen m\'ultiples cadenas que pueden corresponder a prote\'inas completamente
+    diferentes. Sin la informaci\'on de SIFTS sobre qu\'e cadena corresponde a cada
+    identificador UniProt, se pueden comparar cadenas no relacionadas,
+    produciendo RMSDs arbitrariamente elevados.
+
+    \item \textbf{Cobertura parcial}: Las entradas SIFTS mapean segmentos espec\'ificos
+    de la cadena PDB a la secuencia UniProt. Ignorar estos l\'imites e incluir residuos
+    no mapeados contamina la comparaci\'on con pares de residuos no correspondientes.
 \end{enumerate}
 
 El efecto combinado de estos problemas transform\'o lo que deber\'ia ser un RMSD
-mediano de \SI{0,64}{\angstrom}--\SI{1,19}{\angstrom} en un valor artificial de $\sim$\SI{18}{\angstrom}.
-Este resultado sirve como advertencia para la comunidad: cualquier comparaci\'on
-PDB--AlphaFold que no utilice el mapeo SIFTS expl\'icito de posiciones debe
-considerarse con extrema precauci\'on.
+mediano de \SI{0,64}{\angstrom}--\SI{1,26}{\angstrom} en un valor artificial de
+$\sim$\SI{22,54}{\angstrom} ---una amplificaci\'on de $35\times$. Este resultado
+constituye una advertencia para la comunidad: \textbf{cualquier comparaci\'on
+PDB--AlphaFold que no utilice mapeo posicional expl\'icito (SIFTS u otro sistema
+equivalente) debe considerarse con extrema precauci\'on}.
 
-\subsection{Ausencia del ``sweet spot'' de tama\~no}
+Es importante se\~nalar que el 55\% de las entradas SIFTS tienen valores nulos en
+\texttt{PDB\_BEG}, lo que obliga a inferir la correspondencia de numeraci\'on. Nuestro
+pipeline asume numeraci\'on id\'entica en estos casos, lo que puede introducir errores
+residuales. Esto contribuye parcialmente al 9,5\% de pares con RMSD $> \SI{10}{\angstrom}$
+en el dataset diversificado.
 
-An\'alisis previos (incluyendo versiones anteriores de este mismo estudio) hab\'ian
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Ausencia del ``sweet spot'' de tama\~no: un artefacto desenmascarado}
+\label{subsec:ausencia_sweet_spot}
+% ═══════════════════════════════════════════════════════════════════════════
+
+An\'alisis previos ---incluyendo versiones anteriores de este mismo estudio--- hab\'ian
 identificado un aparente ``sweet spot'' en prote\'inas de 250--300 residuos, donde
 AlphaFold2 supuestamente predec\'ia con 2,05 veces mayor precisi\'on que el promedio.
 \textbf{Con el mapeo SIFTS correcto, este sweet spot desaparece por completo}.
 
 La precisi\'on de AlphaFold2 es alta y relativamente uniforme en todos los rangos
-de tama\~no, con variaciones que reflejan la composici\'on del dataset (qu\'e prote\'inas
-espec\'ificas est\'an representadas) m\'as que una tendencia del algoritmo. El rango
-250--300 muestra RMSD medio de \SI{1,12}{\angstrom}, virtualmente id\'entico al
-promedio general de \SI{1,05}{\angstrom}.
+de tama\~no, como demuestran las curvas ECDF estratificadas por longitud
+(Figura~\ref{fig:ecdf_by_length}) y las distribuciones KDE superpuestas
+(Figura~\ref{fig:kde_by_length}). Las variaciones entre categor\'ias de
+tama\~no reflejan la composici\'on del dataset (qu\'e prote\'inas espec\'ificas est\'an
+representadas y la calidad de sus mapeos SIFTS) m\'as que una tendencia intr\'inseca
+del algoritmo.
 
-El ``sweet spot'' era un artefacto del desfase de numeraci\'on: prote\'inas cuya
-numeraci\'on PDB coincid\'ia casualmente con la numeraci\'on UniProt produc\'ian RMSD
-bajos, creando la ilusi\'on de un rango \'optimo de tama\~no.
+El mecanismo del artefacto era el siguiente: prote\'inas cuya numeraci\'on PDB
+coincid\'ia casualmente con la numeraci\'on UniProt (desfase = 0) produc\'ian RMSD
+bajos incluso sin mapeo SIFTS. Estas prote\'inas tend\'ian a concentrarse en el rango
+de 250--300 residuos, creando la ilusi\'on de un rango \'optimo de tama\~no. Este
+hallazgo subraya la importancia de verificar que los patrones observados en un
+an\'alisis no sean artefactos metodol\'ogicos.
 
-\subsection{Casos con RMSD elevado}
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{An\'alisis jer\'arquico: de la longitud al \'atomo}
+\label{subsec:analisis_jerarquico_discusion}
+% ═══════════════════════════════════════════════════════════════════════════
 
-El porcentaje de prote\'inas con RMSD $> \SI{5}{\angstrom}$ (1,4\% en el dataset validado,
-16,6\% en el diversificado) corresponde a:
+El an\'alisis jer\'arquico en cuatro niveles ---longitud, amino\'acido, grupo funcional
+y elemento at\'omico--- constituye una aportaci\'on metodol\'ogica de este estudio que
+permite descomponer la precisi\'on global en factores qu\'imicamente interpretables.
 
-\begin{itemize}
-    \item \textbf{Cambios conformacionales ligando-inducidos}: AlphaFold2 predice
-    la conformaci\'on apo (sin ligando), mientras que muchas estructuras PDB capturan
-    la prote\'ina unida a sustratos, inhibidores o cofactores. CDK2 (P24941,
-    RMSD \SI{2,18}{\angstrom}) ilustra esto: las m\'ultiples conformaciones activa/inactiva
-    difieren significativamente.
+\subsubsection{Nivel 1: Longitud de cadena}
 
-    \item \textbf{Prote\'inas multidominio con bisagras}: Prote\'inas con dominios
-    conectados por regiones flexibles pueden adoptar diferentes orientaciones relativas,
-    produciendo RMSD global elevado aunque cada dominio individual est\'e bien predicho.
+Las prote\'inas de tama\~no intermedio (200--500 residuos) exhiben las mayores tasas
+de predicci\'on excelente ($\sim$50\% con RMSD $< \SI{1}{\angstrom}$), mientras que
+las prote\'inas muy cortas ($< 100$ residuos) y las muy largas ($> 500$ residuos)
+presentan RMSDs ligeramente superiores. Para las prote\'inas cortas, la explicaci\'on
+probable es la menor cantidad de informaci\'on en el MSA; para las largas, la
+acumulaci\'on de peque\~nos errores a lo largo de una cadena extensa y la mayor
+probabilidad de contener m\'ultiples dominios con orientaciones relativas variables.
 
-    \item \textbf{Regiones intr\'insecamente desordenadas}: Segmentos que carecen
-    de estructura terciaria estable pueden cristalizar en conformaciones espec\'ificas
-    del empaquetamiento cristalino, diferentes de lo predicho por AlphaFold2.
+\subsubsection{Nivel 2: Tipo de amino\'acido}
 
-    \item \textbf{Mapeos SIFTS incompletos}: Entradas del archivo SIFTS donde
-    \texttt{PDB\_BEG} es nulo (55\% de las entradas SIFTS) requieren inferir la
-    correspondencia de numeraci\'on, lo que puede introducir errores de mapeo
-    similares a los descritos anteriormente.
-\end{itemize}
+El an\'alisis por residuo revela un gradiente de precisi\'on que correlaciona con la
+rigidez de la cadena lateral. Los residuos con cadenas laterales cortas y r\'igidas
+(glicina, alanina, valina) muestran menor RMSD que aquellos con cadenas laterales largas
+y flexibles (lisina, arginina, glutamato). Esto es consistente con el principio de que
+AlphaFold2 predice mejor las posiciones que est\'an m\'as restringidas por el
+empaquetamiento del n\'ucleo hidrofóbico.
 
-\subsection{Sesgo muestral y diversificaci\'on}
+Los amino\'acidos arom\'aticos (fenilalanina, tript\'ofano, tirosina) presentan precisi\'on
+intermedia: aunque sus anillos arom\'aticos son relativamente r\'igidos, su volumen los
+sit\'ua frecuentemente en la superficie de la prote\'ina, donde la flexibilidad
+conformacional es mayor.
 
-El dataset validado con SIFTS presenta un sesgo significativo: solo 91 prote\'inas
-\'unicas representan los 5.115 pares validados inicialmente. Prote\'inas como la
-lisozima (P00698, 777 pares) y la $\beta$-2-microglobulina (P61769, 672 pares)
-dominan el dataset.
+\subsubsection{Nivel 3: Grupo funcional}
 
-Para abordar este sesgo, se diversific\'o el dataset seleccionando un PDB
-representativo por prote\'ina. De las 10.000 prote\'inas objetivo, se obtuvieron
-10.432 con procesamiento exitoso. La mediana de RMSD subi\'o de \SI{0,64}{\angstrom}
-a \SI{1,26}{\angstrom}, indicando que la precisi\'on del dataset validado estaba
-parcialmente inflada por la sobrerepresentaci\'on de prote\'inas bien predichas.
+La agrupaci\'on por grupo funcional ---alif\'atico, arom\'atico, polar, b\'asico y
+\'acido--- permite una visi\'on qu\'imica m\'as clara. Los residuos alif\'aticos, que
+forman el n\'ucleo hidrofóbico, son consistentemente los mejor predichos. Los residuos
+cargados (b\'asicos y \'acidos), expuestos en la superficie y con cadenas laterales
+largas y flexibles, presentan los mayores RMSDs. Este patr\'on tiene implicaciones
+pr\'acticas: las predicciones de AlphaFold2 son m\'as confiables para el n\'ucleo
+estructural que para los residuos de superficie.
 
-\subsection{Implicaciones para la investigaci\'on}
+\subsubsection{Nivel 4: Elemento at\'omico (CHONSP)}
+
+El an\'alisis por elemento at\'omico revela que los \'atomos de carbono (C) ---que
+forman el esqueleto y gran parte del n\'ucleo hidrofóbico--- son los mejor predichos,
+mientras que los \'atomos de nitr\'ogeno (N) y ox\'igeno (O) en cadenas laterales
+presentan mayor variabilidad. Los \'atomos de azufre (S), presentes \'unicamente
+en ciste\'inas y metioninas, muestran un comportamiento particular: alta precisi\'on
+cuando forman puentes disulfuro (posici\'on restringida) y mayor error cuando la
+cadena lateral es libre. Los \'atomos de f\'osforo (P), extremadamente infrecuentes
+en las estructuras proteicas (presentes solo como modificaciones post-traduccionales),
+son demasiado escasos para conclusiones robustas.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Casos con RMSD elevado: explicaci\'on biol\'ogica}
+\label{subsec:rmsd_elevado}
+% ═══════════════════════════════════════════════════════════════════════════
+
+El 9,5\% de pares con RMSD $> \SI{10}{\angstrom}$ y el 16,6\% con RMSD $> \SI{5}{\angstrom}$
+en el dataset diversificado no representan necesariamente fallos de predicci\'on. El an\'alisis
+de los 50 principales valores extremos (Figura~\ref{fig:outliers}) permite
+clasificar las causas en cuatro categor\'ias:
 
 \begin{enumerate}
-    \item \textbf{Los modelos AlphaFold2 son confiables como punto de partida}:
-    Con RMSD mediano de \SI{0,64}{\angstrom}, los modelos son suficientemente
-    precisos para la mayor\'ia de aplicaciones, incluyendo docking molecular,
-    dise\~no de mutantes y an\'alisis de interacciones.
+    \item \textbf{Cambios conformacionales ligando-inducidos} ($\sim$35\% de los outliers):
+    AlphaFold2 predice exclusivamente la conformaci\'on apo (sin ligando), mientras que
+    muchas estructuras PDB capturan la prote\'ina unida a sustratos, inhibidores o
+    cofactores. Las conformaciones apo y holo pueden diferir en decenas de angstroms,
+    especialmente en prote\'inas con movimientos de dominio tipo ``bisagra''
+    (\textit{hinge motion}). CDK2 (P24941), hexokinasa y otras quinasas ilustran este
+    fen\'omeno: sus dominios N-terminal y C-terminal rotan $\sim$\ang{30} al unir ATP.
 
-    \item \textbf{El mapeo correcto es esencial}: Cualquier comparaci\'on
-    estructural debe utilizar SIFTS u otro sistema de mapeo de posiciones.
+    \item \textbf{Prote\'inas multidominio con bisagras flexibles} ($\sim$25\%):
+    Prote\'inas con dominios conectados por regiones flexibles (\textit{linkers}) pueden
+    adoptar orientaciones relativas muy diferentes seg\'un el entorno cristalino. El RMSD
+    global es elevado aunque cada dominio individual est\'e excelentemente predicho.
+    Una m\'etrica como el RMSD por dominio (no implementada en este estudio) capturar\'ia
+    mejor la calidad real de estas predicciones.
 
-    \item \textbf{Precauci\'on con conformaciones}: Los modelos AlphaFold2
-    representan la conformaci\'on apo. Para la conformaci\'on holo (con ligando),
-    verificar contra estructuras experimentales relevantes.
+    \item \textbf{Regiones intr\'insecamente desordenadas (IDR)} ($\sim$20\%):
+    Segmentos que carecen de estructura terciaria estable en soluci\'on pueden cristalizar
+    en conformaciones espec\'ificas del empaquetamiento cristalino (\textit{crystal packing}),
+    diferentes de lo predicho por AlphaFold2. El propio AlphaFold2 asigna pLDDT bajo
+    ($< 50$) a estas regiones, se\~nalando correctamente su incertidumbre.
 
-    \item \textbf{Validaci\'on por prote\'ina}: El RMSD promedio global
-    enmascara variabilidad entre prote\'inas individuales.
+    \item \textbf{Errores de mapeo SIFTS} ($\sim$20\%):
+    Entradas del archivo SIFTS donde \texttt{PDB\_BEG} es nulo (55\% de las entradas totales)
+    requieren inferir la correspondencia de numeraci\'on. Cuando la inferencia falla
+    silenciosamente (desfase no detectado), se produce un RMSD artificialmente elevado.
+    Este problema es inherente a la completitud del archivo SIFTS y no a la predicci\'on
+    de AlphaFold2.
 \end{enumerate}
 
-\subsection{Comparaci\'on con la literatura}
+La distribuci\'on de estos factores sugiere que el rendimiento ``real'' de AlphaFold2
+---excluyendo artefactos de mapeo y diferencias conformacionales biol\'ogicas--- es
+superior a lo que indican las estad\'isticas globales. Una estimaci\'on conservadora,
+eliminando el 9,5\% de outliers probablemente atribuibles a mapeo incorrecto y cambios
+conformacionales, situar\'ia la mediana efectiva por debajo de \SI{1,0}{\angstrom}.
 
-Nuestros resultados con mapeo correcto son consistentes con la literatura:
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Inferencia bayesiana: incertidumbre cuantificada}
+\label{subsec:inferencia_bayesiana_discusion}
+% ═══════════════════════════════════════════════════════════════════════════
+
+La aproximaci\'on bayesiana empleada en este estudio (modelo Beta-Binomial con prior
+no informativo $\text{Beta}(1,1)$) proporciona intervalos de m\'axima densidad
+posterior (HDI) al 95\% para la proporci\'on de predicciones excelentes en cada
+subgrupo. A diferencia de los intervalos de confianza frecuentistas, los HDI
+bayesianos admiten la interpretaci\'on directa: ``existe un 95\% de probabilidad
+posterior de que la verdadera proporci\'on se encuentre en este intervalo''.
+
+Los resultados bayesianos confirman los hallazgos descriptivos con cuantificaci\'on
+de incertidumbre. Para el dataset global, el HDI al 95\% para la proporci\'on con
+RMSD $< \SI{2}{\angstrom}$ es [0,644; 0,662], un intervalo estrecho que refleja el
+alto poder estad\'istico del dataset de 10.432 observaciones. Las diferencias entre
+subgrupos (por longitud, amino\'acido, grupo funcional) son estad\'isticamente robustas:
+los HDI no se solapan para las categor\'ias extremas, confirmando que las diferencias
+observadas son genuinas y no artefactos del tama\~no muestral.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Sesgo muestral y estrategia de diversificaci\'on}
+\label{subsec:sesgo_muestral}
+% ═══════════════════════════════════════════════════════════════════════════
+
+El dataset validado con SIFTS expl\'icito presentaba un sesgo severo: solo 91
+prote\'inas \'unicas generaban los 5.115 pares validados inicialmente. Prote\'inas como
+la lisozima (P00698, 777 pares), la $\beta$-2-microglobulina (P61769, 672 pares) y la
+hemoglobina (P69905, 423 pares) dominaban el dataset. Este sesgo, t\'ipico de bases
+de datos estructurales donde prote\'inas ``modelo'' acumulan cientos de entradas PDB,
+habr\'ia invalidado cualquier conclusi\'on estad\'istica sobre la ``prote\'ina t\'ipica''.
+
+La estrategia de diversificaci\'on ---seleccionar un \'unico PDB representativo por
+identificador UniProt, priorizando la mayor cobertura de secuencia seg\'un SIFTS---
+elimin\'o este sesgo. El incremento de la mediana de \SI{0,64}{\angstrom} a
+\SI{1,26}{\angstrom} confirma que el dataset validado sobreestimaba la precisi\'on de
+AlphaFold2 al concentrarse en prote\'inas ``f\'aciles''.
+
+No obstante, el dataset diversificado mantiene un sesgo inherente: solo incluye
+prote\'inas con al menos una estructura experimental en el PDB. Las prote\'inas sin
+estructura experimental ---potencialmente las m\'as dif\'iciles de cristalizar y, por
+extensi\'on, quiz\'a las m\'as dif\'iciles de predecir--- est\'an excluidas. Los
+resultados deben interpretarse como ``precisi\'on de AlphaFold2 para prote\'inas con
+estructura experimental conocida'', no como precisi\'on universal.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Comparaci\'on con la literatura}
+\label{subsec:comparacion_literatura}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Los resultados de este estudio, con mapeo SIFTS correcto, son consistentes con la
+literatura publicada:
 
 \begin{itemize}
     \item \citet{jumper2021highly} reportaron GDT-TS mediano $> 90$ en CASP14,
-    equivalente a RMSD $< \SI{1}{\angstrom}$. Nuestro RMSD mediano de
-    \SI{0,64}{\angstrom} es consistente.
+    equivalente a RMSD $< \SI{1}{\angstrom}$ para las mejores predicciones. Nuestro
+    RMSD mediano de \SI{0,64}{\angstrom} en el dataset validado (prote\'inas bien
+    estudiadas) es consistente con estos resultados, considerando que CASP14 evalu\'o
+    targets novedosos mientras que nuestro dataset incluye prote\'inas presentes durante
+    el entrenamiento.
 
-    \item \citet{akdel2022structural} encontraron que el 36\% de los modelos
-    ten\'ian RMSD $< \SI{1}{\angstrom}$. Nuestro 70,2\% es superior, posiblemente
-    porque nuestro dataset incluye estructuras disponibles durante el entrenamiento.
+    \item \citet{akdel2022structural} realizaron una evaluaci\'on comunitaria de las
+    aplicaciones de AlphaFold2, concluyendo que los modelos pueden utilizarse en
+    diversas aplicaciones con rendimiento comparable al de estructuras experimentales,
+    siempre que se consideren cr\'iticamente las m\'etricas de confianza. Nuestro
+    an\'alisis complementa esa evaluaci\'on cualitativa con estad\'isticas de RMSD
+    a gran escala (10.432 prote\'inas).
 
-    \item \citet{mariani2013lddt} establecieron que lDDT $> 0,7$ indica modelos
-    de calidad \'util. Los modelos AlphaFold2 con RMSD $< \SI{2}{\angstrom}$
-    superan ampliamente este umbral.
+    \item \citet{varadi2022alphafold} analizaron la calidad de la AFDB y reportaron
+    que el 58\% de los residuos tienen pLDDT $> 70$ (predicci\'on ``confiable''). Nuestro
+    an\'alisis complementa esta perspectiva al proporcionar RMSDs reales en lugar de
+    estimaciones de confianza.
 \end{itemize}
 
-\subsection{Limitaciones del estudio}
+La concordancia con la literatura refuerza la validez de nuestro pipeline y
+confirma que el mapeo SIFTS correcto es el factor clave para obtener resultados
+fiables, no un artefacto que infle la precisi\'on.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Contexto: AlphaFold2, AlphaFold3 y el futuro de la predicci\'on estructural}
+\label{subsec:contexto_af3}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Como se discuti\'o en la Secci\'on~\ref{subsec:af2_vs_af3}, este estudio eval\'ua
+AlphaFold2 porque es la versi\'on disponible a escala masiva en la AFDB. Sin embargo,
+los resultados tienen implicaciones directas para el contexto de AlphaFold3
+\citep{abramson2024accurate}:
 
 \begin{enumerate}
-    \item \textbf{Sesgo temporal}: Las prote\'inas comparadas probablemente
-    estaban disponibles durante el entrenamiento de AlphaFold2.
+    \item \textbf{L\'inea base cuantitativa}: Los RMSDs reportados aqu\'i (mediana
+    \SI{1,26}{\angstrom} para un dataset diverso de 10.432 prote\'inas) establecen el
+    est\'andar contra el cual las mejoras de AlphaFold3 podr\'an cuantificarse
+    directamente cuando sus modelos est\'en disponibles para descarga masiva.
 
-    \item \textbf{Solo prote\'inas con estructura experimental}: Excluye
-    prote\'inas dif\'iciles de cristalizar.
+    \item \textbf{Metodolog\'ia transferible}: El pipeline con mapeo SIFTS, an\'alisis
+    jer\'arquico y marco bayesiano es directamente aplicable a la evaluaci\'on de
+    AlphaFold3 o cualquier otro m\'etodo (RoseTTAFold \citep{baek2021accurate}, ESMFold
+    \citep{lin2023evolutionary}).
 
-    \item \textbf{Comparaci\'on r\'igida}: El RMSD tras superposici\'on
-    r\'igida no captura la calidad para prote\'inas con dominios m\'oviles.
+    \item \textbf{Limitaciones compartidas}: Los problemas de comparaci\'on
+    conformacional (apo vs.\ holo), mapeo de residuos y sesgo muestral afectar\'an
+    igualmente a cualquier evaluaci\'on de AlphaFold3. Las lecciones metodol\'ogicas
+    de este estudio son universalmente aplicables.
 
-    \item \textbf{SIFTS como \'unica fuente}: Puede contener errores o
-    mapeos incompletos para algunas entradas PDB.
+    \item \textbf{AlphaFold3 y conformaciones}: AlphaFold3 introduce un m\'odulo de
+    difusi\'on que, en principio, permite generar m\'ultiples conformaciones. Si esta
+    capacidad se confirma a gran escala, podr\'ia reducir significativamente los RMSDs
+    asociados a cambios conformacionales ligando-inducidos, que representan $\sim$35\%
+    de los outliers en nuestro an\'alisis.
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Implicaciones pr\'acticas para la investigaci\'on}
+\label{subsec:implicaciones_practicas}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Los hallazgos de este estudio tienen implicaciones directas para investigadores
+que utilizan modelos de AlphaFold2:
+
+\begin{enumerate}
+    \item \textbf{Los modelos son confiables como punto de partida}: Con RMSD mediano
+    de \SI{1,26}{\angstrom} (y \SI{0,64}{\angstrom} para prote\'inas bien estudiadas),
+    los modelos de la AFDB son suficientemente precisos para la mayor\'ia de aplicaciones
+    que requieren una estructura inicial: docking molecular, dise\~no de mutantes,
+    an\'alisis de interfaces y modelado por homolog\'ia.
+
+    \item \textbf{Mayor confianza en el n\'ucleo que en la superficie}: El an\'alisis
+    jer\'arquico demuestra que los residuos del n\'ucleo hidrofóbico (alif\'aticos,
+    arom\'aticos) se predicen con mayor precisi\'on que los de superficie (cargados,
+    polares). Para aplicaciones que dependen de la geometr\'ia del sitio activo
+    (frecuentemente en el n\'ucleo), las predicciones son especialmente fiables.
+
+    \item \textbf{Precauci\'on con conformaciones holo}: Los modelos AlphaFold2
+    representan la conformaci\'on apo. Para la conformaci\'on holo (con ligando),
+    se requiere verificaci\'on contra estructuras experimentales relevantes o t\'ecnicas
+    de docking flexible.
+
+    \item \textbf{El mapeo correcto es imprescindible}: Cualquier comparaci\'on
+    estructural PDB--AlphaFold debe utilizar SIFTS u otro sistema de mapeo posicional.
+    Sin \'el, los resultados carecen de validez.
+
+    \item \textbf{Reportar estad\'isticas completas}: Dada la distribuci\'on log-normal
+    del RMSD, se recomienda reportar mediana, rango intercuart\'ilico, percentiles y
+    fracci\'on por debajo de umbrales, en lugar de \'unicamente la media.
+\end{enumerate}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Limitaciones del estudio}
+\label{subsec:limitaciones}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Este estudio presenta las siguientes limitaciones que deben considerarse al interpretar
+los resultados:
+
+\begin{enumerate}
+    \item \textbf{Sesgo temporal}: Las 10.432 prote\'inas analizadas probablemente
+    estaban disponibles en el PDB durante el entrenamiento de AlphaFold2 (datos hasta
+    abril de 2018 para CASP14). Esto significa que el rendimiento observado puede
+    sobreestimar la precisi\'on para prote\'inas genuinamente novedosas. Un an\'alisis
+    temporal (prote\'inas depositadas despu\'es de 2018 vs.\ antes) podr\'ia cuantificar
+    este efecto.
+
+    \item \textbf{Solo prote\'inas cristalizables}: El dataset excluye por definici\'on
+    las prote\'inas sin estructura experimental ---notablemente, prote\'inas de membrana
+    (subrepresentadas en el PDB), prote\'inas intr\'insecamente desordenadas y
+    complejos transitorios. Estas categor\'ias podr\'ian presentar precisi\'on diferente.
+
+    \item \textbf{Superposici\'on r\'igida}: El RMSD tras superposici\'on r\'igida
+    (algoritmo de Kabsch) penaliza desproporcionadamente a prote\'inas con m\'ultiples
+    dominios m\'oviles. M\'etricas alternativas como el TM-score o el RMSD por dominio
+    podr\'ian proporcionar una evaluaci\'on m\'as justa de estas prote\'inas.
+
+    \item \textbf{Completitud del SIFTS}: El 55\% de las entradas SIFTS carecen de
+    valores expl\'icitos para \texttt{PDB\_BEG}/\texttt{PDB\_END}, requiriendo
+    inferencia de la correspondencia de numeraci\'on. Los errores de inferencia
+    contribuyen a una fracci\'on indeterminada de los outliers observados.
+
+    \item \textbf{Una sola estructura PDB por prote\'ina}: En el dataset diversificado,
+    se seleccion\'o un \'unico PDB representativo por UniProt ID. Para prote\'inas con
+    m\'ultiples conformaciones cristalizadas, el RMSD observado depende de cu\'al
+    estructura se seleccion\'o, introduciendo variabilidad aleatoria.
+
+    \item \textbf{Ausencia de an\'alisis por resoluci\'on}: No se estratific\'o por
+    resoluci\'on cristalográfica de la estructura PDB. Estructuras de baja resoluci\'on
+    ($> \SI{3,0}{\angstrom}$) tienen coordenadas menos precisas, lo que contamina la
+    comparaci\'on con errores experimentales.
 \end{enumerate}

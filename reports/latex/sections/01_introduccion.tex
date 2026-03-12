@@ -5,14 +5,189 @@
 \section{Introducci\'on}
 \label{sec:introduccion}
 
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Glosario de t\'erminos}
+\label{subsec:glosario}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Este trabajo se sit\'ua en la frontera entre la qu\'imica computacional y la ciencia de datos.
+Para facilitar su lectura por parte de lectores con distintas formaciones, se definen
+a continuaci\'on los t\'erminos t\'ecnicos empleados a lo largo del documento.
+
+\begin{description}
+
+    \item[\textbf{AlphaFold2}]
+    Sistema de aprendizaje profundo desarrollado por DeepMind que predice la estructura
+    tridimensional de una prote\'ina a partir de su secuencia de amino\'acidos.
+    Publicado en 2021 \citep{jumper2021highly}, representa el estado del arte en predicci\'on
+    estructural computacional. En t\'erminos de ciencia de datos, puede verse como un
+    modelo de regresi\'on que mapea secuencias de texto (amino\'acidos) a coordenadas
+    tridimensionales $(x,y,z)$ para cada \'atomo.
+
+    \item[\textbf{RMSD} (\textit{Root Mean Square Deviation})]
+    M\'etrica de error que cuantifica la desviaci\'on media entre coordenadas at\'omicas
+    de dos estructuras tridimensionales, expresada en angstroms (\AA).
+    Formalmente, es la ra\'iz cuadrada de la media de los cuadrados de las distancias
+    interatómicas tras superposici\'on \'optima (v\'ease ec.~\ref{eq:rmsd}).
+    En ciencia de datos, es equivalente al RMSE (\textit{Root Mean Square Error}) aplicado
+    a coordenadas 3D: mide cu\'anto se equivoca el modelo en t\'erminos espaciales.
+    Un RMSD $<1$\,\AA{} indica precisi\'on comparable a la variabilidad experimental.
+
+    \item[\textbf{PDB} (\textit{Protein Data Bank})]
+    Repositorio mundial de estructuras tridimensionales de macromol\'eculas biol\'ogicas
+    determinadas experimentalmente mediante cristalograf\'ia de rayos X, resonancia
+    magn\'etica nuclear (RMN) o criomicroscop\'ia electr\'onica. Cada entrada se identifica
+    con un c\'odigo \'unico de 4 caracteres (ej. \texttt{3LZT} para la lisozima).
+    En el contexto de este estudio, las estructuras PDB son la \emph{ground truth}
+    (verdad de referencia) contra la cual se eval\'ua AlphaFold2.
+
+    \item[\textbf{UniProt}]
+    Base de datos de secuencias de prote\'inas mantenida por el Instituto Europeo de
+    Bioinform\'atica. Cada prote\'ina recibe un identificador \'unico (ej. \texttt{P00698}
+    para la lisozima humana). AlphaFold2 genera sus predicciones usando la numeraci\'on
+    can\'onica de UniProt, que puede diferir de la numeraci\'on en archivos PDB.
+
+    \item[\textbf{SIFTS} (\textit{Structure Integration with Function, Taxonomy and Sequence})]
+    Servicio del Instituto Europeo de Bioinform\'atica que establece correspondencias
+    exactas entre las entradas del PDB y las secuencias de UniProt, incluyendo el
+    \emph{mapeo posicional}: cada residuo en la numeraci\'on PDB se asocia a su posici\'on
+    equivalente en UniProt (\texttt{PDB\_BEG} $\to$ \texttt{SP\_BEG}).
+    Este mapeo es cr\'itico para este estudio: sin \'el, comparar las coordenadas por
+    n\'umero de posici\'on produce RMSDs artificialmente inflados de $\sim$20\,\AA{},
+    cuando el valor real es $\sim$1\,\AA{}. Es el eslab\'on clave del pipeline.
+
+    \item[\textbf{pLDDT} (\textit{predicted Local Distance Difference Test})]
+    M\'etrica de confianza que AlphaFold2 asigna a cada residuo, en escala 0--100.
+    En ciencia de datos, es la \emph{estimaci\'on de incertidumbre} del modelo por residuo.
+    Valores $>90$ indican alta confianza; $<50$ sugieren regi\'on no predicha de forma
+    fiable. Se almacena en el campo de factor de temperatura ($B$-factor) de los
+    archivos PDB de AlphaFold.
+
+    \item[\textbf{GDT} (\textit{Global Distance Test})]
+    M\'etrica de comparaci\'on estructural alternativa al RMSD, expresada como porcentaje
+    de \'atomos C$\alpha$ que se encuentran dentro de un umbral de distancia dado tras
+    superposici\'on. A diferencia del RMSD, es menos sensible a colas de la distribuci\'on
+    (valores at\'ipicos). Usada en CASP14, donde AlphaFold2 alcanz\'o GDT de 92,4/100.
+
+    \item[\textbf{Backbone} (esqueleto pept\'idico)]
+    Los \'atomos que forman la cadena principal del pol\'ipeptido, repetida en cada
+    residuo: nitr\'ogeno amida (N), carbono alfa (C$\alpha$), carbono carbonilo (C)
+    y ox\'igeno carbonilo (O). Determinan el plegamiento global de la prote\'ina.
+    Contrastar con \emph{cadena lateral} (sidechain): los \'atomos espec\'ificos de cada
+    amino\'acido, responsables de las interacciones funcionales.
+
+    \item[\textbf{CHONSP}]
+    Acr\'onimo de los seis elementos qu\'imicos mayoritarios en las prote\'inas:
+    Carbono (C), Hidr\'ogeno (H), Ox\'igeno (O), Nitr\'ogeno (N), Azufre (S) y
+    F\'osforo (P). Representan $>99.9$\% de los \'atomos en estructuras proteicas.
+    El an\'alisis CHONSP eval\'ua si la precisi\'on de AlphaFold var\'ia seg\'un el
+    tipo de \'atomo predicho.
+
+    \item[\textbf{Amino\'acidos y grupos funcionales}]
+    Las prote\'inas est\'an formadas por 20 amino\'acidos est\'andar. Para el an\'alisis
+    estad\'istico, se agrupan en cinco categor\'ias seg\'un la qu\'imica de su cadena lateral:
+    \emph{Alif\'atico} (G, A, V, L, I, P, M), \emph{Arom\'atico} (F, W, Y),
+    \emph{Polar} (S, T, C, N, Q), \emph{B\'asico} cargado $+$ (K, R, H) y
+    \emph{\'Acido} cargado $-$ (D, E). Esta clasificaci\'on conecta la precisi\'on de
+    predicci\'on con propiedades qu\'imicas concretas.
+
+    \item[\textbf{Conformaci\'on apo / holo}]
+    Una prote\'ina adopta distintas conformaciones seg\'un su estado: \emph{apo}
+    (sin ligando) y \emph{holo} (con ligando, sustrato o cofactor unido).
+    AlphaFold2 predice exclusivamente la conformaci\'on apo. Las estructuras PDB pueden
+    capturar cualquiera de las dos, lo que explica parte de los RMSDs elevados observados.
+
+    \item[\textbf{IDR} (\textit{Intrinsically Disordered Region})]
+    Segmentos de la prote\'ina que no adoptan una estructura tridimensional fija en
+    soluci\'on. AlphaFold2 los predice con pLDDT bajo ($<50$), reflejando correctamente
+    su naturaleza din\'amica. Sin embargo, pueden cristalizar en conformaciones
+    espec\'ificas del cristal, generando RMSD elevados que no son errores de predicci\'on.
+
+    \item[\textbf{MSA} (\textit{Multiple Sequence Alignment})]
+    Alineamiento de m\'ultiples secuencias homólogas de una prote\'ina a trav\'es de
+    distintos organismos. AlphaFold2 usa el MSA para extraer informaci\'on de
+    coevoluci\'on: pares de posiciones que mutan juntas tienden a estar en contacto
+    espacial, proporcionando restricciones impl\'icitas sobre la estructura.
+
+    \item[\textbf{Algoritmo de Kabsch}]
+    M\'etodo matem\'atico que, dada la descomposici\'on en valores singulares (SVD) de
+    la matriz de covarianza cruzada entre dos conjuntos de puntos, encuentra la rotaci\'on
+    r\'igida \'optima que minimiza el RMSD. Es la superposici\'on est\'andar en
+    bioinform\'atica estructural, equivalente a una regresi\'on lineal con restricci\'on
+    de ortogonalidad.
+
+\end{description}
+
+% ─────────────────────────────────────────────────────────────────────────────
 \subsection{La revoluci\'on de AlphaFold2 en la biolog\'ia estructural}
 \label{subsec:revolucion_alphafold}
 
-La predicci\'on de la estructura tridimensional de las prote\'inas a partir de su secuencia de amino\'acidos constituye uno de los desaf\'ios fundamentales de la biolog\'ia molecular contempor\'anea. Durante m\'as de cinco d\'ecadas, la comunidad cient\'ifica ha invertido recursos considerables en el desarrollo de m\'etodos computacionales capaces de resolver este problema, conocido coloquialmente como el \textit{protein folding problem}. En noviembre de 2020, DeepMind present\'o AlphaFold2 en la competici\'on CASP14 (\textit{Critical Assessment of protein Structure Prediction}), logrando resultados sin precedentes que transformaron radicalmente el panorama de la biolog\'ia estructural \citep{Jumper2021}.
+La predicci\'on de la estructura tridimensional de las prote\'inas a partir de su secuencia de amino\'acidos constituye uno de los desaf\'ios fundamentales de la biolog\'ia molecular contempor\'anea. Durante m\'as de cinco d\'ecadas, la comunidad cient\'ifica ha invertido recursos considerables en el desarrollo de m\'etodos computacionales capaces de resolver este problema, conocido coloquialmente como el \textit{protein folding problem}. En noviembre de 2020, DeepMind present\'o AlphaFold2 en la competici\'on CASP14 (\textit{Critical Assessment of protein Structure Prediction}), logrando resultados sin precedentes que transformaron radicalmente el panorama de la biolog\'ia estructural \citep{jumper2021highly}.
 
-AlphaFold2 alcanz\'o una puntuaci\'on media GDT (\textit{Global Distance Test}) de 92,4 sobre 100 en el conjunto de evaluaci\'on de CASP14, superando ampliamente a todos los m\'etodos competidores y, en muchos casos, aproxim\'andose a la precisi\'on experimental. Este logro fue publicado en \textit{Nature} por \citet{Jumper2021}, donde los autores describieron la arquitectura basada en redes neuronales de atenci\'on (\textit{attention-based neural networks}) denominada Evoformer, que integra informaci\'on evolutiva proveniente de alineamientos m\'ultiples de secuencias (MSA, \textit{Multiple Sequence Alignments}) con representaciones geom\'etricas tridimensionales.
+AlphaFold2 alcanz\'o una puntuaci\'on media GDT (\textit{Global Distance Test}) de 92,4 sobre 100 en el conjunto de evaluaci\'on de CASP14, superando ampliamente a todos los m\'etodos competidores y, en muchos casos, aproxim\'andose a la precisi\'on experimental. Este logro fue publicado en \textit{Nature} por \citet{jumper2021highly}, donde los autores describieron la arquitectura basada en redes neuronales de atenci\'on (\textit{attention-based neural networks}) denominada Evoformer, que integra informaci\'on evolutiva proveniente de alineamientos m\'ultiples de secuencias (MSA, \textit{Multiple Sequence Alignments}) con representaciones geom\'etricas tridimensionales.
 
 El impacto de AlphaFold2 trasciende el \'ambito acad\'emico. La base de datos p\'ublica AlphaFold Protein Structure Database, mantenida por el Instituto Europeo de Bioinform\'atica (EBI) en colaboraci\'on con DeepMind, contiene actualmente predicciones estructurales para m\'as de 200 millones de prote\'inas, cubriendo pr\'acticamente la totalidad de las secuencias conocidas en la base de datos UniProt. Esta disponibilidad masiva de modelos estructurales ha acelerado la investigaci\'on en \'areas tan diversas como el dise\~no de f\'armacos, la ingenier\'ia de prote\'inas, la biolog\'ia evolutiva y la comprensi\'on de mecanismos patol\'ogicos.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{AlphaFold2 y AlphaFold3: delimitaci\'on del alcance}
+\label{subsec:af2_vs_af3}
+% ─────────────────────────────────────────────────────────────────────────────
+
+En mayo de 2024, DeepMind public\'o AlphaFold3 \citep{abramson2024accurate}, una versi\'on
+sustancialmente renovada que introduce un m\'odulo de difusi\'on (\textit{diffusion module})
+en lugar del m\'odulo de estructura de AlphaFold2. Las principales diferencias entre ambas
+versiones se resumen a continuaci\'on:
+
+\begin{description}
+    \item[\textbf{Alcance de predicci\'on}:]
+    AlphaFold2 predice exclusivamente la estructura de prote\'inas monoméricas o, con
+    adaptaciones (AlphaFold-Multimer), complejos prote\'ina-prote\'ina. AlphaFold3 ampl\'ia
+    el alcance a complejos prote\'ina-ADN, prote\'ina-ARN, prote\'ina-ligando e incluso
+    iones y mol\'eculas peque\~nas, unificando m\'ultiples tipos de biomol\'eculas en un
+    \'unico marco predictivo.
+
+    \item[\textbf{Arquitectura}:]
+    AlphaFold2 utiliza el m\'odulo Evoformer con predicci\'on directa de coordenadas.
+    AlphaFold3 reemplaza la predicci\'on directa por un proceso de difusi\'on
+    (\textit{denoising diffusion}), que genera coordenadas at\'omicas a partir de ruido
+    gaussiano, permitiendo modelar expl\'icitamente la incertidumbre y generar m\'ultiples
+    conformaciones.
+
+    \item[\textbf{Disponibilidad de datos}:]
+    La \textit{AlphaFold Protein Structure Database} (AFDB), mantenida por el EBI
+    \citep{varadi2022alphafold}, contiene m\'as de 200 millones de predicciones generadas
+    con \textbf{AlphaFold2}. Hasta la fecha de este estudio (marzo 2026), la base de datos
+    p\'ublica no ha sido actualizada con predicciones de AlphaFold3. La versi\'on del
+    identificador en la URL de descarga (por ejemplo, \texttt{v6}) corresponde a la
+    \emph{versi\'on de la base de datos}, no a la versi\'on del algoritmo.
+    AlphaFold3 est\'a disponible \'unicamente a trav\'es del servidor web de Google DeepMind
+    para predicciones individuales, sin descarga masiva de modelos.
+
+    \item[\textbf{Reproducibilidad}:]
+    AlphaFold2 es completamente de c\'odigo abierto (repositorio GitHub, pesos del modelo
+    publicados). AlphaFold3 public\'o el c\'odigo fuente en noviembre de 2024, pero con
+    restricciones de licencia para uso acad\'emico. Los pesos del modelo no est\'an
+    disponibles para descarga p\'ublica a gran escala.
+\end{description}
+
+\textbf{\'Este estudio se centra en AlphaFold2 por tres razones fundamentales}:
+\begin{enumerate}
+    \item \textbf{Disponibilidad}: Es la \'unica versi\'on con predicciones descargables
+    a escala masiva (200M+ modelos en AFDB), requisito indispensable para un an\'alisis
+    de 10.432 prote\'inas.
+    \item \textbf{Impacto}: AlphaFold2 es la versi\'on m\'as citada y utilizada por la
+    comunidad cient\'ifica. Comprender sus l\'imites de precisi\'on sigue siendo relevante
+    para los miles de estudios que emplean modelos de la AFDB.
+    \item \textbf{L\'inea base}: Los resultados de este estudio establecen una l\'inea base
+    cuantitativa contra la cual futuras evaluaciones de AlphaFold3 (u otros m\'etodos como
+    RoseTTAFold \citep{baek2021accurate} o ESMFold \citep{lin2023evolutionary}) podr\'an
+    compararse directamente.
+\end{enumerate}
+
+Es importante destacar que los aspectos metodol\'ogicos desarrollados en este trabajo
+---el mapeo SIFTS de residuos, el an\'alisis jer\'arquico por amino\'acido y elemento at\'omico,
+y el marco bayesiano de evaluaci\'on--- son igualmente aplicables a cualquier m\'etodo de
+predicci\'on estructural, independientemente de la versi\'on del algoritmo.
 
 \subsection{El problema del plegamiento de prote\'inas: perspectiva hist\'orica}
 \label{subsec:problema_plegamiento}
@@ -28,7 +203,7 @@ Sin embargo, la paradoja de Levinthal (1969) ilustra la complejidad computaciona
 
 Los primeros intentos computacionales de predicci\'on estructural se basaron en m\'etodos de mec\'anica molecular y din\'amica molecular, que simulan las fuerzas f\'isicas interat\'omicas. Aunque estos m\'etodos proporcionan informaci\'on valiosa sobre la termodin\'amica y la cin\'etica del plegamiento, su coste computacional los hace impracticables para la predicci\'on rutinaria de estructuras. Posteriormente, los m\'etodos basados en homolog\'ia (\textit{template-based modeling}) aprovechan la observaci\'on de que prote\'inas con secuencias similares tienden a adoptar estructuras similares, utilizando estructuras experimentales conocidas como plantillas. Estos m\'etodos, implementados en programas como MODELLER y SWISS-MODEL, han sido \'utiles cuando existe un hom\'ologo estructural disponible, pero fallan ante prote\'inas sin plantillas adecuadas.
 
-La aparici\'on de m\'etodos basados en coevoluci\'on, que explotan la informaci\'on contenida en los patrones de mutaciones correlacionadas en familias de prote\'inas, marc\'o un avance significativo. Estos patrones reflejan restricciones estructurales: residuos en contacto espacial tienden a coevolucionar para mantener interacciones favorables. AlphaFold1, el predecesor de AlphaFold2, ya incorporaba esta informaci\'on mediante redes neuronales profundas \citep{Senior2020}, pero fue AlphaFold2 el que logr\'o integrar de manera efectiva la informaci\'on evolutiva con la geometr\'ia tridimensional a trav\'es de su arquitectura Evoformer.
+La aparici\'on de m\'etodos basados en coevoluci\'on, que explotan la informaci\'on contenida en los patrones de mutaciones correlacionadas en familias de prote\'inas, marc\'o un avance significativo. Estos patrones reflejan restricciones estructurales: residuos en contacto espacial tienden a coevolucionar para mantener interacciones favorables. AlphaFold1, el predecesor de AlphaFold2, ya incorporaba esta informaci\'on mediante redes neuronales profundas \citep{senior2020improved}, pero fue AlphaFold2 el que logr\'o integrar de manera efectiva la informaci\'on evolutiva con la geometr\'ia tridimensional a trav\'es de su arquitectura Evoformer.
 
 \subsection{La necesidad de validaci\'on experimental}
 \label{subsec:necesidad_validacion}
@@ -47,7 +222,7 @@ A pesar de los resultados extraordinarios de AlphaFold2, la comunidad cient\'ifi
     \item \textbf{Aplicaciones cr\'iticas}: en contextos como el dise\~no de f\'armacos basado en estructura (\textit{structure-based drug design}, SBDD), errores peque\~nos en la geometr\'ia del sitio activo pueden tener consecuencias significativas en la predicci\'on de afinidades de uni\'on. Es fundamental conocer los l\'imites de precisi\'on de AlphaFold2 para estas aplicaciones.
 \end{enumerate}
 
-Estudios previos han abordado parcialmente esta cuesti\'on. \citet{Akdel2022} realizaron una evaluaci\'on comprehensiva de las predicciones de AlphaFold2, encontrando que, si bien la precisi\'on global es notable, existen variaciones significativas dependiendo de la regi\'on de la prote\'ina y las condiciones experimentales. \citet{Bryant2022} evaluaron el rendimiento de AlphaFold2 en la predicci\'on de complejos proteicos, mientras que \citet{Mariani2023} examinaron la relaci\'on entre las m\'etricas de confianza y la calidad real de las predicciones.
+Estudios previos han abordado parcialmente esta cuesti\'on. \citet{akdel2022structural} realizaron una evaluaci\'on comprehensiva de las predicciones de AlphaFold2, encontrando que, si bien la precisi\'on global es notable, existen variaciones significativas dependiendo de la regi\'on de la prote\'ina y las condiciones experimentales. \citet{bryant2022improved} evaluaron el rendimiento de AlphaFold2 en la predicci\'on de complejos proteicos, mientras que \citet{mariani2013lddt} introdujeron la m\'etrica lDDT (\textit{local Distance Difference Test}), un score de comparaci\'on estructural libre de superposici\'on que posteriormente fue adoptado por AlphaFold2 como base de su m\'etrica de confianza por residuo (pLDDT).
 
 \subsection{RMSD: el est\'andar de oro para la comparaci\'on estructural}
 \label{subsec:rmsd}
@@ -66,7 +241,7 @@ donde $\left\| \cdot \right\|$ denota la norma eucl\'idea tridimensional. Expand
     \label{eq:rmsd_cartesiano}
 \end{equation}
 
-La superposici\'on \'optima se obtiene mediante el algoritmo de Kabsch, que minimiza el RMSD mediante una rotaci\'on r\'igida del cuerpo. El algoritmo emplea la descomposici\'on en valores singulares (SVD) de la matriz de covarianza cruzada $\mathbf{H}$:
+La superposici\'on \'optima se obtiene mediante el algoritmo de Kabsch \citep{kabsch1976solution}, que minimiza el RMSD mediante una rotaci\'on r\'igida del cuerpo. El algoritmo emplea la descomposici\'on en valores singulares (SVD) de la matriz de covarianza cruzada $\mathbf{H}$:
 
 \begin{equation}
     \mathbf{H} = \sum_{i=1}^{n} (\mathbf{r}_i^{\text{pred}} - \bar{\mathbf{r}}^{\text{pred}})(\mathbf{r}_i^{\text{exp}} - \bar{\mathbf{r}}^{\text{exp}})^T
@@ -99,22 +274,20 @@ Es importante se\~nalar que el RMSD es sensible al tama\~no de la prote\'ina: a 
 El presente estudio tiene como objetivo general realizar una evaluaci\'on sistem\'atica y a gran escala de la precisi\'on de las predicciones estructurales de AlphaFold2 mediante la comparaci\'on directa con estructuras experimentales depositadas en el Protein Data Bank (PDB). Los objetivos espec\'ificos son:
 
 \begin{enumerate}
-    \item \textbf{Cuantificar la precisi\'on global}: Calcular el RMSD entre las estructuras predichas por AlphaFold2 y sus correspondientes estructuras experimentales para un conjunto de 14.311 pares de estructuras, constituyendo uno de los an\'alisis comparativos m\'as extensos realizados hasta la fecha.
+    \item \textbf{Demostrar el impacto cr\'itico del mapeo SIFTS}: Cuantificar la diferencia entre comparar con y sin mapeo posicional expl\'icito para 10.432 prote\'inas \'unicas, demostrando que el error aparente de $\sim$22\,\AA\ sin mapeo colapsa a $\sim$1\,\AA\ con mapeo correcto.
 
-    \item \textbf{Identificar dependencias del tama\~no}: Analizar c\'omo var\'ia la precisi\'on de AlphaFold2 en funci\'on del n\'umero de residuos de la prote\'ina, identificando rangos de tama\~no donde el modelo muestra un rendimiento superior (\textit{sweet spot}).
+    \item \textbf{An\'alisis jer\'arquico de precisi\'on}: Evaluar la precisi\'on de AlphaFold2 en cuatro niveles progresivos de granularidad ---longitud de cadena, tipo de amino\'acido, grupo funcional y elemento at\'omico (CHONSP)--- para conectar la precisi\'on computacional con propiedades qu\'imicas interpretables.
 
-    \item \textbf{Caracterizar la precisi\'on a nivel at\'omico}: Evaluar la precisi\'on diferencial entre \'atomos del esqueleto pept\'idico (\textit{backbone}: N, C$\alpha$, C, O) y \'atomos de las cadenas laterales (\textit{sidechain}), as\'i como el an\'alisis por tipo de elemento qu\'imico (C, H, O, N, S, P).
+    \item \textbf{Construir matrices de confusi\'on jer\'arquicas}: Presentar, para cada nivel de an\'alisis, matrices que cruzan la calidad real de la predicci\'on con la categor\'ia de inter\'es, ordenadas de mayor a menor error, facilitando la identificaci\'on de los subgrupos m\'as problem\'aticos.
 
-    \item \textbf{Evaluar la utilidad predictiva del pLDDT}: Analizar la correlaci\'on entre la m\'etrica de confianza pLDDT de AlphaFold2 y el error real de predicci\'on medido por RMSD.
+    \item \textbf{Inferencia bayesiana de calidad}: Estimar distribuciones posteriores Beta-Binomial para la proporci\'on de predicciones excelentes en cada subgrupo, reportando intervalos de m\'axima densidad posterior (HDI) al 95\% como alternativa a los intervalos de confianza frecuentistas.
 
-    \item \textbf{Generar conjuntos de datos estrat\'egicos}: Definir y caracterizar subconjuntos de pares de estructuras clasificados seg\'un la calidad de la predicci\'on (Platinum, Gold, Extended Sweet Spot, Scientific), proporcionando recursos curados para la comunidad investigadora.
-
-    \item \textbf{Formular recomendaciones pr\'acticas}: Ofrecer directrices basadas en evidencia para investigadores que utilicen predicciones de AlphaFold2 en sus estudios.
+    \item \textbf{Formular recomendaciones pr\'acticas}: Ofrecer directrices basadas en evidencia para investigadores que utilicen predicciones de AlphaFold2 en sus estudios, con especial atenci\'on al tipo de amino\'acido y la longitud de cadena como predictores de calidad.
 \end{enumerate}
 
 \subsection{Significancia del estudio}
 \label{subsec:significancia}
 
-La relevancia de este trabajo reside en varios aspectos. En primer lugar, el tama\~no del conjunto de datos analizado (14.311 pares) proporciona una potencia estad\'istica considerable para detectar diferencias sutiles en el rendimiento de AlphaFold2 bajo diferentes condiciones. En segundo lugar, el an\'alisis multinivel ---desde el nivel de estructura global hasta el nivel at\'omico individual y elemental--- ofrece una visi\'on comprehensiva de las fortalezas y debilidades del modelo. En tercer lugar, la identificaci\'on de un \textit{sweet spot} en el rango de 250--300 residuos, con una mejora de 2,05 veces en la proporci\'on de predicciones excelentes, tiene implicaciones directas para la priorizaci\'on de objetivos en proyectos de investigaci\'on estructural y dise\~no de f\'armacos.
+La relevancia de este trabajo reside en varios aspectos. En primer lugar, el tama\~no del conjunto de datos analizado ---10.432 prote\'inas \'unicas con identificadores UniProt distintos--- proporciona una potencia estad\'istica considerable y elimina el sesgo por sobrerepresentaci\'on de prote\'inas muy estudiadas. En segundo lugar, el an\'alisis jer\'arquico de cuatro niveles ---longitud de cadena, tipo de amino\'acido, grupo funcional y elemento at\'omico (CHONSP)--- conecta la precisi\'on computacional con propiedades qu\'imicas interpretables, una perspectiva escasamente explorada en la literatura existente. En tercer lugar, la identificaci\'on y cuantificaci\'on del impacto del mapeo SIFTS tiene implicaciones metodol\'ogicas directas: cualquier comparaci\'on PDB--AlphaFold sin mapeo posicional expl\'icito puede reportar errores artificiales de $\sim$20\,\AA\ donde el error real es $\sim$1\,\AA.
 
-Adem\'as, la definici\'on de conjuntos de datos estrat\'egicos (Platinum, Gold, etc.) proporciona a la comunidad investigadora recursos curados que pueden servir como \textit{benchmarks} para futuras evaluaciones de m\'etodos de predicci\'on estructural, incluyendo versiones posteriores de AlphaFold y m\'etodos competidores como RoseTTAFold, ESMFold y OpenFold.
+Desde la perspectiva de la ciencia de datos, este estudio proporciona un marco bayesiano para cuantificar la incertidumbre sobre la calidad de las predicciones, superando la visi\'on puntual habitual. La combinaci\'on de matrices de confusi\'on jer\'arquicas, distribuciones posteriores Beta-Binomial e intervalos de m\'axima densidad posterior (HDI) constituye una metodolog\'ia reproducible que puede aplicarse a la evaluaci\'on de cualquier modelo predictivo de estructuras moleculares, incluyendo versiones posteriores de AlphaFold y m\'etodos competidores como RoseTTAFold, ESMFold y OpenFold.

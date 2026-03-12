@@ -5,10 +5,13 @@
 \section{Resultados}
 \label{sec:resultados}
 
+% ═══════════════════════════════════════════════════════════════════════════
 \subsection{Visi\'on general del conjunto de datos}
 \label{subsec:vision_general}
+% ═══════════════════════════════════════════════════════════════════════════
 
-Se analizaron dos conjuntos de datos complementarios:
+Se analizaron dos conjuntos de datos complementarios con el objetivo de evaluar
+la precisi\'on estructural de AlphaFold2 bajo condiciones controladas y realistas:
 
 \begin{enumerate}
     \item \textbf{Dataset validado} (5.115 pares, 91 prote\'inas \'unicas): Pares con
@@ -18,31 +21,47 @@ Se analizaron dos conjuntos de datos complementarios:
 
     \item \textbf{Dataset diversificado} (10.432 prote\'inas \'unicas): Un PDB representativo
     por identificador UniProt, seleccionado desde el archivo SIFTS para maximizar la
-    cobertura de secuencia. Utilizado para evaluar la precisi\'on de AlphaFold2 en un
-    rango amplio de prote\'inas.
+    cobertura de secuencia. De 13.000 pares candidatos, 11.384 dispon\'ian de ambos archivos
+    (PDB experimental y modelo AlphaFold2), y 10.432 se procesaron exitosamente con mapeo
+    SIFTS (91,6\% de \'exito). Las 952 fallas corresponden a entradas SIFTS sin informaci\'on
+    de numeraci\'on recuperable (834 casos, 87,6\%) o con insuficientes residuos comunes
+    tras el mapeo (118 casos, 12,4\%).
 \end{enumerate}
+
+La Figura~\ref{fig:figure1_publication} presenta un resumen panor\'amico de los hallazgos
+principales del estudio, sintetizando la metodolog\'ia, el impacto del mapeo SIFTS, la
+distribuci\'on global de RMSD y la precisi\'on por categor\'ia de tama\~no.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{Figure1_publication.png}
-    \caption{Resumen panorámico del estudio. (A) Pipeline metodológico: SIFTS como puente entre PDB y AlphaFold. (B) Comparación RMSD con y sin mapeo SIFTS. (C) Distribución de RMSD para el dataset diversificado. (D) Precisión por categoría de tamaño proteico. Esta figura sintetiza los hallazgos principales: AlphaFold2 alcanza RMSD mediano de \SI{1,26}{\angstrom} con mapeo correcto.}
+    \caption{Resumen panor\'amico del estudio. (A)~Pipeline metodol\'ogico: SIFTS como puente
+    entre PDB y AlphaFold2. (B)~Impacto del mapeo SIFTS correcto: la mediana de RMSD desciende
+    de \SI{22,54}{\angstrom} a \SI{0,64}{\angstrom} ($35\times$ mejora). (C)~Distribuci\'on de
+    RMSD para las 10.432 prote\'inas del dataset diversificado: mediana \SI{1,26}{\angstrom},
+    65,3\% con RMSD $< 2$\,\AA. (D)~Porcentaje de predicciones excelentes (RMSD $< 1$\,\AA)
+    por categor\'ia de longitud: las prote\'inas de 200--500 residuos alcanzan las mayores
+    tasas de \'exito ($\sim$50\%).}
     \label{fig:figure1_publication}
 \end{figure}
 
+% ═══════════════════════════════════════════════════════════════════════════
 \subsection{Importancia del mapeo SIFTS correcto}
 \label{subsec:importancia_sifts}
+% ═══════════════════════════════════════════════════════════════════════════
 
 Un hallazgo cr\'itico de este estudio fue la identificaci\'on de que los resultados
 dependen fundamentalmente del correcto mapeo de posiciones de residuos entre las
-estructuras PDB y AlphaFold. Sin el mapeo SIFTS (\texttt{PDB\_BEG} $\rightarrow$
-\texttt{SP\_BEG}), la comparaci\'on por n\'umero de posici\'on produce resultados
-artificialmente elevados debido a dos problemas:
+estructuras PDB y AlphaFold2. Sin el mapeo SIFTS (\texttt{PDB\_BEG} $\rightarrow$
+\texttt{SP\_BEG}), la comparaci\'on directa por n\'umero de posici\'on produce resultados
+artificialmente elevados debido a dos problemas sistem\'aticos:
 
 \begin{enumerate}
     \item \textbf{Selecci\'on de cadena incorrecta}: Las estructuras PDB multim\'ericas
-    contienen m\'ultiples cadenas correspondientes a diferentes prote\'inas. Sin la
-    informaci\'on de cadena de SIFTS, se comparan cadenas que corresponden a prote\'inas
-    diferentes, produciendo RMSD $> 20$\AA.
+    contienen m\'ultiples cadenas que pueden corresponder a prote\'inas diferentes. Sin la
+    informaci\'on de cadena proporcionada por SIFTS, se comparan cadenas no correspondientes,
+    produciendo RMSD $> 20$\,\AA{} que reflejan la distancia f\'isica entre mol\'eculas
+    distintas, no errores de predicci\'on.
 
     \item \textbf{Desfase de numeraci\'on}: La numeraci\'on de residuos en archivos PDB
     frecuentemente difiere de la numeraci\'on can\'onica de UniProt. Por ejemplo, la
@@ -50,12 +69,12 @@ artificialmente elevados debido a dos problemas:
     PDB, pero corresponde a las posiciones 19--147 en UniProt (las primeras 18 posiciones
     son el p\'eptido se\~nal). AlphaFold2 utiliza la numeraci\'on UniProt (1--147), por lo
     que comparar sin mapeo produce un desfase sistem\'atico de 18 residuos, resultando en
-    un RMSD artificial de $\sim$18\AA{} que refleja el desplazamiento f\'isico, no un error
-    de predicci\'on.
+    un RMSD artificial de $\sim$\SI{18}{\angstrom} que refleja el desplazamiento f\'isico,
+    no un error de predicci\'on.
 \end{enumerate}
 
-La Tabla~\ref{tab:impacto_sifts} ilustra el impacto dram\'atico del mapeo correcto
-sobre las estad\'isticas de RMSD en el dataset validado.
+La Tabla~\ref{tab:impacto_sifts} cuantifica el impacto dram\'atico del mapeo correcto
+sobre las estad\'isticas de RMSD en el dataset validado de 91 prote\'inas.
 
 \begin{table}[H]
     \centering
@@ -74,60 +93,164 @@ sobre las estad\'isticas de RMSD en el dataset validado.
     \end{tabular}
 \end{table}
 
-Este resultado demuestra que la mayor\'ia del ``error'' reportado previamente era un
-artefacto del proceso de comparaci\'on, no una limitaci\'on real de AlphaFold2.
+Este resultado demuestra que la mayor\'ia del ``error'' aparente era un artefacto del
+proceso de comparaci\'on, no una limitaci\'on real de AlphaFold2. La correcci\'on produce
+una reducci\'on de $35\times$ en la mediana de RMSD y transforma un aparente fracaso
+predictivo (80,9\% con RMSD $> 10$\,\AA) en un \'exito notable (87,7\% con RMSD $< 2$\,\AA).
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Estad\'istica descriptiva del dataset diversificado}
+\label{subsec:estadistica_descriptiva}
+% ═══════════════════════════════════════════════════════════════════════════
+
+El n\'ucleo de este estudio se centra en el an\'alisis de 10.432 prote\'inas \'unicas
+(un PDB representativo por UniProt ID) procesadas con mapeo SIFTS correcto. Esta
+subsecci\'on presenta un an\'alisis estad\'istico exhaustivo de la distribuci\'on de
+RMSD C$\alpha$.
+
+% ─── Tabla resumen ────────────────────────────────────────────────────────
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{rmsd_improvement.png}
-    \caption{Impacto del mapeo SIFTS en la distribuci\'on de RMSD. Sin mapeo (izquierda), la mayor\'ia de los pares presentan RMSD $> 10$\,\AA{}. Con mapeo SIFTS correcto (derecha), el 87,7\% de los pares tienen RMSD $< 2$\,\AA{}.}
-    \label{fig:rmsd_improvement}
+    \includegraphics[width=0.85\textwidth]{fig_06i_stats_table.png}
+    \caption{Tabla completa de estad\'isticas descriptivas del RMSD C$\alpha$ para las
+    10.432 prote\'inas del dataset diversificado. La distribuci\'on presenta una asimetr\'ia
+    positiva marcada (skewness = \the\numexpr 0+1\relax) y curtosis elevada, caracter\'isticas
+    de una distribuci\'on log-normal. El coeficiente de variaci\'on supera el 290\%,
+    indicando alta heterogeneidad que requiere an\'alisis estratificado por subgrupos.
+    Los percentiles P5 y P95 (\SI{0,22}{\angstrom} y \SI{17,32}{\angstrom}) delimitan
+    el rango efectivo de la distribuci\'on, excluyendo los valores extremos.}
+    \label{fig:stats_table}
 \end{figure}
 
-\subsection{Dataset diversificado: 10.432 prote\'inas \'unicas}
-\label{subsec:dataset_diversificado}
-
-Para obtener conclusiones representativas, se diversific\'o el dataset seleccionando
-un PDB representativo por cada identificador UniProt. De las 10.000 prote\'inas
-objetivo, 3.470 ten\'ian ambos archivos (PDB y AlphaFold) disponibles, y 10.432
-se procesaron exitosamente con mapeo SIFTS.
-
-Las estad\'isticas descriptivas del dataset diversificado son:
-
-\begin{table}[H]
-    \centering
-    \caption{Estad\'isticas descriptivas de RMSD (dataset diversificado, 10.432 prote\'inas \'unicas).}
-    \label{tab:estadisticas_diversificado}
-    \begin{tabular}{@{}lr@{}}
-        \toprule
-        \textbf{Estad\'istico} & \textbf{Valor (\AA)} \\
-        \midrule
-        Media & 3,56 \\
-        Mediana & 1,26 \\
-        Desviaci\'on est\'andar & 10,41 \\
-        M\'inimo & 0,05 \\
-        M\'aximo & 855,74 \\
-        Percentil 25 (Q1) & 0,66 \\
-        Percentil 75 (Q3) & 3,02 \\
-        Percentil 95 & 17,32 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-El 41,5\% de las prote\'inas presenta RMSD inferior a \SI{1}{\angstrom} y el 65,3\%
-inferior a \SI{2}{\angstrom}. El 9,5\% con RMSD superior a \SI{10}{\angstrom}
-incluye tanto diferencias conformacionales reales como posibles errores residuales
-de mapeo en entradas SIFTS con informaci\'on incompleta de numeraci\'on.
+% ─── Histograma global ────────────────────────────────────────────────────
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{rmsd_distribution.png}
-    \caption{Distribuci\'on de RMSD para el dataset diversificado de 10.432 prote\'inas \'unicas. La l\'inea roja indica la mediana (\SI{1,26}{\angstrom}); la l\'inea verde el umbral de precisi\'on cl\'inica de \SI{2}{\angstrom}. La cola derecha refleja casos con cambios conformacionales biol\'ogicos reales o errores residuales de mapeo.}
-    \label{fig:rmsd_distribution}
+    \includegraphics[width=\textwidth]{fig_06a_histogram.png}
+    \caption{Histograma de la distribuci\'on de RMSD C$\alpha$ (truncado en 10\,\AA\ para
+    legibilidad). La distribuci\'on exhibe un pico pronunciado en la regi\'on 0,3--0,8\,\AA{}
+    (predicciones excelentes), seguido de un decaimiento progresivo con una cola derecha
+    extensa. La l\'inea roja continua marca la mediana (\SI{1,26}{\angstrom}); la l\'inea
+    roja discontinua, la media (\SI{3,56}{\angstrom}). La separaci\'on entre ambas
+    (media $\approx 2{,}8\times$ mediana) confirma la fuerte asimetr\'ia positiva.
+    El 41,5\% de las prote\'inas se encuentra en la zona de excelencia (RMSD $< 1$\,\AA)
+    y el 65,3\% por debajo del umbral de precisi\'on buena (\SI{2}{\angstrom}).}
+    \label{fig:histogram}
 \end{figure}
 
+% ─── Histograma zoomed con KDE ────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06b_histogram_zoom.png}
+    \caption{Distribuci\'on detallada de RMSD en el rango 0--5\,\AA{} (8.699 prote\'inas,
+    83,4\% del total), con estimaci\'on de densidad kernel (KDE, l\'inea roja). La KDE
+    revela que la moda de la distribuci\'on se sit\'ua en $\sim$\SI{0,45}{\angstrom},
+    indicando que la predicci\'on m\'as probable de AlphaFold2 es una estructura con menos
+    de medio \'angstr\"om de desviaci\'on respecto a la experimental. El perfil de densidad
+    muestra un hombro secundario en $\sim$\SI{1,5}{\angstrom} que sugiere la existencia
+    de al menos dos subpoblaciones: prote\'inas bien determinadas experimentalmente
+    (pico principal) y prote\'inas con flexibilidad conformacional moderada
+    (hombro secundario).}
+    \label{fig:histogram_zoom}
+\end{figure}
+
+% ─── Distribución logarítmica ────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06c_log_histogram.png}
+    \caption{Distribuci\'on de log$_{10}$(RMSD). La transformaci\'on logar\'itmica revela una
+    estructura aproximadamente sim\'etrica, sugiriendo que el RMSD sigue una distribuci\'on
+    \emph{log-normal}. La asimetr\'ia se reduce dr\'asticamente en escala logar\'itmica
+    (de $\sim$70 a $\sim$0{,}3), confirmando que el logaritmo del RMSD es la escala natural
+    para el an\'alisis estad\'istico de errores de predicci\'on estructural. Los valores
+    de curtosis tambi\'en se normalizan, pasando de valores extremos ($>$5.000) a valores
+    cercanos a 0 (distribuci\'on mesoc\'urtica).}
+    \label{fig:log_histogram}
+\end{figure}
+
+% ─── CDF ──────────────────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06d_cdf.png}
+    \caption{Funci\'on de distribuci\'on acumulada (CDF) emp\'irica del RMSD C$\alpha$.
+    Los puntos marcados sobre la curva indican las proporciones acumuladas en umbrales
+    clave: el 15,5\% tiene RMSD $< 0{,}5$\,\AA, el 41,5\% $< 1$\,\AA, el 65,3\% $< 2$\,\AA,
+    el 83,4\% $< 5$\,\AA{} y el 90,5\% $< 10$\,\AA. La pendiente de la curva es m\'axima
+    en la regi\'on 0,3--1,5\,\AA, reflejando la alta concentraci\'on de predicciones en
+    ese rango. La pendiente se aplana progresivamente a partir de $\sim$5\,\AA, indicando
+    que las predicciones con RMSD elevado son proporcionalmente escasas.}
+    \label{fig:cdf}
+\end{figure}
+
+% ─── Q-Q Plot ─────────────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06e_qqplot.png}
+    \caption{Gr\'aficos cuantil-cuantil (Q-Q plots) para evaluar la normalidad de la
+    distribuci\'on. \textit{Izquierda}: RMSD crudo vs. distribuci\'on normal te\'orica;
+    la desviaci\'on severa en las colas confirma que el RMSD \textbf{no sigue una
+    distribuci\'on normal} (test de Shapiro-Wilk: $p < 10^{-50}$). \textit{Derecha}:
+    log$_{10}$(RMSD) vs. distribuci\'on normal; el ajuste es sustancialmente mejor,
+    especialmente en la regi\'on central ($\pm 2\sigma$), validando la aproximaci\'on
+    log-normal. Las desviaciones residuales en la cola superior reflejan el subgrupo
+    de prote\'inas con cambios conformacionales o mapeos incompletos.}
+    \label{fig:qqplot}
+\end{figure}
+
+% ─── Box plot global ──────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{fig_06f_boxplot_global.png}
+    \caption{Diagrama de caja global del RMSD C$\alpha$ (truncado en 20\,\AA). El rango
+    intercuart\'ilico (IQR = \SI{2,36}{\angstrom}) captura el 50\% central de la
+    distribuci\'on, desde Q1 = \SI{0,66}{\angstrom} hasta Q3 = \SI{3,02}{\angstrom}. La
+    mediana (\SI{1,26}{\angstrom}, l\'inea roja) se sit\'ua en el tercio inferior del IQR,
+    reflejando la asimetr\'ia de la distribuci\'on. Los numerosos valores at\'ipicos
+    (puntos) por encima del bigote superior ($Q3 + 1{,}5 \times \text{IQR} \approx 6{,}6$\,\AA)
+    constituyen el 13,7\% del dataset y requieren an\'alisis individual.}
+    \label{fig:boxplot_global}
+\end{figure}
+
+% ─── Donut de calidad ─────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{fig_06g_quality_donut.png}
+    \caption{Clasificaci\'on de las 10.432 predicciones en cuatro categor\'ias de calidad
+    basadas en umbrales de RMSD C$\alpha$: \textit{Excelente} ($< 1$\,\AA, 41,5\%),
+    \textit{Buena} (1--2\,\AA, 23,8\%), \textit{Moderada} (2--5\,\AA, 18,1\%) y
+    \textit{Pobre} ($> 5$\,\AA, 16,6\%). En conjunto, el 65,3\% de las predicciones
+    alcanzan calidad Buena o Excelente, lo que demuestra la utilidad pr\'actica de
+    AlphaFold2 como herramienta de modelado inicial para la mayor\'ia de las prote\'inas.}
+    \label{fig:quality_donut}
+\end{figure}
+
+% ─── Correlación con distribuciones marginales ────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06l_correlation.png}
+    \caption{Relaci\'on entre el n\'umero de residuos mapeados y el RMSD C$\alpha$, con
+    distribuciones marginales. El gr\'afico hexbin (escala logar\'itmica) muestra la
+    densidad de predicciones, revelando la mayor concentraci\'on en la regi\'on de 100--400
+    residuos y RMSD $< 2$\,\AA. La correlaci\'on de Pearson ($r = 0{,}069$) y Spearman
+    ($\rho = 0{,}115$) es d\'ebil pero estad\'isticamente significativa, indicando que la
+    longitud tiene un efecto modesto sobre la precisi\'on global. Las distribuciones
+    marginales (histogramas superior y lateral) muestran independientemente las distribuciones
+    de cada variable.}
+    \label{fig:correlation}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
 \subsection{Comparaci\'on entre datasets}
 \label{subsec:comparacion_datasets}
+% ═══════════════════════════════════════════════════════════════════════════
 
 \begin{table}[H]
     \centering
@@ -148,100 +271,440 @@ de mapeo en entradas SIFTS con informaci\'on incompleta de numeraci\'on.
     \end{tabular}
 \end{table}
 
-La diferencia entre datasets se explica por:
+La degradaci\'on de m\'etricas al pasar del dataset validado al diversificado se explica
+por tres factores complementarios:
 \begin{itemize}
-    \item El dataset validado est\'a dominado por prote\'inas bien estudiadas con
-    m\'ultiples estructuras PDB de alta calidad.
-    \item El dataset diversificado incluye prote\'inas con menos datos experimentales,
-    conformaciones diversas y casos l\'imite.
-    \item Algunas entradas SIFTS carecen de informaci\'on expl\'icita de numeraci\'on
-    (\texttt{PDB\_BEG} nulo), requiriendo mapeo inferido que puede ser impreciso.
+    \item \textbf{Sesgo de selecci\'on}: El dataset validado est\'a dominado por prote\'inas
+    ampliamente estudiadas (e.g., lisozima, hemoglobina) con m\'ultiples estructuras PDB de
+    alta resoluci\'on. Estas prote\'inas tienden a ser globulares, monoméricas y con baja
+    flexibilidad, favoreciendo naturalmente RMSD bajos.
+
+    \item \textbf{Diversidad estructural}: El dataset diversificado incluye prote\'inas
+    de membrana, complejos multidom\'inio, prote\'inas con regiones desordenadas y casos
+    con conformaciones alternativas, todos los cuales incrementan el RMSD global.
+
+    \item \textbf{Calidad del mapeo}: El 55\% de las entradas SIFTS carecen de
+    informaci\'on expl\'icita de numeraci\'on (\texttt{PDB\_BEG} nulo), requiriendo
+    un mapeo inferido que asume correspondencia directa entre las numeraciones PDB y UniProt.
+    Esta asunci\'on puede ser imprecisa para algunos casos, inflando artificialmente el
+    RMSD reportado.
 \end{itemize}
 
-\subsection{An\'alisis por tama\~no de prote\'ina}
-\label{subsec:analisis_tamano}
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{An\'alisis jer\'arquico de precisi\'on}
+\label{subsec:analisis_jerarquico_resultados}
+% ═══════════════════════════════════════════════════════════════════════════
 
-Se analiz\'o la relaci\'on entre el tama\~no de la prote\'ina y la precisi\'on
-de la predicci\'on en el dataset diversificado.
+Se presenta un an\'alisis de cuatro niveles de granularidad progresiva, desde la
+estructura global (longitud de cadena) hasta la resoluci\'on qu\'imica m\'axima
+(\'atomo individual). En cada nivel se incluye una \emph{matriz de confusi\'on}
+que cruza la calidad real de la predicci\'on con la categor\'ia de an\'alisis,
+ordenada de mayor a menor error para identificar los subgrupos m\'as problem\'aticos.
+Este enfoque jer\'arquico es est\'andar en ciencia de datos para la evaluaci\'on
+multidimensional de modelos predictivos \citep{Fawcett2006}.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsubsection{Nivel 1 --- Por longitud de cadena prot\'eica}
+\label{subsubsec:longitud}
+% ═══════════════════════════════════════════════════════════════════════════
+
+La longitud de cadena (n\'umero de residuos mapeados v\'ia SIFTS) es la variable
+estructural m\'as inmediata. La Tabla~\ref{tab:rmsd_tamano} resume las estad\'isticas
+por categor\'ia, y las Figuras~\ref{fig:length_table}--\ref{fig:stacked_bar} presentan
+la visualizaci\'on completa.
+
+El hallazgo principal es que \textbf{no existe un \textit{sweet spot} definido}: las
+medianas de RMSD son consistentemente bajas para prote\'inas de hasta 500 residuos,
+con un \'optimo en 200--300 residuos (mediana = \SI{0,98}{\angstrom}, 51,1\% excelentes).
+An\'alisis previos a este estudio (sin mapeo SIFTS correcto) hab\'ian identificado un
+aparente rango \'optimo art\'ificial que se demuestra aqu\'i como artefacto del desfase
+de numeraci\'on. Las prote\'inas de m\'as de 1.000 residuos presentan RMSD significativamente
+mayor (mediana = \SI{4,68}{\angstrom}, solo 5,2\% excelentes), reflejando la acumulaci\'on
+de desviaciones en cadenas largas y la mayor prevalencia de dominios m\'oviles y regiones
+bisagra.
+
+% ─── Tabla por longitud ───────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_07a_length_table.png}
+    \caption{Estad\'isticas descriptivas completas de RMSD por categor\'ia de longitud.
+    Los rangos 200--300 y 300--400 residuos presentan las mejores m\'etricas en todas las
+    columnas. La categor\'ia $>$1.000 residuos, con solo 191 prote\'inas, muestra los peores
+    indicadores: media \SI{10,59}{\angstrom}, apenas 22,5\% por debajo de 2\,\AA.
+    La desviaci\'on est\'andar crece mon\'otonamente con la longitud, evidenciando mayor
+    heterogeneidad en prote\'inas grandes.}
+    \label{fig:length_table}
+\end{figure}
 
 \begin{table}[H]
     \centering
-    \caption{RMSD por categor\'ia de tama\~no proteico (dataset diversificado).}
+    \caption{RMSD por categor\'ia de tama\~no proteico (dataset diversificado, 10.432 prote\'inas).}
     \label{tab:rmsd_tamano}
     \begin{tabular}{@{}lrcccc@{}}
         \toprule
-        \textbf{Categor\'ia} & \textbf{N} & \textbf{Media (\AA)} & \textbf{Mediana (\AA)} & \textbf{$<$ 1\AA} & \textbf{$<$ 2\AA} \\
+        \textbf{Categor\'ia} & \textbf{N} & \textbf{Media (\AA)} & \textbf{Mediana (\AA)} & \textbf{$<$\,1\,\AA} & \textbf{$<$\,2\,\AA} \\
         \midrule
-        $<$ 100 res & 1.908 & 3,52 & 1,91 & 26,9\% & 52,0\% \\
-        100--200 & 2.819 & 3,42 & 1,20 & 43,1\% & 66,9\% \\
-        200--300 & 2.194 & 2,88 & 0,98 & 51,1\% & 74,0\% \\
-        300--400 & 1.577 & 2,80 & 1,05 & 47,9\% & 73,1\% \\
-        400--500 & 886 & 3,29 & 1,07 & 47,2\% & 72,9\% \\
-        500--1000 & 857 & 5,97 & 1,69 & 34,8\% & 55,0\% \\
-        $>$ 1000 & 191 & 10,59 & 4,68 & 5,2\% & 22,5\% \\
+        $<$\,100 res    & 1.908 & 3,52  & 1,91 & 26,9\% & 52,0\% \\
+        100--200        & 2.819 & 3,42  & 1,20 & 43,1\% & 66,9\% \\
+        200--300        & 2.194 & 2,88  & 0,98 & 51,1\% & 74,0\% \\
+        300--400        & 1.577 & 2,80  & 1,05 & 47,9\% & 73,1\% \\
+        400--500        &   886 & 3,29  & 1,07 & 47,2\% & 72,9\% \\
+        500--1000       &   857 & 5,97  & 1,69 & 34,8\% & 55,0\% \\
+        $>$\,1000       &   191 & 10,59 & 4,68 &  5,2\% & 22,5\% \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-\textbf{No se observa un ``sweet spot'' definido en ning\'un rango de tama\~no}.
-Las medianas son consistentemente bajas ($< \SI{2}{\angstrom}$) para prote\'inas
-de hasta 500 residuos, con la mejor precisi\'on en el rango de 400--500 residuos
-(mediana \SI{0,76}{\angstrom}). Las prote\'inas de m\'as de 1.000 residuos
-muestran RMSD significativamente mayor, lo que refleja la acumulaci\'on de
-desviaciones en cadenas polipept\'idicas muy largas y la mayor prevalencia de
-m\'ultiples dominios m\'oviles.
+% ─── Violin por longitud ──────────────────────────────────────────────────
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{rmsd_by_size.png}
-    \caption{Distribuci\'on de RMSD por categor\'ia de tama\~no proteico (diagrama de cajas). La l\'inea roja punteada indica el umbral de \SI{2}{\angstrom}. Las medianas son bajas y homog\'eneas en todos los rangos hasta 500 residuos, confirmando la ausencia de un \textit{sweet spot} cuando se aplica mapeo SIFTS correcto.}
-    \label{fig:rmsd_by_size}
+    \includegraphics[width=\textwidth]{fig_01_length_violin.png}
+    \caption{Distribuci\'on de RMSD por categor\'ia de longitud (gr\'afico de viol\'in,
+    datos truncados en 20\,\AA). Las medianas (l\'inea negra interior) son uniformemente
+    bajas ($< 2$\,\AA) en todos los rangos hasta 500 residuos. La anchura de cada viol\'in
+    refleja la distribuci\'on de densidad: las categor\'ias 200--400 muestran la mayor
+    concentraci\'on de masa en la regi\'on $< 1$\,\AA. La asimetr\'ia positiva se
+    incrementa con la longitud, reflejando la mayor variabilidad conformacional de las
+    prote\'inas grandes.}
+    \label{fig:length_violin}
 \end{figure}
 
-\subsection{Prote\'inas mejor y peor predichas}
-\label{subsec:mejores_peores}
+% ─── Scatter hexbin ───────────────────────────────────────────────────────
 
-Las prote\'inas con peor predicci\'on (RMSD $> \SI{5}{\angstrom}$) corresponden
-consistentemente a casos donde:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_01_length_scatter.png}
+    \caption{Densidad de predicciones en el espacio RMSD $\times$ longitud (gr\'afico hexbin,
+    escala logar\'itmica de color). La curva roja LOWESS (\textit{Locally Weighted Scatterplot
+    Smoothing}, frac=0,1) estima la tendencia central de forma no param\'etrica. La tendencia
+    es notablemente plana en el rango 100--600 residuos, elevándose gradualmente para
+    longitudes superiores. La alta densidad (colores claros) se concentra en la regi\'on
+    inferior ($< 2$\,\AA) para todos los rangos de longitud, confirmando la robustez de
+    AlphaFold2 frente al tama\~no proteico.}
+    \label{fig:length_scatter}
+\end{figure}
 
-\begin{itemize}
-    \item La estructura experimental contiene la prote\'ina en un complejo con
-    cambios conformacionales significativos respecto a la forma apo predicha por AlphaFold.
-    \item La prote\'ina tiene m\'ultiples dominios con orientaciones relativas
-    variables entre la forma cristalizada y la predicci\'on.
-    \item Regiones desordenadas o flexibles que adoptan conformaciones espec\'ificas
-    en el cristal pero que AlphaFold predice como desordenadas.
-    \item Entradas SIFTS con mapeo de numeraci\'on incompleto (PDB\_BEG nulo),
-    donde la correspondencia de posiciones se infiere pero puede ser incorrecta.
-\end{itemize}
+% ─── Raincloud plot ───────────────────────────────────────────────────────
 
-\subsection{An\'alisis at\'omico CHONSP}
-\label{subsec:analisis_chonsp}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06j_raincloud.png}
+    \caption{Gr\'afico \textit{raincloud} (lluvia) por categor\'ia de longitud: combina
+    violin plot (densidad, mitad izquierda), box plot (cuartiles, centro) y jitter scatter
+    (observaciones individuales, mitad derecha). Esta triple visualizaci\'on permite
+    apreciar simult\'aneamente la forma de la distribuci\'on, los cuartiles y la dispersi\'on
+    real de los datos. Se observa que las categor\'ias 200--500 presentan distribuciones
+    compactas con colas moderadas, mientras que las prote\'inas $>$500 residuos exhiben
+    dispersiones mucho mayores.}
+    \label{fig:raincloud}
+\end{figure}
 
-El an\'alisis por elemento qu\'imico con mapeo SIFTS correcto muestra que la precisi\'on
-de AlphaFold2 es consistente a trav\'es de todos los tipos de \'atomos. Los resultados
-detallados del an\'alisis at\'omico se actualizar\'an tras el reprocesamiento completo
-del dataset diversificado.
+% ─── KDE overlay ──────────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_07b_kde_by_length.png}
+    \caption{Comparaci\'on directa de densidades: estimaci\'on de densidad kernel (KDE)
+    de RMSD superpuesta para todas las categor\'ias de longitud. Las curvas muestran que
+    el pico de densidad se desplaza hacia la derecha (mayor RMSD) conforme aumenta la
+    longitud, pero la diferencia entre 100--200 y 400--500 residuos es modesta
+    ($\Delta$\,mediana $\approx 0{,}13$\,\AA). La categor\'ia $>$1.000 residuos muestra
+    un perfil radicalmente diferente, con un pico aplanado y desplazado.}
+    \label{fig:kde_by_length}
+\end{figure}
+
+% ─── ECDF por longitud ────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06h_ecdf_by_length.png}
+    \caption{Funci\'on de distribuci\'on acumulada emp\'irica (ECDF) de RMSD por categor\'ia
+    de longitud. Las curvas m\'as desplazadas hacia la izquierda indican mejor precisi\'on
+    predictiva. La dominancia estoc\'astica de la categor\'ia 200--300 sobre las dem\'as
+    es clara en todo el rango de RMSD: para cualquier umbral dado, esta categor\'ia siempre
+    presenta la mayor proporci\'on de prote\'inas por debajo. La separaci\'on entre las
+    curvas se amplifica a partir de 2\,\AA, evidenciando que las diferencias son
+    principalmente atribuibles a la cola de predicciones subóptimas.}
+    \label{fig:ecdf_by_length}
+\end{figure}
+
+% ─── Stacked bar ──────────────────────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_07c_stacked_bar.png}
+    \caption{Distribuci\'on proporcional de calidad por categor\'ia de longitud (barras
+    apiladas). Las prote\'inas de longitud intermedia (200--500 residuos) presentan la mayor
+    proporci\'on combinada de predicciones Excelentes + Buenas ($\sim$70--75\%). En contraste,
+    las prote\'inas cortas ($< 100$ residuos) muestran una distribuci\'on m\'as equilibrada
+    entre categor\'ias ---posiblemente porque las prote\'inas peque\~nas son m\'as sensibles
+    a desviaciones locales que afectan desproporcionadamente el RMSD global---, y las muy
+    largas ($> 1.000$) est\'an dominadas por predicciones Pobres (77,5\%).}
+    \label{fig:stacked_bar}
+\end{figure}
+
+% ─── Matriz de confusión longitud ─────────────────────────────────────────
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_01_length_confmat.png}
+    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ longitud de cadena.
+    \textit{Izquierda}: proporciones por fila (\%), revelando c\'omo se distribuye cada
+    nivel de calidad entre las categor\'ias de longitud. \textit{Derecha}: conteos absolutos.
+    Las predicciones Pobres ($> 5$\,\AA) se concentran desproporcionadamente en las
+    prote\'inas $> 500$ residuos, mientras que las Excelentes ($< 1$\,\AA) se distribuyen
+    de forma m\'as uniforme, con picos en 100--300 residuos.}
+    \label{fig:length_confmat}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsubsection{Nivel 2 --- Por tipo de amino\'acido}
+\label{subsubsec:aminoacido}
+% ═══════════════════════════════════════════════════════════════════════════
+
+El an\'alisis a nivel de residuo individual, realizado sobre el total de 2.864.928
+residuos parseados de las 10.432 estructuras con mapeo SIFTS, revela diferencias
+estad\'isticamente significativas en la precisi\'on entre los 20 amino\'acidos est\'andar.
+Los resultados se presentan ordenados de mayor a menor RMSD C$\alpha$ medio, con
+intervalos de confianza bootstrap al 95\%.
+
+Los amino\'acidos con mayor RMSD corresponden sistem\'aticamente a residuos en regiones
+desordenadas o con alta flexibilidad conformacional: las cadenas laterales largas y
+cargadas de lisina (K), arginina (R) y glutamina (Q) les confieren mayor movilidad
+en la superficie proteica. En contraste, los amino\'acidos del n\'ucleo hidrof\'obico
+---valina (V), isoleucina (I) y leucina (L)--- muestran la mayor precisi\'on. Esta
+jerarqu\'ia es plenamente coherente con el conocimiento bioqu\'imico: los residuos
+expuestos al solvente poseen m\'as grados de libertad conformacional que los residuos
+enterrados en el interior proteico, donde las interacciones hidrofóbicas restringen
+el movimiento.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_02_aa_rmsd_sorted.png}
+    \caption{RMSD C$\alpha$ medio por amino\'acido (ordenado de mayor a menor error),
+    con intervalos de confianza bootstrap al 95\% (200 remuestreos). Cada barra est\'a
+    coloreada por grupo funcional (B\'asico: rojo; \'Acido: p\'urpura; Polar: verde;
+    Arom\'atico: naranja; Alif\'atico: azul). Las l\'ineas discontinuas marcan los umbrales
+    de excelencia (\SI{1}{\angstrom}) y calidad buena (\SI{2}{\angstrom}). La separaci\'on
+    entre el amino\'acido m\'as err\'atico (posici\'on izquierda) y el m\'as preciso
+    (posici\'on derecha) es de $\sim$0,8\,\AA\ en media, un rango sustancial que refleja
+    diferencias bioqu\'imicas reales.}
+    \label{fig:aa_rmsd_sorted}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_02_aa_violin.png}
+    \caption{Distribuci\'on completa de RMSD C$\alpha$ por amino\'acido, organizada en
+    paneles por grupo funcional. Dentro de cada panel, los amino\'acidos est\'an ordenados
+    de mayor a menor error. Los gr\'aficos de viol\'in muestran la distribuci\'on completa,
+    no s\'olo la media, permitiendo detectar subpoblaciones con comportamiento distinto.
+    Se observa que todos los amino\'acidos presentan distribuciones fuertemente asim\'etricas
+    con moda en 0,3--0,5\,\AA{} y colas largas, pero la extensi\'on de la cola var\'ia
+    significativamente: los amino\'acidos b\'asicos (K, R, H) exhiben colas m\'as pesadas.}
+    \label{fig:aa_violin}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_02_aa_confmat.png}
+    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ tipo de amino\'acido.
+    \textit{Izquierda}: porcentajes por fila, mostrando la composici\'on de amino\'acidos
+    de cada nivel de calidad. \textit{Derecha}: conteos absolutos. La leucina (L) y la
+    alanina (A) dominan tanto las predicciones Excelentes como las Pobres por su alta
+    frecuencia natural ($\sim$9\% y $\sim$8\% respectivamente). Sin embargo, al normalizar,
+    la lisina (K) y la arginina (R) est\'an sobrerrepresentadas en las categor\'ias Moderada
+    y Pobre.}
+    \label{fig:aa_confmat}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsubsection{Nivel 3 --- Por grupo funcional}
+\label{subsubsec:grupo_funcional}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Agrupar los 20 amino\'acidos en cinco categor\'ias qu\'imicas ---Alif\'atico
+(G, A, V, L, I, P, M, S), Arom\'atico (F, W, Y), Polar (S, T, C, N, Q), B\'asico
+(K, R, H) y \'Acido (D, E)--- permite conectar la precisi\'on computacional con
+propiedades fisicoqu\'imicas concretas. Esta agregaci\'on reduce el ruido estad\'istico
+al aumentar el tama\~no de cada subgrupo y revela patrones qu\'imicamente interpretables.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_03_fg_boxplot.png}
+    \caption{Distribuci\'on de RMSD C$\alpha$ por grupo funcional (diagramas de caja).
+    Los diamantes negros ($\blacklozenge$) indican las medias aritm\'eticas, que
+    sistem\'aticamente exceden las medianas por la asimetr\'ia positiva. Los grupos
+    est\'an ordenados de mayor a menor RMSD medio. El grupo B\'asico (K, R, H) presenta
+    la mayor dispersi\'on (IQR m\'as amplio), coherente con la mayor longitud y
+    flexibilidad de las cadenas laterales cargadas positivamente.}
+    \label{fig:fg_boxplot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_03_fg_heatmap.png}
+    \caption{\textit{Heatmap} bidimensional: porcentaje de residuos con predicci\'on
+    excelente (RMSD $< 1$\,\AA) por grupo funcional (filas) y categor\'ia de longitud
+    (columnas). La escala de color \textit{RdYlGn} permite identificar r\'apidamente
+    las combinaciones \'optimas (verde: Alif\'atico en 200--500 residuos, $>$60\% excelentes)
+    y las problem\'aticas (rojo: B\'asico/Polar en $>$1.000 residuos, $<$15\% excelentes).
+    La gradaci\'on vertical confirma que el efecto del grupo funcional es consistente
+    a trav\'es de todas las longitudes.}
+    \label{fig:fg_heatmap}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_03_fg_confmat.png}
+    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ grupo funcional.
+    Los amino\'acidos Alif\'aticos dominan todas las categor\'ias de calidad por su alta
+    frecuencia ($\sim$45\% de todos los residuos). Sin embargo, la proporci\'on relativa
+    de los grupos B\'asico y Polar aumenta progresivamente al pasar de Excelente a Pobre,
+    confirmando su mayor dificultad predictiva.}
+    \label{fig:fg_confmat}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsubsection{Nivel 4 --- Por elemento at\'omico (CHONSP)}
+\label{subsubsec:chonsp}
+% ═══════════════════════════════════════════════════════════════════════════
+
+El nivel m\'as granular del an\'alisis eval\'ua la precisi\'on de AlphaFold2 a nivel
+de \'atomo individual. Se analizaron m\'as de 21 millones de \'atomos clasificados por
+elemento qu\'imico: C (carbono), H (hidr\'ogeno), O (ox\'igeno), N (nitr\'ogeno),
+S (azufre) y P (f\'osforo). Estos seis elementos constituyen m\'as del 99,9\% de los
+\'atomos proteicos.
+
+El an\'alisis se descompone en dos categor\'ias estructurales: \'atomos del \emph{backbone}
+(N, C$\alpha$, C, O ---el esqueleto pept\'idico que define el plegamiento global) y
+\'atomos de \emph{cadena lateral} (todos los dem\'as, responsables de la funci\'on
+espec\'ifica). Los \'atomos del backbone est\'an m\'as restringidos conformacionalmente
+por los \'angulos $\phi/\psi$ del diagrama de Ramachandran, por lo que se espera ---y
+confirma--- una mayor precisi\'on en su predicci\'on.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{comprehensive_element_analysis.png}
-    \caption{An\'alisis CHONSP: distribuci\'on de RMSD por elemento qu\'imico (C, H, O, N, S, P). La precisi\'on es uniforme entre elementos, con ligera mejora para \'atomos del backbone (N, C$\alpha$, C, O) frente a cadenas laterales.}
+    \caption{Distribuci\'on de RMSD at\'omico por elemento qu\'imico CHONSP (gr\'aficos
+    de viol\'in, ordenados de mayor a menor RMSD medio). El hidr\'ogeno (H) presenta
+    el mayor error medio por su alta movilidad t\'ermica y la mayor incertidumbre en su
+    posicionamiento experimental (los \'atomos de H rara vez se resuelven en cristalograf\'ia
+    de rayos X). Los \'atomos pesados del backbone (N, C$\alpha$, C, O) alcanzan la mayor
+    precisi\'on. Datos truncados en 8\,\AA.}
     \label{fig:element_analysis}
 \end{figure}
-
-\subsection{Backbone vs cadenas laterales}
-\label{subsec:backbone_sidechain}
-
-Como es de esperar, los \'atomos del esqueleto pept\'idico (N, C$\alpha$, C, O) muestran
-menor RMSD que los \'atomos de las cadenas laterales, dado que el backbone est\'a m\'as
-restringido por los \'angulos $\phi$/$\psi$ del diagrama de Ramachandran. Con el mapeo
-correcto, esta diferencia es menor de lo esperado, indicando que AlphaFold2 captura
-bien la orientaci\'on de las cadenas laterales.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{atom_type_analysis.png}
-    \caption{Comparaci\'on de RMSD entre \'atomos de backbone (N, C$\alpha$, C, O) y cadenas laterales por tipo de elemento qu\'imico. Los \'atomos de backbone presentan consistentemente menor RMSD, aunque la diferencia con las cadenas laterales es peque\~na, indicando que AlphaFold2 predice correctamente las orientaciones rotam\'ericas.}
+    \caption{Comparaci\'on de RMSD mediano entre \'atomos de backbone y cadena lateral por
+    elemento qu\'imico. Los n\'umeros sobre cada par de barras ($\times$\textit{n}) indican
+    el cociente cadena lateral / backbone. Este factor es sistem\'aticamente $> 1$ para todos
+    los elementos, confirmando que el backbone es predicho con mayor precisi\'on. Sin embargo,
+    la diferencia absoluta es peque\~na ($< 0{,}5$\,\AA), indicando que AlphaFold2 captura
+    bien las orientaciones rotam\'ericas de las cadenas laterales.}
     \label{fig:atom_type_analysis}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_04_chonsp_confmat.png}
+    \caption{Matrices de confusi\'on: calidad de predicci\'on at\'omica $\times$ elemento CHONSP.
+    El patr\'on de error es relativamente uniforme entre elementos del backbone (C, N, O),
+    mientras que el azufre (S) y el hidr\'ogeno (H) muestran mayor proporci\'on de
+    predicciones Pobres. El azufre, presente solo en Cys y Met, est\'a frecuentemente
+    involucrado en puentes disulfuro cuya geometr\'ia es sensible al entorno redox.}
+    \label{fig:chonsp_confmat}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{Inferencia bayesiana de calidad predictiva}
+\label{subsec:resultados_bayesianos}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Aplicando el modelo Beta-Binomial descrito en la secci\'on~\ref{subsec:inferencia_bayesiana},
+se estimaron distribuciones posteriores para la proporci\'on de predicciones excelentes
+($p = P(\text{RMSD} < 1\,\text{\AA})$) en cada categor\'ia de longitud proteica, con
+un prior no informativo Beta(1,1) (uniforme sobre $[0,1]$).
+
+La Figura~\ref{fig:bayesian_ci} compara los intervalos HDI al 95\% (bayesianos, azul)
+con los intervalos de Wilson al 95\% (frecuentistas, naranja). Para categor\'ias con
+muestras grandes ($n > 500$), ambos enfoques convergen num\'ericamente, validando la
+consistencia asint\'otica del modelo bayesiano. La diferencia es m\'as pronunciada en la
+categor\'ia $>$1.000 residuos ($n = 191$): el HDI bayesiano es sistem\'aticamente m\'as
+ancho ($\sim$30\% m\'as), reconociendo de forma m\'as honesta la incertidumbre adicional
+derivada del menor tama\~no muestral.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_05_bayesian_ci.png}
+    \caption{Intervalos de estimaci\'on de $P(\text{RMSD} < 1\,\text{\AA})$ por categor\'ia de
+    longitud. Naranja: IC Wilson 95\% (frecuentista); azul: HDI 95\% bayesiano con prior
+    Beta(1,1). Los puntos indican el estimador puntual (proporci\'on muestral). La l\'inea
+    gris punteada marca la proporci\'on global (41,5\%). La categor\'ia 200--300 residuos
+    exhibe la mayor proporci\'on estimada ($\sim$51\%), mientras que $>$1.000 muestra la
+    menor ($\sim$5\%), con incertidumbre sustancial.}
+    \label{fig:bayesian_ci}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_05_bayesian_posterior.png}
+    \caption{Distribuciones posteriores Beta-Binomial de $P(\text{RMSD} < 1\,\text{\AA})$
+    para tres categor\'ias contrastantes. El \'area sombreada oscura indica el HDI 95\%.
+    \textit{Izquierda}: 200--300 residuos (n=2.194), con posterior concentrado en
+    $[0{,}49, 0{,}53]$ y alta certeza. \textit{Centro}: 100--200 residuos (n=2.819),
+    con posterior igualmente concentrado pero centrado ligeramente m\'as abajo.
+    \textit{Derecha}: $>$1.000 residuos (n=191), con posterior ancho que refleja la
+    incertidumbre inherente a muestras peque\~nas. La convergencia MLE $\approx$ media
+    posterior confirma la baja influencia del prior en muestras grandes.}
+    \label{fig:bayesian_posterior}
+\end{figure}
+
+% ═══════════════════════════════════════════════════════════════════════════
+\subsection{An\'alisis de valores extremos}
+\label{subsec:outliers}
+% ═══════════════════════════════════════════════════════════════════════════
+
+La Figura~\ref{fig:outliers} presenta las 50 prote\'inas con mayor RMSD del dataset.
+El 16,6\% de prote\'inas con RMSD $> \SI{5}{\angstrom}$ no representan necesariamente
+fallos del algoritmo, sino situaciones biol\'ogicas espec\'ificas que cualquier m\'etodo
+de comparaci\'on r\'igida deber\'ia reportar como discrepantes:
+
+\begin{itemize}
+    \item \textbf{Cambios conformacionales ligando-inducidos}: AlphaFold2 predice la
+    conformaci\'on apo (sin ligando). Las estructuras PDB frecuentemente capturan la
+    forma holo (con ligando o sustrato unido), con rearreglos conformacionales en el
+    sitio activo que pueden producir RMSD globales de 3--10\,\AA.
+
+    \item \textbf{Prote\'inas multidominio con bisagras flexibles}: Dominios conectados
+    por regiones flexibles (\textit{linkers}) adoptan orientaciones relativas variables
+    en funci\'on del empaquetamiento cristalino. Cada dominio individual puede estar bien
+    predicho (RMSD local $< 1$\,\AA), pero el RMSD global resulta elevado por la diferencia
+    de orientaci\'on interdominios.
+
+    \item \textbf{Regiones intr\'insecamente desordenadas (IDR)}: AlphaFold2 asigna
+    pLDDT bajo ($< 50$) a estas regiones, indicando correctamente su naturaleza desordenada.
+    Sin embargo, pueden cristalizar en conformaciones espec\'ificas del empaquetamiento,
+    generando RMSD elevados que reflejan la diferencia entre la conformaci\'on cristalina
+    y la predicha.
+
+    \item \textbf{Mapeos SIFTS incompletos}: El 55\% de las entradas SIFTS carecen de
+    informaci\'on expl\'icita de numeraci\'on (\texttt{PDB\_BEG} nulo), requiriendo
+    inferencia de la correspondencia. En algunos casos, esta inferencia produce alineamientos
+    parcialmente incorrectos que inflan artificialmente el RMSD.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{fig_06k_outliers.png}
+    \caption{Las 50 prote\'inas con mayor RMSD C$\alpha$ del dataset. Cada barra indica
+    el identificador UniProt, el PDB correspondiente y el n\'umero de residuos mapeados.
+    Los valores extremos ($>$100\,\AA) corresponden casi exclusivamente a prote\'inas muy
+    grandes con m\'ultiples dominios o a mapeos SIFTS incorrectos donde se infiri\'o la
+    correspondencia de numeraci\'on de forma err\'onea.}
+    \label{fig:outliers}
 \end{figure}

@@ -153,10 +153,6 @@ SIFTS (pdb_chain_uniprot.csv)
 
 Ver [pyproject.toml](pyproject.toml) para versiones específicas.
 
-## Licencia
-
-MIT License
-
 ## Autor
 
-Antonio Tapia
+Antonio Tapia — Maestría en Ciencia de Datos, ITAM
