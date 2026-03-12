@@ -13,7 +13,7 @@ El presente estudio integra informaci\'on de tres fuentes de datos p\'ublicas co
 \subsubsection{Base de datos SIFTS}
 \label{subsubsec:sifts}
 
-El servicio SIFTS (\textit{Structure Integration with Function, Taxonomy and Sequence}), mantenido por el Instituto Europeo de Bioinform\'atica (EBI), proporciona mapeos curados entre las entradas del Protein Data Bank (PDB) y diversas bases de datos de secuencias y anotaciones, incluyendo UniProt, Pfam, SCOP, CATH e InterPro \citep{Velankar2013}. SIFTS constituye el eslab\'on cr\'itico de nuestro \textit{pipeline}, ya que establece la correspondencia entre c\'odigos PDB (identificadores de estructuras experimentales) y c\'odigos de acceso UniProt (identificadores de secuencias prote\'icas), que a su vez permiten acceder a las predicciones de AlphaFold2.
+El servicio SIFTS (\textit{Structure Integration with Function, Taxonomy and Sequence}), mantenido por el Instituto Europeo de Bioinform\'atica (EBI), proporciona mapeos curados entre las entradas del Protein Data Bank (PDB) y diversas bases de datos de secuencias y anotaciones, incluyendo UniProt, Pfam, SCOP, CATH e InterPro \citep{velankar2013sifts}. SIFTS constituye el eslab\'on cr\'itico de nuestro \textit{pipeline}, ya que establece la correspondencia entre c\'odigos PDB (identificadores de estructuras experimentales) y c\'odigos de acceso UniProt (identificadores de secuencias prote\'icas), que a su vez permiten acceder a las predicciones de AlphaFold2.
 
 El mapeo SIFTS resuelve m\'ultiples complicaciones t\'ecnicas que dificultan la correspondencia directa entre PDB y UniProt: una misma entrada PDB puede contener m\'ultiples cadenas correspondientes a diferentes prote\'inas, una prote\'ina puede estar representada en m\'ultiples entradas PDB con diferentes condiciones experimentales, y las numeraciones de residuos en PDB no siempre coinciden con la numeraci\'on can\'onica de UniProt.
 
@@ -22,7 +22,7 @@ El mapeo SIFTS resuelve m\'ultiples complicaciones t\'ecnicas que dificultan la 
 \subsubsection{RCSB Protein Data Bank (PDB)}
 \label{subsubsec:pdb}
 
-El Protein Data Bank (PDB) es el repositorio internacional de estructuras tridimensionales de macromol\'eculas biol\'ogicas determinadas experimentalmente \citep{Berman2000}. Fundado en 1971 con apenas 7 estructuras, el PDB contiene actualmente m\'as de 210.000 entradas determinadas mediante cristalograf\'ia de rayos X, resonancia magn\'etica nuclear (RMN), criomicroscop\'ia electr\'onica (cryo-EM) y otros m\'etodos. Cada entrada incluye las coordenadas at\'omicas tridimensionales, informaci\'on sobre el m\'etodo experimental, la resoluci\'on (cuando aplica), factores de temperatura ($B$-factors) y metadatos extensivos.
+El Protein Data Bank (PDB) es el repositorio internacional de estructuras tridimensionales de macromol\'eculas biol\'ogicas determinadas experimentalmente \citep{berman2000protein}. Fundado en 1971 con apenas 7 estructuras, el PDB contiene actualmente m\'as de 210.000 entradas determinadas mediante cristalograf\'ia de rayos X, resonancia magn\'etica nuclear (RMN), criomicroscop\'ia electr\'onica (cryo-EM) y otros m\'etodos. Cada entrada incluye las coordenadas at\'omicas tridimensionales, informaci\'on sobre el m\'etodo experimental, la resoluci\'on (cuando aplica), factores de temperatura ($B$-factors) y metadatos extensivos.
 
 En nuestro estudio, las estructuras experimentales del PDB sirven como referencia (\textit{ground truth}) contra la cual se eval\'uan las predicciones de AlphaFold2. Las estructuras se obtuvieron en formato PDB (\texttt{.pdb}) desde los servidores del RCSB (\url{https://files.rcsb.org/download/}).
 
@@ -114,7 +114,7 @@ La estandarizaci\'on garantiza que las dos estructuras comparadas (experimental 
 \subsubsection{Objetivo 3: Superposici\'on y c\'alculo de RMSD}
 \label{subsubsec:superposicion}
 
-La superposici\'on estructural y el c\'alculo de RMSD se realizaron utilizando el m\'odulo \texttt{Superimposer} de la biblioteca BioPython \citep{Cock2009}:
+La superposici\'on estructural y el c\'alculo de RMSD se realizaron utilizando el m\'odulo \texttt{Superimposer} de la biblioteca BioPython \citep{cock2009biopython}:
 
 \begin{enumerate}
     \item \textbf{Extracci\'on de coordenadas}: Se extrajeron las coordenadas cartesianas $(x, y, z)$ de los \'atomos seleccionados en ambas estructuras, generando dos matrices de dimensi\'on $n \times 3$, donde $n$ es el n\'umero de \'atomos comunes.
@@ -219,7 +219,7 @@ Se calcularon las siguientes medidas de tendencia central y dispersi\'on para la
 
 \subsubsection{Pruebas de hip\'otesis}
 
-Para evaluar las diferencias entre subgrupos (por ejemplo, prote\'inas en el \textit{sweet spot} frente al resto), se emplearon dos pruebas complementarias:
+Para evaluar las diferencias entre subgrupos del an\'alisis jer\'arquico (por ejemplo, prote\'inas de una categor\'ia de longitud frente al resto, o amino\'acidos de un grupo funcional frente a los dem\'as), se emplearon dos pruebas complementarias:
 
 \begin{itemize}
     \item \textbf{Prueba $t$ de Student para muestras independientes}: Evalua si las medias de dos grupos son significativamente diferentes, asumiendo distribuci\'on normal de las medias muestrales (justificado por el teorema central del l\'imite dado el gran tama\~no muestral):
@@ -242,15 +242,15 @@ La significancia estad\'istica por s\'i sola no informa sobre la magnitud pr\'ac
         \label{eq:cohen_d}
     \end{equation}
 
-    Se interpretan seg\'un las convenciones de Cohen: $|d| < 0,2$ efecto peque\~no, $0,2 \leq |d| < 0,5$ efecto pequeno-mediano, $0,5 \leq |d| < 0,8$ efecto mediano, $|d| \geq 0,8$ efecto grande.
+    Se interpretan seg\'un las convenciones de \citet{cohen1988statistical}: $|d| < 0,2$ efecto peque\~no, $0,2 \leq |d| < 0,5$ efecto peque\~no-mediano, $0,5 \leq |d| < 0,8$ efecto mediano, $|d| \geq 0,8$ efecto grande.
 
-    \item \textbf{Raz\'on de momios} (\textit{Odds Ratio}, OR): Compara la probabilidad de obtener una predicci\'on excelente (RMSD $< \SI{1}{\angstrom}$) entre el grupo del \textit{sweet spot} y el resto:
+    \item \textbf{Raz\'on de momios} (\textit{Odds Ratio}, OR): Compara la probabilidad de obtener una predicci\'on excelente (RMSD $< \SI{1}{\angstrom}$) entre el subgrupo de inter\'es y el resto del dataset:
     \begin{equation}
-        \text{OR} = \frac{p_{\text{sweet}} / (1 - p_{\text{sweet}})}{p_{\text{rest}} / (1 - p_{\text{rest}})}
+        \text{OR} = \frac{p_{\text{grupo}} / (1 - p_{\text{grupo}})}{p_{\text{resto}} / (1 - p_{\text{resto}})}
         \label{eq:odds_ratio}
     \end{equation}
 
-    donde $p_{\text{sweet}}$ y $p_{\text{rest}}$ son las proporciones de predicciones excelentes en cada grupo.
+    donde $p_{\text{grupo}}$ y $p_{\text{resto}}$ son las proporciones de predicciones excelentes en cada subconjunto.
 \end{itemize}
 
 \subsubsection{Correlaci\'on}
@@ -262,4 +262,108 @@ Se calcul\'o el coeficiente de correlaci\'on de Pearson ($r$) para evaluar la re
     \label{eq:pearson}
 \end{equation}
 
-Todos los an\'alisis se realizaron con un nivel de significancia $\alpha = 0,05$, con correcci\'on de Bonferroni para comparaciones m\'ultiples cuando fue aplicable.
+Todos los an\'alisis frecuentistas se realizaron con un nivel de significancia $\alpha = 0,05$, con correcci\'on de Bonferroni para comparaciones m\'ultiples cuando fue aplicable.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection{Inferencia bayesiana de proporciones de calidad}
+\label{subsec:inferencia_bayesiana}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Complementariamente a los m\'etodos frecuentistas, se adopt\'o un marco de inferencia
+bayesiana para cuantificar la incertidumbre sobre las proporciones de predicciones
+de alta calidad en cada subgrupo del an\'alisis jer\'arquico. Este enfoque, coherente con
+las mejores pr\'acticas en ciencia de datos moderna \citep{Gelman2013}, permite expresar
+la incertidumbre como distribuciones de probabilidad sobre el par\'ametro de inter\'es,
+en lugar de intervalos basados en propiedades asint\'oticas de muestras hipot\'eticas.
+
+\subsubsection{Modelo Beta-Binomial}
+
+Se defini\'o el problema de estimar la proporci\'on de predicciones excelentes
+($p = P(\text{RMSD} < 1\,\text{\AA})$) en una categor\'ia dada como un modelo
+Beta-Binomial conjugado. Sean $n$ el n\'umero total de prote\'inas en la categor\'ia y
+$k$ el n\'umero con RMSD $< 1$\,\AA{}:
+
+\begin{equation}
+    k \mid n, p \sim \operatorname{Binomial}(n,\, p)
+    \label{eq:likelihood}
+\end{equation}
+
+La elecci\'on del \emph{prior} $p \sim \operatorname{Beta}(\alpha_0, \beta_0)$ con
+$\alpha_0 = \beta_0 = 1$ (distribuc\'on uniforme en $[0,1]$) refleja un estado de
+informaci\'on no informativo antes de observar los datos, favoreciendo la objetividad
+del an\'alisis. La distribuci\'on posterior es anal\'iticamente tratable gracias a la
+conjugaci\'on del modelo Beta-Binomial:
+
+\begin{equation}
+    p \mid k, n \sim \operatorname{Beta}\!\left(\alpha_0 + k,\; \beta_0 + n - k\right)
+    \label{eq:posterior}
+\end{equation}
+
+La media de la distribuci\'on posterior ---el estimador de Bayes bajo p\'erdida cuadr\'atica---
+difiere ligeramente del estimador de m\'axima verosimilitud $\hat{p} = k/n$, incorporando
+la regularizaci\'on inducida por el prior:
+
+\begin{equation}
+    \mathbb{E}[p \mid k, n] = \frac{\alpha_0 + k}{\alpha_0 + \beta_0 + n}
+    = \frac{1 + k}{2 + n}
+    \label{eq:posterior_mean}
+\end{equation}
+
+\subsubsection{Intervalo de m\'axima densidad posterior (HDI)}
+
+En lugar del intervalo de confianza frecuentista, que tiene una interpretaci\'on
+contraintuitiva (``si repitiese el experimento infinitas veces, el 95\% de los
+intervalos calculados contendr\'ia el verdadero par\'ametro''), se reporta el
+\emph{Highest Density Interval} (HDI) al 95\%: el conjunto m\'as compacto de valores
+que contiene el 95\% de la masa de probabilidad posterior. Su interpretaci\'on es directa:
+dado lo observado, la probabilidad de que $p$ est\'e en el HDI es del 95\%.
+
+El HDI se calcul\'o num\'ericamente minimizando el ancho del intervalo
+$[\ell,\, u]$ sujeto a:
+
+\begin{equation}
+    \int_{\ell}^{u} \operatorname{Beta}(p;\, \alpha_0+k,\, \beta_0+n-k)\,\mathrm{d}p = 0{,}95
+    \label{eq:hdi}
+\end{equation}
+
+\subsubsection{Comparaci\'on con el enfoque frecuentista}
+
+Para cada categor\'ia del an\'alisis jer\'arquico se report\'o, en paralelo,
+el intervalo de Wilson al 95\% \citep{Wilson1927}, una aproximaci\'on frecuentista
+que corrige el sesgo del intervalo de Wald para proporciones cercanas a 0 o 1:
+
+\begin{equation}
+    \hat{p}_{\text{Wilson}} \pm z_{0{,}975}
+    \frac{\sqrt{n\,\hat{p}(1-\hat{p}) + z_{0{,}975}^2/4}}{n + z_{0{,}975}^2}
+    \label{eq:wilson}
+\end{equation}
+
+La comparaci\'on visual entre ambos enfoques (Figura~\ref{fig:bayesian_ci}) ilustra c\'omo,
+para submuestras peque\~nas (ej. prote\'inas $>1000$ residuos, $n \approx 200$), el HDI
+bayesiano es m\'as ancho y conservador, capturando mejor la incertidumbre real.
+
+\subsection{An\'alisis jer\'arquico de precisión}
+\label{subsec:analisis_jerarquico}
+
+La evaluación de la precisión de AlphaFold2 se estructuró en cuatro niveles de análisis
+progresivamente más granulares, reflejando la jerarquía natural de la estructura proteica
+desde la perspectiva de la ciencia de datos:
+
+\begin{enumerate}
+    \item \textbf{Longitud de cadena}: variable de control primaria, directamente observable en el dataset de 10.432 proteínas.
+    \item \textbf{Tipo de aminoácido}: resolución a nivel de residuo, requiere parseo de archivos PDB/AlphaFold.
+    \item \textbf{Grupo funcional}: agrupación química de los 20 aminoácidos en 5 categorías, conecta precisión computacional con propiedades químicas.
+    \item \textbf{Elemento atómico (CHONSP)}: resolución máxima a nivel de átomo individual.
+\end{enumerate}
+
+Para los niveles 2--4, se construyó una caché de registros por residuo/\'atomo
+procesando las 10.432 estructuras con BioPython \citep{cock2009biopython} y el mapeo
+SIFTS, usando 8 procesos paralelos (\texttt{concurrent.futures.ProcessPoolExecutor}).
+Los resultados intermedios se guardaron en formato Parquet para reproducibilidad.
+
+En cada nivel se construyeron \emph{matrices de confusión} que cruzan la calidad
+real de la predicci\'on (cuatro categor\'ias: Excelente/$<1$\,\AA, Buena/$<2$\,\AA,
+Moderada/$<5$\,\AA, Pobre/$\geq5$\,\AA) con la categor\'ia de an\'alisis correspondiente
+(longitud, amino\'acido, grupo funcional, elemento). Las filas est\'an ordenadas de
+mayor a menor error (Pobre arriba, Excelente abajo) para facilitar la identificaci\'on
+de los subgrupos m\'as problem\'aticos.

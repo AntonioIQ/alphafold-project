@@ -23,6 +23,7 @@ data/processed/clean_pdb/
 data/processed/clean_alphafold/
 data/processed/aligned_pairs/
 data/processed/temp/
+data/processed/residue_cache/
 
 # Mantener índices importantes
 !data/raw/mappings/id_list.csv
