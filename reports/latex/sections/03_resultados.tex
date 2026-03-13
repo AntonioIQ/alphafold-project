@@ -28,21 +28,40 @@ la precisi\'on estructural de AlphaFold2 bajo condiciones controladas y realista
     tras el mapeo (118 casos, 12,4\%).
 \end{enumerate}
 
-La Figura~\ref{fig:figure1_publication} presenta un resumen panor\'amico de los hallazgos
-principales del estudio, sintetizando la metodolog\'ia, el impacto del mapeo SIFTS, la
-distribuci\'on global de RMSD y la precisi\'on por categor\'ia de tama\~no.
+Las Figuras~\ref{fig:fig00a_pipeline}--\ref{fig:fig00d_excellence} presentan un resumen
+panor\'amico de los hallazgos principales del estudio, sintetizando la metodolog\'ia, el
+impacto del mapeo SIFTS, la distribuci\'on global de RMSD y la precisi\'on por categor\'ia
+de tama\~no.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{Figure1_publication.png}
-    \caption{Resumen panor\'amico del estudio. (A)~Pipeline metodol\'ogico: SIFTS como puente
-    entre PDB y AlphaFold2. (B)~Impacto del mapeo SIFTS correcto: la mediana de RMSD desciende
-    de \SI{22,54}{\angstrom} a \SI{0,64}{\angstrom} ($35\times$ mejora). (C)~Distribuci\'on de
-    RMSD para las 10.432 prote\'inas del dataset diversificado: mediana \SI{1,26}{\angstrom},
-    65,3\% con RMSD $< 2$\,\AA. (D)~Porcentaje de predicciones excelentes (RMSD $< 1$\,\AA)
-    por categor\'ia de longitud: las prote\'inas de 200--500 residuos alcanzan las mayores
-    tasas de \'exito ($\sim$50\%).}
-    \label{fig:figure1_publication}
+    \includegraphics[width=0.85\textwidth]{fig_00a_pipeline.png}
+    \caption{Esquema del pipeline de procesamiento con mapeo SIFTS}
+    \label{fig:fig00a_pipeline}
+\end{figure}
+
+La Figura~\ref{fig:fig00b_sifts} complementa la anterior mostrando el impacto cuantitativo
+del mapeo SIFTS correcto sobre las m\'etricas de comparaci\'on.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_00b_sifts_comparison.png}
+    \caption{Comparaci\'on de m\'etricas sin vs con mapeo SIFTS}
+    \label{fig:fig00b_sifts}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_00c_rmsd_histogram.png}
+    \caption{Distribuci\'on global de RMSD para 10,432 prote\'inas}
+    \label{fig:fig00c_rmsd}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_00d_excellence_by_length.png}
+    \caption{Tasa de predicci\'on excelente por categor\'ia de longitud}
+    \label{fig:fig00d_excellence}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -190,16 +209,24 @@ RMSD C$\alpha$.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_06e_qqplot.png}
-    \caption{Gr\'aficos cuantil-cuantil (Q-Q plots) para evaluar la normalidad de la
-    distribuci\'on. \textit{Izquierda}: RMSD crudo vs. distribuci\'on normal te\'orica;
-    la desviaci\'on severa en las colas confirma que el RMSD \textbf{no sigue una
-    distribuci\'on normal} (test de Shapiro-Wilk: $p < 10^{-50}$). \textit{Derecha}:
-    log$_{10}$(RMSD) vs. distribuci\'on normal; el ajuste es sustancialmente mejor,
-    especialmente en la regi\'on central ($\pm 2\sigma$), validando la aproximaci\'on
-    log-normal. Las desviaciones residuales en la cola superior reflejan el subgrupo
-    de prote\'inas con cambios conformacionales o mapeos incompletos.}
-    \label{fig:qqplot}
+    \includegraphics[width=0.85\textwidth]{fig_06e_qqplot_normal.png}
+    \caption{Diagrama Q-Q: RMSD vs distribuci\'on normal te\'orica}
+    \label{fig:qqplot_normal}
+\end{figure}
+
+La desviaci\'on severa en las colas del diagrama Q-Q normal (Figura~\ref{fig:qqplot_normal})
+confirma que el RMSD \textbf{no sigue una distribuci\'on normal} (test de Shapiro-Wilk:
+$p < 10^{-50}$). La Figura~\ref{fig:qqplot_lognormal} muestra que el ajuste es
+sustancialmente mejor en escala logar\'itmica, especialmente en la regi\'on central
+($\pm 2\sigma$), validando la aproximaci\'on log-normal. Las desviaciones residuales en
+la cola superior reflejan el subgrupo de prote\'inas con cambios conformacionales o
+mapeos incompletos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_06e_qqplot_lognormal.png}
+    \caption{Diagrama Q-Q: log$_{10}$(RMSD) vs distribuci\'on log-normal te\'orica}
+    \label{fig:qqplot_lognormal}
 \end{figure}
 
 % ─── Box plot global ──────────────────────────────────────────────────────
@@ -449,14 +476,21 @@ bisagra.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_01_length_confmat.png}
-    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ longitud de cadena.
-    \textit{Izquierda}: proporciones por fila (\%), revelando c\'omo se distribuye cada
-    nivel de calidad entre las categor\'ias de longitud. \textit{Derecha}: conteos absolutos.
-    Las predicciones Pobres ($> 5$\,\AA) se concentran desproporcionadamente en las
-    prote\'inas $> 500$ residuos, mientras que las Excelentes ($< 1$\,\AA) se distribuyen
-    de forma m\'as uniforme, con picos en 100--300 residuos.}
-    \label{fig:length_confmat}
+    \includegraphics[width=0.85\textwidth]{fig_01_length_confmat_prop.png}
+    \caption{Matriz de confusi\'on calidad $\times$ longitud: distribuci\'on proporcional (\% por fila)}
+    \label{fig:length_confmat_prop}
+\end{figure}
+
+La Figura~\ref{fig:length_confmat_count} complementa la anterior mostrando los conteos
+absolutos. Las predicciones Pobres ($> 5$\,\AA) se concentran desproporcionadamente en las
+prote\'inas $> 500$ residuos, mientras que las Excelentes ($< 1$\,\AA) se distribuyen
+de forma m\'as uniforme, con picos en 100--300 residuos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_01_length_confmat_count.png}
+    \caption{Matriz de confusi\'on calidad $\times$ longitud: conteos absolutos}
+    \label{fig:length_confmat_count}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -496,28 +530,64 @@ el movimiento.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_02_aa_violin.png}
-    \caption{Distribuci\'on completa de RMSD C$\alpha$ por amino\'acido, organizada en
-    paneles por grupo funcional. Dentro de cada panel, los amino\'acidos est\'an ordenados
-    de mayor a menor error. Los gr\'aficos de viol\'in muestran la distribuci\'on completa,
-    no s\'olo la media, permitiendo detectar subpoblaciones con comportamiento distinto.
-    Se observa que todos los amino\'acidos presentan distribuciones fuertemente asim\'etricas
-    con moda en 0,3--0,5\,\AA{} y colas largas, pero la extensi\'on de la cola var\'ia
-    significativamente: los amino\'acidos b\'asicos (K, R, H) exhiben colas m\'as pesadas.}
-    \label{fig:aa_violin}
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_violin_alifatico.png}
+    \caption{Distribuci\'on de RMSD por amino\'acido --- grupo alif\'atico}
+    \label{fig:aa_violin_alifatico}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_02_aa_confmat.png}
-    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ tipo de amino\'acido.
-    \textit{Izquierda}: porcentajes por fila, mostrando la composici\'on de amino\'acidos
-    de cada nivel de calidad. \textit{Derecha}: conteos absolutos. La leucina (L) y la
-    alanina (A) dominan tanto las predicciones Excelentes como las Pobres por su alta
-    frecuencia natural ($\sim$9\% y $\sim$8\% respectivamente). Sin embargo, al normalizar,
-    la lisina (K) y la arginina (R) est\'an sobrerrepresentadas en las categor\'ias Moderada
-    y Pobre.}
-    \label{fig:aa_confmat}
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_violin_aromatico.png}
+    \caption{Distribuci\'on de RMSD por amino\'acido --- grupo arom\'atico}
+    \label{fig:aa_violin_aromatico}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_violin_polar.png}
+    \caption{Distribuci\'on de RMSD por amino\'acido --- grupo polar}
+    \label{fig:aa_violin_polar}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_violin_basico.png}
+    \caption{Distribuci\'on de RMSD por amino\'acido --- grupo b\'asico}
+    \label{fig:aa_violin_basico}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_violin_acido.png}
+    \caption{Distribuci\'on de RMSD por amino\'acido --- grupo \'acido}
+    \label{fig:aa_violin_acido}
+\end{figure}
+
+Los gr\'aficos de viol\'in (Figuras~\ref{fig:aa_violin_alifatico}--\ref{fig:aa_violin_acido})
+muestran la distribuci\'on completa de RMSD C$\alpha$ por amino\'acido, organizada por grupo
+funcional. Dentro de cada panel, los amino\'acidos est\'an ordenados de mayor a menor error.
+Se observa que todos los amino\'acidos presentan distribuciones fuertemente asim\'etricas
+con moda en 0,3--0,5\,\AA{} y colas largas, pero la extensi\'on de la cola var\'ia
+significativamente: los amino\'acidos b\'asicos (K, R, H) exhiben colas m\'as pesadas.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_confmat_prop.png}
+    \caption{Matriz de confusi\'on calidad $\times$ amino\'acido: distribuci\'on proporcional}
+    \label{fig:aa_confmat_prop}
+\end{figure}
+
+La Figura~\ref{fig:aa_confmat_count} complementa la anterior mostrando los conteos absolutos.
+La leucina (L) y la alanina (A) dominan tanto las predicciones Excelentes como las Pobres por
+su alta frecuencia natural ($\sim$9\% y $\sim$8\% respectivamente). Sin embargo, al normalizar,
+la lisina (K) y la arginina (R) est\'an sobrerrepresentadas en las categor\'ias Moderada
+y Pobre.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_02_aa_confmat_count.png}
+    \caption{Matriz de confusi\'on calidad $\times$ amino\'acido: conteos absolutos}
+    \label{fig:aa_confmat_count}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -558,13 +628,22 @@ al aumentar el tama\~no de cada subgrupo y revela patrones qu\'imicamente interp
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_03_fg_confmat.png}
-    \caption{Matrices de confusi\'on: calidad de predicci\'on $\times$ grupo funcional.
-    Los amino\'acidos Alif\'aticos dominan todas las categor\'ias de calidad por su alta
-    frecuencia ($\sim$45\% de todos los residuos). Sin embargo, la proporci\'on relativa
-    de los grupos B\'asico y Polar aumenta progresivamente al pasar de Excelente a Pobre,
-    confirmando su mayor dificultad predictiva.}
-    \label{fig:fg_confmat}
+    \includegraphics[width=0.85\textwidth]{fig_03_fg_confmat_prop.png}
+    \caption{Matriz de confusi\'on calidad $\times$ grupo funcional: distribuci\'on proporcional}
+    \label{fig:fg_confmat_prop}
+\end{figure}
+
+La Figura~\ref{fig:fg_confmat_count} complementa la anterior mostrando los conteos absolutos.
+Los amino\'acidos Alif\'aticos dominan todas las categor\'ias de calidad por su alta
+frecuencia ($\sim$45\% de todos los residuos). Sin embargo, la proporci\'on relativa
+de los grupos B\'asico y Polar aumenta progresivamente al pasar de Excelente a Pobre,
+confirmando su mayor dificultad predictiva.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_03_fg_confmat_count.png}
+    \caption{Matriz de confusi\'on calidad $\times$ grupo funcional: conteos absolutos}
+    \label{fig:fg_confmat_count}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -652,17 +731,33 @@ derivada del menor tama\~no muestral.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_05_bayesian_posterior.png}
-    \caption{Distribuciones posteriores Beta-Binomial de $P(\text{RMSD} < 1\,\text{\AA})$
-    para tres categor\'ias contrastantes. El \'area sombreada oscura indica el HDI 95\%.
-    \textit{Izquierda}: 200--300 residuos (n=2.194), con posterior concentrado en
-    $[0{,}49, 0{,}53]$ y alta certeza. \textit{Centro}: 100--200 residuos (n=2.819),
-    con posterior igualmente concentrado pero centrado ligeramente m\'as abajo.
-    \textit{Derecha}: $>$1.000 residuos (n=191), con posterior ancho que refleja la
-    incertidumbre inherente a muestras peque\~nas. La convergencia MLE $\approx$ media
-    posterior confirma la baja influencia del prior en muestras grandes.}
-    \label{fig:bayesian_posterior}
+    \includegraphics[width=0.85\textwidth]{fig_05_bayesian_post_cat1.png}
+    \caption{Distribuci\'on posterior Beta-Binomial --- categor\'ia de longitud 200--300 residuos}
+    \label{fig:bayesian_post_cat1}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_05_bayesian_post_cat2.png}
+    \caption{Distribuci\'on posterior Beta-Binomial --- categor\'ia de longitud 100--200 residuos}
+    \label{fig:bayesian_post_cat2}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_05_bayesian_post_cat3.png}
+    \caption{Distribuci\'on posterior Beta-Binomial --- categor\'ia de longitud $>$1000 residuos}
+    \label{fig:bayesian_post_cat3}
+\end{figure}
+
+Las distribuciones posteriores (Figuras~\ref{fig:bayesian_post_cat1}--\ref{fig:bayesian_post_cat3})
+muestran $P(\text{RMSD} < 1\,\text{\AA})$ para tres categor\'ias contrastantes. El \'area
+sombreada oscura indica el HDI 95\%. La categor\'ia 200--300 residuos (n=2.194) presenta un
+posterior concentrado en $[0{,}49, 0{,}53]$ con alta certeza. La categor\'ia 100--200 residuos
+(n=2.819) muestra un posterior igualmente concentrado pero centrado ligeramente m\'as abajo.
+La categor\'ia $>$1.000 residuos (n=191) exhibe un posterior ancho que refleja la incertidumbre
+inherente a muestras peque\~nas. La convergencia MLE $\approx$ media posterior confirma la
+baja influencia del prior en muestras grandes.
 
 % ═══════════════════════════════════════════════════════════════════════════
 \subsection{An\'alisis de valores extremos}

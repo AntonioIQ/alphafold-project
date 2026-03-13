@@ -195,7 +195,7 @@ predicci\'on estructural, independientemente de la versi\'on del algoritmo.
 El problema del plegamiento de prote\'inas tiene sus ra\'ices en el trabajo seminal de Christian Anfinsen, quien en 1961 demostr\'o que la secuencia de amino\'acidos de una prote\'ina contiene toda la informaci\'on necesaria para determinar su estructura tridimensional nativa. Este principio, conocido como el \textit{dogma de Anfinsen} o hip\'otesis termodin\'amica, establece que la conformaci\'on nativa de una prote\'ina corresponde al m\'inimo global de energ\'ia libre de Gibbs del sistema:
 
 \begin{equation}
-    \Delta G_{\text{plegamiento}} = G_{\text{plegada}} - G_{\text{desplegada}} < 0
+    \Delta G_{\text{plegamiento}} = G_{\text{plegada}} - G_{\text{desplegada}} < 0\,.
     \label{eq:energia_plegamiento}
 \end{equation}
 
@@ -230,11 +230,11 @@ Estudios previos han abordado parcialmente esta cuesti\'on. \citet{akdel2022stru
 La m\'etrica fundamental empleada en este estudio para cuantificar la similitud entre estructuras predichas y experimentales es la ra\'iz cuadrada de la desviaci\'on cuadr\'atica media (\textit{Root Mean Square Deviation}, RMSD). Dados dos conjuntos de $n$ \'atomos correspondientes, con coordenadas $\mathbf{r}_i^{\text{exp}}$ (estructura experimental) y $\mathbf{r}_i^{\text{pred}}$ (estructura predicha), tras la superposici\'on \'optima, el RMSD se define como:
 
 \begin{equation}
-    \text{RMSD} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \left\| \mathbf{r}_i^{\text{exp}} - \mathbf{r}_i^{\text{pred}} \right\|^2}
+    \text{RMSD} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \left\| \mathbf{r}_i^{\text{exp}} - \mathbf{r}_i^{\text{pred}} \right\|^2}\,,
     \label{eq:rmsd}
 \end{equation}
 
-donde $\left\| \cdot \right\|$ denota la norma eucl\'idea tridimensional. Expandiendo esta expresi\'on en coordenadas cartesianas:
+\noindent donde $\left\| \cdot \right\|$ denota la norma eucl\'idea tridimensional. Expandiendo esta expresi\'on en coordenadas cartesianas:
 
 \begin{equation}
     \text{RMSD} = \sqrt{\frac{1}{n} \sum_{i=1}^{n} \left[ (x_i^{\text{exp}} - x_i^{\text{pred}})^2 + (y_i^{\text{exp}} - y_i^{\text{pred}})^2 + (z_i^{\text{exp}} - z_i^{\text{pred}})^2 \right]}
@@ -244,18 +244,18 @@ donde $\left\| \cdot \right\|$ denota la norma eucl\'idea tridimensional. Expand
 La superposici\'on \'optima se obtiene mediante el algoritmo de Kabsch \citep{kabsch1976solution}, que minimiza el RMSD mediante una rotaci\'on r\'igida del cuerpo. El algoritmo emplea la descomposici\'on en valores singulares (SVD) de la matriz de covarianza cruzada $\mathbf{H}$:
 
 \begin{equation}
-    \mathbf{H} = \sum_{i=1}^{n} (\mathbf{r}_i^{\text{pred}} - \bar{\mathbf{r}}^{\text{pred}})(\mathbf{r}_i^{\text{exp}} - \bar{\mathbf{r}}^{\text{exp}})^T
+    \mathbf{H} = \sum_{i=1}^{n} (\mathbf{r}_i^{\text{pred}} - \bar{\mathbf{r}}^{\text{pred}})(\mathbf{r}_i^{\text{exp}} - \bar{\mathbf{r}}^{\text{exp}})^T\,,
     \label{eq:covarianza_cruzada}
 \end{equation}
 
-donde $\bar{\mathbf{r}}^{\text{pred}}$ y $\bar{\mathbf{r}}^{\text{exp}}$ son los centroides de cada conjunto de coordenadas. La rotaci\'on \'optima $\mathbf{R}$ se obtiene a partir de la SVD de $\mathbf{H}$:
+\noindent donde $\bar{\mathbf{r}}^{\text{pred}}$ y $\bar{\mathbf{r}}^{\text{exp}}$ son los centroides de cada conjunto de coordenadas. La rotaci\'on \'optima $\mathbf{R}$ se obtiene a partir de la SVD de $\mathbf{H}$:
 
 \begin{equation}
-    \mathbf{H} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T, \quad \mathbf{R} = \mathbf{V} \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & d \end{pmatrix} \mathbf{U}^T
+    \mathbf{H} = \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T, \quad \mathbf{R} = \mathbf{V} \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & d \end{pmatrix} \mathbf{U}^T\,,
     \label{eq:rotacion_optima}
 \end{equation}
 
-donde $d = \text{sign}(\det(\mathbf{V}\mathbf{U}^T))$ asegura una rotaci\'on propia (sin reflexi\'on).
+\noindent donde $d = \text{sign}(\det(\mathbf{V}\mathbf{U}^T))$ asegura una rotaci\'on propia (sin reflexi\'on).
 
 En el contexto de la comparaci\'on de estructuras prote\'icas, se consideran generalmente los siguientes umbrales interpretativos:
 
@@ -291,3 +291,8 @@ El presente estudio tiene como objetivo general realizar una evaluaci\'on sistem
 La relevancia de este trabajo reside en varios aspectos. En primer lugar, el tama\~no del conjunto de datos analizado ---10.432 prote\'inas \'unicas con identificadores UniProt distintos--- proporciona una potencia estad\'istica considerable y elimina el sesgo por sobrerepresentaci\'on de prote\'inas muy estudiadas. En segundo lugar, el an\'alisis jer\'arquico de cuatro niveles ---longitud de cadena, tipo de amino\'acido, grupo funcional y elemento at\'omico (CHONSP)--- conecta la precisi\'on computacional con propiedades qu\'imicas interpretables, una perspectiva escasamente explorada en la literatura existente. En tercer lugar, la identificaci\'on y cuantificaci\'on del impacto del mapeo SIFTS tiene implicaciones metodol\'ogicas directas: cualquier comparaci\'on PDB--AlphaFold sin mapeo posicional expl\'icito puede reportar errores artificiales de $\sim$20\,\AA\ donde el error real es $\sim$1\,\AA.
 
 Desde la perspectiva de la ciencia de datos, este estudio proporciona un marco bayesiano para cuantificar la incertidumbre sobre la calidad de las predicciones, superando la visi\'on puntual habitual. La combinaci\'on de matrices de confusi\'on jer\'arquicas, distribuciones posteriores Beta-Binomial e intervalos de m\'axima densidad posterior (HDI) constituye una metodolog\'ia reproducible que puede aplicarse a la evaluaci\'on de cualquier modelo predictivo de estructuras moleculares, incluyendo versiones posteriores de AlphaFold y m\'etodos competidores como RoseTTAFold, ESMFold y OpenFold.
+
+\subsection{Organizaci\'on del documento}
+\label{subsec:organizacion}
+
+El resto de este documento se organiza de la siguiente manera. La Secci\'on~\ref{sec:materiales_metodos} describe las fuentes de datos, el pipeline de procesamiento con mapeo SIFTS, y el marco estad\'istico empleado. La Secci\'on~\ref{sec:resultados} presenta los resultados del an\'alisis, incluyendo la estad\'istica descriptiva global, el an\'alisis jer\'arquico en cuatro niveles y la inferencia bayesiana. La Secci\'on~\ref{sec:discusion} discute los hallazgos en el contexto de la literatura, analiza las limitaciones del estudio y sit\'ua los resultados frente a AlphaFold3. Finalmente, la Secci\'on~\ref{sec:conclusiones} resume las contribuciones principales y formula recomendaciones pr\'acticas para la comunidad.

@@ -169,30 +169,58 @@ def fig_01_length(df):
         normalize='index'
     ).loc[QUALITY_ORDER, valid_cats] * 100
 
-    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+    confusion_abs = pd.crosstab(df['quality'], df['length_cat']).loc[QUALITY_ORDER, valid_cats]
 
-    # Heatmap proporcional
+    # --- Split: Heatmap proporcional ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
+                ax=ax, cbar_kws={'label': '% dentro de categoría RMSD'},
+                linewidths=0.5, vmin=0, vmax=60)
+    ax.set_title('Distribución por longitud dado calidad\n(% por fila)')
+    ax.set_xlabel('Categoría de longitud (residuos)')
+    ax.set_ylabel('Calidad RMSD (mayor→menor precisión)')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_01_length_confmat_prop.png')
+    plt.close(fig)
+    log.info("  → fig_01_length_confmat_prop.png")
+
+    # --- Split: Conteos absolutos ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
+                ax=ax, cbar_kws={'label': 'N proteínas'},
+                linewidths=0.5)
+    ax.set_title('Conteos absolutos por longitud dado calidad')
+    ax.set_xlabel('Categoría de longitud (residuos)')
+    ax.set_ylabel('Calidad RMSD (mayor→menor precisión)')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_01_length_confmat_count.png')
+    plt.close(fig)
+    log.info("  → fig_01_length_confmat_count.png")
+
+    # --- Legacy: combined panel (kept for backwards compatibility) ---
+    _legacy_fig_01_length_confmat(confusion, confusion_abs, valid_cats)
+
+def _legacy_fig_01_length_confmat(confusion, confusion_abs, valid_cats):
+    """Legacy combined 1x2 confmat panel — kept for backwards compatibility."""
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
     sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
                 ax=axes[0], cbar_kws={'label': '% dentro de categoría RMSD'},
                 linewidths=0.5, vmin=0, vmax=60)
     axes[0].set_title('Distribución por longitud dado calidad\n(% por fila)')
     axes[0].set_xlabel('Categoría de longitud (residuos)')
     axes[0].set_ylabel('Calidad RMSD (mayor→menor precisión)')
-
-    # Conteos absolutos
-    confusion_abs = pd.crosstab(df['quality'], df['length_cat']).loc[QUALITY_ORDER, valid_cats]
     sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
                 ax=axes[1], cbar_kws={'label': 'N proteínas'},
                 linewidths=0.5)
     axes[1].set_title('Conteos absolutos por longitud dado calidad')
     axes[1].set_xlabel('Categoría de longitud (residuos)')
     axes[1].set_ylabel('Calidad RMSD (mayor→menor precisión)')
-
     fig.suptitle('Análisis de calidad por longitud de cadena proteica', fontsize=14, y=1.02)
     fig.tight_layout()
     fig.savefig(FIGURES / 'fig_01_length_confmat.png')
     plt.close(fig)
-    log.info("  → fig_01_length_confmat.png")
+    log.info("  → fig_01_length_confmat.png (legacy)")
+
 
 # ─── SECCIÓN 2–3: Parseo per-residuo ─────────────────────────────────────────
 
@@ -480,11 +508,89 @@ def fig_02_aminoacid(res_df):
     plt.close(fig)
     log.info("  → fig_02_aa_rmsd_sorted.png")
 
-    # 2b. Violin plot por AA, agrupado por grupo funcional
+    # 2b. Violin plot por AA, agrupado por grupo funcional — SPLIT into individual panels
     fg_order = ['Ácido','Básico','Polar','Aromático','Alifático']
+    fg_name_to_file = {'Ácido': 'acido', 'Básico': 'basico', 'Polar': 'polar',
+                       'Aromático': 'aromatico', 'Alifático': 'alifatico'}
+
+    for i, fg in enumerate(fg_order):
+        fg_aas = [aa for aa in FUNCTIONAL_GROUPS.get(fg, []) if aa in df['aa'].values]
+        fg_aas_sorted = sorted(fg_aas, key=lambda a: df[df['aa']==a]['ca_rmsd_clip'].mean(), reverse=True)
+        if not fg_aas_sorted:
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+        data = [df[df['aa'] == aa]['ca_rmsd_clip'].values for aa in fg_aas_sorted]
+        parts = ax.violinplot(data, positions=range(len(fg_aas_sorted)),
+                              showmedians=True, showextrema=False)
+        c = fg_colors[fg]
+        for pc in parts['bodies']:
+            pc.set_facecolor(c); pc.set_alpha(0.7)
+        parts['cmedians'].set_color('black'); parts['cmedians'].set_linewidth(2)
+        ax.set_xticks(range(len(fg_aas_sorted)))
+        ax.set_xticklabels(fg_aas_sorted)
+        ax.set_title(f'Distribución de RMSD — Grupo funcional: {fg}', color=c, fontweight='bold')
+        ax.axhline(1.0, color='steelblue', linestyle='--', alpha=0.5)
+        ax.axhline(2.0, color='orange',    linestyle='--', alpha=0.5)
+        ax.set_ylabel('RMSD Cα (Å) [truncado en 10 Å]')
+        ax.set_xlabel('Aminoácido')
+        fig.tight_layout()
+        fname = f'fig_02_aa_violin_{fg_name_to_file[fg]}.png'
+        fig.savefig(FIGURES / fname)
+        plt.close(fig)
+        log.info(f"  → {fname}")
+
+    # Legacy combined panel
+    _legacy_fig_02_aa_violin(df, fg_order, fg_colors)
+
+    # 2c. Matriz de confusión calidad × aminoácido
+    top_aas = aa_stats.head(20)['aa'].tolist()  # todos los 20 AA estándar
+    aa_order_mat = [aa for aa in aa_order if aa in top_aas]
+
+    conf_df = df[df['aa'].isin(top_aas)].copy()
+    confusion = pd.crosstab(
+        conf_df['quality'], conf_df['aa'],
+        normalize='index'
+    ).reindex(index=QUALITY_ORDER, columns=aa_order_mat, fill_value=0) * 100
+
+    confusion_abs = pd.crosstab(
+        conf_df['quality'], conf_df['aa']
+    ).reindex(index=QUALITY_ORDER, columns=aa_order_mat, fill_value=0)
+
+    # --- Split: Proportion heatmap ---
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.heatmap(confusion, annot=True, fmt='.0f', cmap='RdYlGn_r',
+                ax=ax, vmin=0, vmax=25,
+                cbar_kws={'label': '% por fila (calidad RMSD)'}, linewidths=0.3)
+    ax.set_title('Distribución de aminoácidos por calidad de predicción\n(ordenados mayor→menor RMSD)')
+    ax.set_xlabel('Aminoácido (ordenado: mayor RMSD → derecha = menor RMSD)')
+    ax.set_ylabel('Calidad RMSD')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_02_aa_confmat_prop.png')
+    plt.close(fig)
+    log.info("  → fig_02_aa_confmat_prop.png")
+
+    # --- Split: Absolute counts heatmap ---
+    fig, ax = plt.subplots(figsize=(12, 6))
+    sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
+                ax=ax, cbar_kws={'label': 'N residuos'},
+                linewidths=0.3)
+    ax.set_title('Conteos absolutos de residuos por calidad')
+    ax.set_xlabel('Aminoácido')
+    ax.set_ylabel('Calidad RMSD')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_02_aa_confmat_count.png')
+    plt.close(fig)
+    log.info("  → fig_02_aa_confmat_count.png")
+
+    # Legacy combined panel
+    _legacy_fig_02_aa_confmat(confusion, confusion_abs, aa_order_mat)
+    return aa_stats
+
+def _legacy_fig_02_aa_violin(df, fg_order, fg_colors):
+    """Legacy combined 1x5 violin panel — kept for backwards compatibility."""
     fig, axes = plt.subplots(1, len(fg_order), figsize=(18, 6),
                              sharey=True, gridspec_kw={'wspace': 0.08})
-
     for i, (fg, ax) in enumerate(zip(fg_order, axes)):
         fg_aas = [aa for aa in FUNCTIONAL_GROUPS.get(fg, []) if aa in df['aa'].values]
         fg_aas_sorted = sorted(fg_aas, key=lambda a: df[df['aa']==a]['ca_rmsd_clip'].mean(), reverse=True)
@@ -504,22 +610,14 @@ def fig_02_aminoacid(res_df):
         ax.axhline(2.0, color='orange',    linestyle='--', alpha=0.5)
         if i == 0:
             ax.set_ylabel('RMSD Cα (Å) [truncado en 10 Å]')
-
     fig.suptitle('Distribución de RMSD por aminoácido y grupo funcional', fontsize=14)
     fig.savefig(FIGURES / 'fig_02_aa_violin.png')
     plt.close(fig)
-    log.info("  → fig_02_aa_violin.png")
+    log.info("  → fig_02_aa_violin.png (legacy)")
 
-    # 2c. Matriz de confusión calidad × aminoácido
-    top_aas = aa_stats.head(20)['aa'].tolist()  # todos los 20 AA estándar
-    aa_order_mat = [aa for aa in aa_order if aa in top_aas]
 
-    conf_df = df[df['aa'].isin(top_aas)].copy()
-    confusion = pd.crosstab(
-        conf_df['quality'], conf_df['aa'],
-        normalize='index'
-    ).reindex(index=QUALITY_ORDER, columns=aa_order_mat, fill_value=0) * 100
-
+def _legacy_fig_02_aa_confmat(confusion, confusion_abs, aa_order_mat):
+    """Legacy combined 1x2 confmat panel — kept for backwards compatibility."""
     fig, axes = plt.subplots(1, 2, figsize=(18, 5))
     sns.heatmap(confusion, annot=True, fmt='.0f', cmap='RdYlGn_r',
                 ax=axes[0], vmin=0, vmax=25,
@@ -527,22 +625,17 @@ def fig_02_aminoacid(res_df):
     axes[0].set_title('Distribución de aminoácidos por calidad de predicción\n(ordenados mayor→menor RMSD)')
     axes[0].set_xlabel('Aminoácido (ordenado: mayor RMSD → derecha = menor RMSD)')
     axes[0].set_ylabel('Calidad RMSD')
-
-    confusion_abs = pd.crosstab(
-        conf_df['quality'], conf_df['aa']
-    ).reindex(index=QUALITY_ORDER, columns=aa_order_mat, fill_value=0)
     sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
                 ax=axes[1], cbar_kws={'label': 'N residuos'},
                 linewidths=0.3)
     axes[1].set_title('Conteos absolutos de residuos por calidad')
     axes[1].set_xlabel('Aminoácido')
     axes[1].set_ylabel('Calidad RMSD')
-
     fig.tight_layout()
     fig.savefig(FIGURES / 'fig_02_aa_confmat.png')
     plt.close(fig)
-    log.info("  → fig_02_aa_confmat.png")
-    return aa_stats
+    log.info("  → fig_02_aa_confmat.png (legacy)")
+
 
 # ─── SECCIÓN 3: Por grupo funcional ──────────────────────────────────────────
 
@@ -625,6 +718,40 @@ def fig_03_functional_groups(res_df, base_df):
         normalize='index'
     ).reindex(index=QUALITY_ORDER, columns=fg_order_sorted, fill_value=0) * 100
 
+    confusion_abs = pd.crosstab(
+        df['quality'], df['fg']
+    ).reindex(index=QUALITY_ORDER, columns=fg_order_sorted, fill_value=0)
+
+    # --- Split: Proportion heatmap ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
+                ax=ax, vmin=0, vmax=50,
+                cbar_kws={'label': '% por fila'}, linewidths=0.5)
+    ax.set_title('Distribución de grupos funcionales por calidad\n(% por fila, ordenado mayor→menor RMSD)')
+    ax.set_xlabel('Grupo funcional')
+    ax.set_ylabel('Calidad RMSD')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_03_fg_confmat_prop.png')
+    plt.close(fig)
+    log.info("  → fig_03_fg_confmat_prop.png")
+
+    # --- Split: Absolute counts heatmap ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
+                ax=ax, cbar_kws={'label': 'N residuos'}, linewidths=0.5)
+    ax.set_title('Conteos absolutos por calidad y grupo funcional')
+    ax.set_xlabel('Grupo funcional')
+    ax.set_ylabel('Calidad RMSD')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_03_fg_confmat_count.png')
+    plt.close(fig)
+    log.info("  → fig_03_fg_confmat_count.png")
+
+    # Legacy combined panel
+    _legacy_fig_03_fg_confmat(confusion, confusion_abs, fg_order_sorted)
+
+def _legacy_fig_03_fg_confmat(confusion, confusion_abs, fg_order_sorted):
+    """Legacy combined 1x2 confmat panel — kept for backwards compatibility."""
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
                 ax=axes[0], vmin=0, vmax=50,
@@ -632,20 +759,16 @@ def fig_03_functional_groups(res_df, base_df):
     axes[0].set_title('Distribución de grupos funcionales por calidad\n(% por fila, ordenado mayor→menor RMSD)')
     axes[0].set_xlabel('Grupo funcional')
     axes[0].set_ylabel('Calidad RMSD')
-
-    confusion_abs = pd.crosstab(
-        df['quality'], df['fg']
-    ).reindex(index=QUALITY_ORDER, columns=fg_order_sorted, fill_value=0)
     sns.heatmap(confusion_abs, annot=True, fmt='d', cmap='Blues',
                 ax=axes[1], cbar_kws={'label': 'N residuos'}, linewidths=0.5)
     axes[1].set_title('Conteos absolutos por calidad y grupo funcional')
     axes[1].set_xlabel('Grupo funcional')
     axes[1].set_ylabel('Calidad RMSD')
-
     fig.tight_layout()
     fig.savefig(FIGURES / 'fig_03_fg_confmat.png')
     plt.close(fig)
-    log.info("  → fig_03_fg_confmat.png")
+    log.info("  → fig_03_fg_confmat.png (legacy)")
+
 
 # ─── SECCIÓN 4: Por elemento atómico CHONSP ──────────────────────────────────
 
@@ -986,13 +1109,14 @@ def fig_05_bayesian(base_df):
 
     # ──────────────────────────────────────────────────────────────────────────
     # 5b. Posterior predictive: distribución posterior para categorías clave
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    # SPLIT into individual panels
 
     key_cats = ['200-300', '100-200', '>1000']
     key_cats = [c for c in key_cats if c in df['length_cat'].values]
+    cat_file_names = {k: f'cat{i+1}' for i, k in enumerate(key_cats)}
 
     x_range = np.linspace(0, 1, 500)
-    for i, (cat, ax) in enumerate(zip(key_cats, axes)):
+    for i, cat in enumerate(key_cats):
         sub = df[df['length_cat'] == cat]
         n, k = len(sub), sub['excellent'].sum()
         p_hat = k / n
@@ -1002,6 +1126,7 @@ def fig_05_bayesian(base_df):
         b_post = beta0 + n - k
         posterior = beta_dist.pdf(x_range, a_post, b_post)
 
+        fig, ax = plt.subplots(figsize=(8, 6))
         ax.fill_between(x_range, posterior, alpha=0.35, color='#4C72B0', label='Posterior')
         ax.plot(x_range, posterior, color='#4C72B0', linewidth=2)
 
@@ -1014,6 +1139,42 @@ def fig_05_bayesian(base_df):
         ax.axvline(a_post / (a_post + b_post), color='navy', linestyle=':',
                    linewidth=1.5, label=f'Media posterior: {a_post/(a_post+b_post):.3f}')
 
+        ax.set_title(f'Distribución posterior Beta-Binomial — Longitud: {cat}\n'
+                     f'(n={n:,}, k={k:,}) — Prior Beta(1,1)', fontsize=11)
+        ax.set_xlabel('P(RMSD < 1 Å)')
+        ax.set_ylabel('Densidad posterior')
+        ax.text(0.05, 0.95, f'HDI 95%:\n[{lo:.3f}, {hi:.3f}]',
+                transform=ax.transAxes, va='top', fontsize=9,
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+        ax.legend(fontsize=8)
+        fig.tight_layout()
+        fname = f'fig_05_bayesian_post_{cat_file_names[cat]}.png'
+        fig.savefig(FIGURES / fname)
+        plt.close(fig)
+        log.info(f"  → {fname}")
+
+    # Legacy combined panel
+    _legacy_fig_05_bayesian_posterior(df, key_cats, alpha0, beta0)
+
+def _legacy_fig_05_bayesian_posterior(df, key_cats, alpha0, beta0):
+    """Legacy combined 1x3 posterior panel — kept for backwards compatibility."""
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    x_range = np.linspace(0, 1, 500)
+    for i, (cat, ax) in enumerate(zip(key_cats, axes)):
+        sub = df[df['length_cat'] == cat]
+        n, k = len(sub), sub['excellent'].sum()
+        p_hat = k / n
+        a_post = alpha0 + k
+        b_post = beta0 + n - k
+        posterior = beta_dist.pdf(x_range, a_post, b_post)
+        ax.fill_between(x_range, posterior, alpha=0.35, color='#4C72B0', label='Posterior')
+        ax.plot(x_range, posterior, color='#4C72B0', linewidth=2)
+        lo, hi = hdi_from_beta(a_post, b_post)
+        hdi_mask = (x_range >= lo) & (x_range <= hi)
+        ax.fill_between(x_range[hdi_mask], posterior[hdi_mask], alpha=0.65, color='#4C72B0')
+        ax.axvline(p_hat, color='tomato', linestyle='--', linewidth=2, label=f'MLE: {p_hat:.3f}')
+        ax.axvline(a_post / (a_post + b_post), color='navy', linestyle=':',
+                   linewidth=1.5, label=f'Media posterior: {a_post/(a_post+b_post):.3f}')
         ax.set_title(f'Longitud: {cat}\n(n={n:,}, k={k:,})', fontsize=11)
         ax.set_xlabel('P(RMSD < 1 Å)')
         ax.set_ylabel('Densidad posterior' if i == 0 else '')
@@ -1021,25 +1182,125 @@ def fig_05_bayesian(base_df):
                 transform=ax.transAxes, va='top', fontsize=9,
                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
         ax.legend(fontsize=8)
-
     fig.suptitle('Distribución posterior Beta-Binomial de P(predicción excelente)\npor categoría de longitud — Prior Beta(1,1)',
                  fontsize=13)
     fig.tight_layout()
     fig.savefig(FIGURES / 'fig_05_bayesian_posterior.png')
     plt.close(fig)
-    log.info("  → fig_05_bayesian_posterior.png")
+    log.info("  → fig_05_bayesian_posterior.png (legacy)")
+
 
 # ─── SECCIÓN 6: Figura 1 renovada (panel 2×2) ───────────────────────────────
 
 def fig_00_panel_main(base_df):
-    """Reemplaza Figure1_publication.png con datos correctos."""
-    log.info("Generando figura principal (panel 2×2)")
+    """Generates individual standalone panels and legacy combined 2x2 panel."""
+    log.info("Generando figura principal — paneles individuales + panel combinado")
 
     df = base_df.copy()
 
+    # ── Panel A: Pipeline SIFTS (texto esquema) ──
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.axis('off')
+    pipeline_text = (
+        "Pipeline de análisis\n\n"
+        "1. SIFTS (EBI)\n"
+        "   PDB_BEG → SP_BEG\n"
+        "   (mapeo de numeración)\n\n"
+        "2. PDB (RCSB)\n"
+        "   estructura experimental\n\n"
+        "3. AlphaFold2 (EBI)\n"
+        "   estructura predicha\n\n"
+        "4. Kabsch SVD\n"
+        "   superposición óptima\n\n"
+        "5. RMSD por residuo,\n"
+        "   aminoácido, grupo\n"
+        "   funcional y elemento"
+    )
+    ax.text(0.5, 0.95, pipeline_text, transform=ax.transAxes,
+            ha='center', va='top', fontsize=12, family='monospace',
+            bbox=dict(boxstyle='round', facecolor='#EEF4FF', alpha=0.8))
+    ax.set_title('Metodología: SIFTS como puente', fontweight='bold', fontsize=13)
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_00a_pipeline.png')
+    plt.close(fig)
+    log.info("  → fig_00a_pipeline.png")
+
+    # ── Panel B: Impacto SIFTS (bar chart) ──
+    fig, ax = plt.subplots(figsize=(10, 7))
+    metrics = ['RMSD\nmedio (Å)', 'RMSD\nmediana (Å)', '% con\nRMSD<2Å']
+    sin_sifts = [29.94, 22.54, 13.9]
+    con_sifts = [ 1.05,  0.64, 87.7]
+    x = np.arange(3)
+    w = 0.35
+    b1 = ax.bar(x - w/2, sin_sifts, w, label='Sin mapeo SIFTS', color='#DD8452', alpha=0.85)
+    b2 = ax.bar(x + w/2, con_sifts, w, label='Con mapeo SIFTS', color='#4C72B0', alpha=0.85)
+    ax.set_xticks(x); ax.set_xticklabels(metrics)
+    ax.set_title('Impacto del mapeo SIFTS correcto', fontweight='bold', fontsize=13)
+    ax.legend()
+    ax.set_ylabel('Valor')
+    for bar in b1:
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
+                f'{bar.get_height():.1f}', ha='center', va='bottom', fontsize=9)
+    for bar in b2:
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
+                f'{bar.get_height():.1f}', ha='center', va='bottom', fontsize=9, color='#4C72B0')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_00b_sifts_comparison.png')
+    plt.close(fig)
+    log.info("  → fig_00b_sifts_comparison.png")
+
+    # ── Panel C: Distribución RMSD del dataset diversificado ──
+    fig, ax = plt.subplots(figsize=(10, 7))
+    rmsd_clip = df['rmsd'].clip(upper=10)
+    ax.hist(rmsd_clip, bins=60, color='#4C72B0', alpha=0.75, edgecolor='white', linewidth=0.3)
+    med = df['rmsd'].median()
+    ax.axvline(med, color='tomato',  linewidth=2, label=f'Mediana: {med:.2f} Å')
+    ax.axvline(2.0, color='orange',  linewidth=1.5, linestyle='--', label='2 Å (buena)')
+    ax.axvline(1.0, color='steelblue', linewidth=1.5, linestyle='--', label='1 Å (excelente)')
+    ax.set_xlabel('RMSD Cα (Å) [truncado en 10 Å]')
+    ax.set_ylabel('Número de proteínas')
+    ax.set_title(f'Distribución de RMSD — {len(df):,} proteínas únicas', fontweight='bold', fontsize=13)
+    pct_exc = (df['rmsd'] < 1.0).mean() * 100
+    pct_bue = (df['rmsd'] < 2.0).mean() * 100
+    ax.text(0.98, 0.95, f'<1 Å: {pct_exc:.1f}%\n<2 Å: {pct_bue:.1f}%',
+            transform=ax.transAxes, ha='right', va='top', fontsize=10,
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.6))
+    ax.legend(fontsize=10)
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_00c_rmsd_histogram.png')
+    plt.close(fig)
+    log.info("  → fig_00c_rmsd_histogram.png")
+
+    # ── Panel D: % excelente por categoría de longitud ──
+    fig, ax = plt.subplots(figsize=(10, 7))
+    valid_cats = [c for c in LENGTH_LABELS if c in df['length_cat'].values]
+    pct_by_len = [(df[df['length_cat']==c]['rmsd'] < 1.0).mean()*100 for c in valid_cats]
+    n_by_len   = [len(df[df['length_cat']==c]) for c in valid_cats]
+    colors_bar  = [PALETTE_CAT[i % len(PALETTE_CAT)] for i in range(len(valid_cats))]
+
+    bars = ax.bar(valid_cats, pct_by_len, color=colors_bar, alpha=0.85, edgecolor='white')
+    ax.axhline(pct_exc, color='gray', linestyle=':', linewidth=1.5, label=f'Global: {pct_exc:.1f}%')
+    ax.set_xlabel('Longitud de cadena (residuos)')
+    ax.set_ylabel('% predicciones excelentes (RMSD < 1 Å)')
+    ax.set_title('Precisión excelente por longitud de cadena', fontweight='bold', fontsize=13)
+    ax.set_xticklabels(valid_cats, rotation=30, ha='right', fontsize=9)
+    ax.legend()
+    for bar, n in zip(bars, n_by_len):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
+                f'n={n:,}', ha='center', va='bottom', fontsize=8, color='gray', rotation=0)
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_00d_excellence_by_length.png')
+    plt.close(fig)
+    log.info("  → fig_00d_excellence_by_length.png")
+
+    # ── Legacy combined 2x2 panel ──
+    _legacy_fig_00_panel_main(df)
+
+def _legacy_fig_00_panel_main(df):
+    """Legacy combined 2x2 panel — kept for backwards compatibility."""
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
 
-    # Panel A: Pipeline SIFTS (texto esquema)
+    # Panel A
     ax = axes[0, 0]
     ax.axis('off')
     pipeline_text = (
@@ -1062,7 +1323,7 @@ def fig_00_panel_main(base_df):
             bbox=dict(boxstyle='round', facecolor='#EEF4FF', alpha=0.8))
     ax.set_title('(A) Metodología: SIFTS como puente', fontweight='bold')
 
-    # Panel B: Impacto SIFTS (bar chart)
+    # Panel B
     ax = axes[0, 1]
     metrics = ['RMSD\nmedio (Å)', 'RMSD\nmediana (Å)', '% con\nRMSD<2Å']
     sin_sifts = [29.94, 22.54, 13.9]
@@ -1082,7 +1343,7 @@ def fig_00_panel_main(base_df):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.3,
                 f'{bar.get_height():.1f}', ha='center', va='bottom', fontsize=8.5, color='#4C72B0')
 
-    # Panel C: Distribución RMSD del dataset diversificado
+    # Panel C
     ax = axes[1, 0]
     rmsd_clip = df['rmsd'].clip(upper=10)
     ax.hist(rmsd_clip, bins=60, color='#4C72B0', alpha=0.75, edgecolor='white', linewidth=0.3)
@@ -1092,7 +1353,7 @@ def fig_00_panel_main(base_df):
     ax.axvline(1.0, color='steelblue', linewidth=1.5, linestyle='--', label='1 Å (excelente)')
     ax.set_xlabel('RMSD Cα (Å) [truncado en 10 Å]')
     ax.set_ylabel('Número de proteínas')
-    ax.set_title(f'(C) Distribución de RMSD — 10,432 proteínas únicas', fontweight='bold')
+    ax.set_title(f'(C) Distribución de RMSD — {len(df):,} proteínas únicas', fontweight='bold')
     pct_exc = (df['rmsd'] < 1.0).mean() * 100
     pct_bue = (df['rmsd'] < 2.0).mean() * 100
     ax.text(0.98, 0.95, f'<1 Å: {pct_exc:.1f}%\n<2 Å: {pct_bue:.1f}%',
@@ -1100,13 +1361,12 @@ def fig_00_panel_main(base_df):
             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.6))
     ax.legend(fontsize=9)
 
-    # Panel D: % excelente por categoría de longitud
+    # Panel D
     ax = axes[1, 1]
     valid_cats = [c for c in LENGTH_LABELS if c in df['length_cat'].values]
     pct_by_len = [(df[df['length_cat']==c]['rmsd'] < 1.0).mean()*100 for c in valid_cats]
     n_by_len   = [len(df[df['length_cat']==c]) for c in valid_cats]
     colors_bar  = [PALETTE_CAT[i % len(PALETTE_CAT)] for i in range(len(valid_cats))]
-
     bars = ax.bar(valid_cats, pct_by_len, color=colors_bar, alpha=0.85, edgecolor='white')
     ax.axhline(pct_exc, color='gray', linestyle=':', linewidth=1.5, label=f'Global: {pct_exc:.1f}%')
     ax.set_xlabel('Longitud de cadena (residuos)')
@@ -1126,7 +1386,8 @@ def fig_00_panel_main(base_df):
     fig.tight_layout()
     fig.savefig(FIGURES / 'Figure1_publication.png', bbox_inches='tight')
     plt.close(fig)
-    log.info("  → Figure1_publication.png (figura principal renovada)")
+    log.info("  → Figure1_publication.png (legacy combined panel)")
+
 
 # ─── SECCIÓN 6: Estadística descriptiva global — figuras separadas ────────────
 
@@ -1249,27 +1510,35 @@ def fig_06_global_stats(df):
     plt.close(fig)
     log.info("  → fig_06d_cdf.png")
 
-    # 6e. Q-Q plot (vs normal y vs log-normal)
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    # Q-Q vs normal
-    ax = axes[0]
+    # 6e. Q-Q plot (vs normal y vs log-normal) — SPLIT into individual panels
+
+    # --- Split: Q-Q vs Normal ---
+    fig, ax = plt.subplots(figsize=(8, 6))
     stats.probplot(df['rmsd'].clip(upper=50), dist='norm', plot=ax)
     ax.set_title('Q-Q Plot: RMSD vs distribución Normal\n'
-                 '(Desviación severa → RMSD no es normal)')
+                 '(Desviación severa — RMSD no es normal)')
     ax.get_lines()[0].set(color='#4C72B0', markersize=3, alpha=0.5)
     ax.get_lines()[1].set(color='tomato', linewidth=2)
-    # Q-Q vs log-normal
-    ax = axes[1]
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_06e_qqplot_normal.png')
+    plt.close(fig)
+    log.info("  → fig_06e_qqplot_normal.png")
+
+    # --- Split: Q-Q vs Log-Normal ---
+    fig, ax = plt.subplots(figsize=(8, 6))
     stats.probplot(np.log10(df['rmsd'].clip(lower=0.01)), dist='norm', plot=ax)
-    ax.set_title('Q-Q Plot: log₁₀(RMSD) vs distribución Normal\n'
-                 '(Mejor ajuste → distribución log-normal)')
+    ax.set_title('Q-Q Plot: log10(RMSD) vs distribución Normal\n'
+                 '(Mejor ajuste — distribución log-normal)')
     ax.get_lines()[0].set(color='#55A868', markersize=3, alpha=0.5)
     ax.get_lines()[1].set(color='tomato', linewidth=2)
-    fig.suptitle('Evaluación de normalidad: RMSD vs log₁₀(RMSD)', fontsize=13, y=1.02)
     fig.tight_layout()
-    fig.savefig(FIGURES / 'fig_06e_qqplot.png')
+    fig.savefig(FIGURES / 'fig_06e_qqplot_lognormal.png')
     plt.close(fig)
-    log.info("  → fig_06e_qqplot.png")
+    log.info("  → fig_06e_qqplot_lognormal.png")
+
+    # Legacy combined panel
+    _legacy_fig_06e_qqplot(df)
+    log.info("  → fig_06e_qqplot.png (legacy)")
 
     # 6f. Box plot global con anotaciones
     fig, ax = plt.subplots(figsize=(8, 6))
@@ -1511,6 +1780,27 @@ def fig_06_global_stats(df):
     fig.savefig(FIGURES / 'fig_06l_correlation.png')
     plt.close(fig)
     log.info("  → fig_06l_correlation.png")
+
+
+def _legacy_fig_06e_qqplot(df):
+    """Legacy combined 1x2 Q-Q plot panel — kept for backwards compatibility."""
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    ax = axes[0]
+    stats.probplot(df['rmsd'].clip(upper=50), dist='norm', plot=ax)
+    ax.set_title('Q-Q Plot: RMSD vs distribución Normal\n'
+                 '(Desviación severa → RMSD no es normal)')
+    ax.get_lines()[0].set(color='#4C72B0', markersize=3, alpha=0.5)
+    ax.get_lines()[1].set(color='tomato', linewidth=2)
+    ax = axes[1]
+    stats.probplot(np.log10(df['rmsd'].clip(lower=0.01)), dist='norm', plot=ax)
+    ax.set_title('Q-Q Plot: log₁₀(RMSD) vs distribución Normal\n'
+                 '(Mejor ajuste → distribución log-normal)')
+    ax.get_lines()[0].set(color='#55A868', markersize=3, alpha=0.5)
+    ax.get_lines()[1].set(color='tomato', linewidth=2)
+    fig.suptitle('Evaluación de normalidad: RMSD vs log₁₀(RMSD)', fontsize=13, y=1.02)
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_06e_qqplot.png')
+    plt.close(fig)
 
 
 def fig_07_length_detailed(df):
