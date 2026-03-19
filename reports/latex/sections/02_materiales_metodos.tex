@@ -33,7 +33,7 @@ La AlphaFold Protein Structure Database, operada conjuntamente por DeepMind y el
 
 Las predicciones de AlphaFold2 se descargaron desde la URL base \url{https://alphafold.ebi.ac.uk/files/}, utilizando el formato est\'andar de nomenclatura \texttt{AF-\{uniprot\_id\}-F1-model\_v4.pdb}, donde \texttt{v4} corresponde a la versi\'on m\'as reciente del modelo disponible al momento de la descarga.
 
-\subsection{Pipeline de descarga}
+\subsection{\textit{Pipeline} de descarga}
 \label{subsec:pipeline_descarga}
 
 El proceso de descarga se dise\~n\'o para maximizar la cobertura del conjunto de datos partiendo de los mapeos SIFTS disponibles.
@@ -64,16 +64,16 @@ Para maximizar la tasa de \'exito de las descargas, se implementaron m\'ultiples
 
 La descarga se paraleliz\'o utilizando un pool de hilos (\textit{thread pool}) con un m\'aximo de 10 conexiones simult\'aneas, implementado mediante el m\'odulo \texttt{concurrent.futures} de Python. Se incorporaron mecanismos de reintentos exponenciales (\textit{exponential backoff}) para manejar errores transitorios del servidor, con un m\'aximo de 3 intentos por descarga y tiempos de espera crecientes (1, 2 y 4 segundos).
 
-Para maximizar la diversidad del dataset, se seleccion\'o un PDB representativo por cada identificador UniProt, priorizando la entrada con mayor cobertura de residuos seg\'un SIFTS. Se incluy\'o la informaci\'on de cadena correcta (columna \texttt{CHAIN} de SIFTS) en el archivo de pares. El proceso parti\'o de un total de \textbf{10.000 prote\'inas diversas} (UniProt IDs \'unicos) seleccionadas del archivo SIFTS, que contiene 68.591 UniProt IDs \'unicos.
+Para maximizar la diversidad del \textit{dataset}, se seleccion\'o un PDB representativo por cada identificador UniProt, priorizando la entrada con mayor cobertura de residuos seg\'un SIFTS. Se incluy\'o la informaci\'on de cadena correcta (columna \texttt{CHAIN} de SIFTS) en el archivo de pares. El proceso parti\'o de un total de \textbf{10.000 prote\'inas diversas} (UniProt IDs \'unicos) seleccionadas del archivo SIFTS, que contiene 68.591 UniProt IDs \'unicos.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{distribucion_pares.png}
-    \caption{Cobertura del dataset. (Izquierda) Distribuci\'on del n\'umero de entradas PDB por proteína UniProt (escala logar\'itmica): la mayor\'ia de las prote\'inas tienen s\'olo 1--2 entradas PDB disponibles. (Derecha) Top 20 prote\'inas con mayor n\'umero de cristales depositados, que representan los sistemas m\'as estudiados en el PDB.}
+    \caption{Cobertura del \textit{dataset}. (Izquierda) Distribuci\'on del n\'umero de entradas PDB por proteína UniProt (escala logar\'itmica): la mayor\'ia de las prote\'inas tienen s\'olo 1--2 entradas PDB disponibles. (Derecha) Top 20 prote\'inas con mayor n\'umero de cristales depositados, que representan los sistemas m\'as estudiados en el PDB.}
     \label{fig:distribucion_pares}
 \end{figure}
 
-\subsection{Pipeline de procesamiento}
+\subsection{\textit{Pipeline} de procesamiento}
 \label{subsec:pipeline_procesamiento}
 
 El procesamiento de las estructuras descargadas se organiz\'o en tres objetivos secuenciales, cada uno abordando un aspecto cr\'itico de la preparaci\'on de los datos para la comparaci\'on estructural cuantitativa.
@@ -162,8 +162,8 @@ La Tabla~\ref{tab:parametros_calidad} resume los par\'ametros de calidad aplicad
         \textbf{Par\'ametro} & \textbf{Valor} & \textbf{Descripci\'on} \\
         \midrule
         Residuos m\'inimos comunes & 3 & N\'umero m\'inimo de residuos presentes en ambas estructuras \\
-        \'Atomos m\'inimos por residuo & 1 & Al menos un \'atomo backbone debe estar presente \\
-        \'Atomos del backbone & N, C$\alpha$, C, O, C$\beta$ & Conjunto de \'atomos utilizados para la superposici\'on \\
+        \'Atomos m\'inimos por residuo & 1 & Al menos un \'atomo \textit{backbone} debe estar presente \\
+        \'Atomos del \textit{backbone} & N, C$\alpha$, C, O, C$\beta$ & Conjunto de \'atomos utilizados para la superposici\'on \\
         Formato de entrada & PDB & Formato de archivo de coordenadas at\'omicas \\
         Algoritmo de superposici\'on & Kabsch (SVD) & Implementado en BioPython Superimposer \\
         Selecci\'on de conformaci\'on & Mayor ocupancia & Para residuos con conformaciones alternativas \\
@@ -177,7 +177,7 @@ La Tabla~\ref{tab:resumen_pipeline} presenta un resumen cuantitativo de las etap
 
 \begin{table}[H]
     \centering
-    \caption{Resumen cuantitativo del pipeline de procesamiento de datos.}
+    \caption{Resumen cuantitativo del \textit{pipeline} de procesamiento de datos.}
     \label{tab:resumen_pipeline}
     \begin{tabular}{@{}lrrl@{}}
         \toprule
@@ -196,7 +196,7 @@ La p\'erdida de pares entre las etapas se debe principalmente a tres factores: (
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{procesamiento_stats.png}
-    \caption{Estad\'isticas del pipeline de procesamiento para los 10.432 pares certificados. (Izquierda) Distribuci\'on de RMSD con mediana indicada. (Centro) Distribuci\'on del n\'umero de residuos alineados por par. (Derecha) Relaci\'on entre tama\~no de la prote\'ina y RMSD, mostrando alta densidad en el rango de bajos valores de RMSD independientemente del tama\~no.}
+    \caption{Estad\'isticas del \textit{pipeline} de procesamiento para los 10.432 pares certificados. (Izquierda) Distribuci\'on de RMSD con mediana indicada. (Centro) Distribuci\'on del n\'umero de residuos alineados por par. (Derecha) Relaci\'on entre tama\~no de la prote\'ina y RMSD, mostrando alta densidad en el rango de bajos valores de RMSD independientemente del tama\~no.}
     \label{fig:procesamiento_stats}
 \end{figure}
 
@@ -244,7 +244,7 @@ La significancia estad\'istica por s\'i sola no informa sobre la magnitud pr\'ac
 
     Se interpretan seg\'un las convenciones de \citet{cohen1988statistical}: $|d| < 0,2$ efecto peque\~no, $0,2 \leq |d| < 0,5$ efecto peque\~no-mediano, $0,5 \leq |d| < 0,8$ efecto mediano, $|d| \geq 0,8$ efecto grande.
 
-    \item \textbf{Raz\'on de momios} (\textit{Odds Ratio}, OR): Compara la probabilidad de obtener una predicci\'on excelente (RMSD $< \SI{1}{\angstrom}$) entre el subgrupo de inter\'es y el resto del dataset:
+    \item \textbf{Raz\'on de momios} (\textit{Odds Ratio}, OR): Compara la probabilidad de obtener una predicci\'on excelente (RMSD $< \SI{1}{\angstrom}$) entre el subgrupo de inter\'es y el resto del \textit{dataset}:
     \begin{equation}
         \text{OR} = \frac{p_{\text{grupo}} / (1 - p_{\text{grupo}})}{p_{\text{resto}} / (1 - p_{\text{resto}})}\,,
         \label{eq:odds_ratio}
@@ -350,7 +350,7 @@ progresivamente más granulares, reflejando la jerarquía natural de la estructu
 desde la perspectiva de la ciencia de datos:
 
 \begin{enumerate}
-    \item \textbf{Longitud de cadena}: variable de control primaria, directamente observable en el dataset de 10.432 proteínas.
+    \item \textbf{Longitud de cadena}: variable de control primaria, directamente observable en el \textit{dataset} de 10.432 proteínas.
     \item \textbf{Tipo de aminoácido}: resolución a nivel de residuo, requiere parseo de archivos PDB/AlphaFold.
     \item \textbf{Grupo funcional}: agrupación química de los 20 aminoácidos en 5 categorías, conecta precisión computacional con propiedades químicas.
     \item \textbf{Elemento atómico (CHONSP)}: resolución máxima a nivel de átomo individual.

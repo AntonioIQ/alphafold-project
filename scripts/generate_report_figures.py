@@ -997,22 +997,47 @@ def fig_04_chonsp(atom_df):
         normalize='index'
     ).reindex(index=QUALITY_ORDER, columns=el_order, fill_value=0) * 100
 
+    confusion_abs = pd.crosstab(df['quality'], df['element']).reindex(
+        index=QUALITY_ORDER, columns=el_order, fill_value=0)
+
+    # --- Split: proporcional ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
+                ax=ax, vmin=0, vmax=40,
+                cbar_kws={'label': '% por fila'}, linewidths=0.5)
+    ax.set_title('Distribución de elementos CHONSP por calidad atómica\n(% por fila)')
+    ax.set_xlabel('Elemento (mayor RMSD → menor RMSD)')
+    ax.set_ylabel('Calidad RMSD atómico')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_04_chonsp_confmat_prop.png')
+    plt.close(fig)
+    log.info("  → fig_04_chonsp_confmat_prop.png")
+
+    # --- Split: conteos absolutos ---
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.heatmap(confusion_abs, annot=True, fmt=',d', cmap='Blues',
+                ax=ax, cbar_kws={'label': 'N átomos'}, linewidths=0.5)
+    ax.set_title('Conteos absolutos de átomos por calidad y elemento')
+    ax.set_xlabel('Elemento')
+    ax.set_ylabel('Calidad RMSD atómico')
+    fig.tight_layout()
+    fig.savefig(FIGURES / 'fig_04_chonsp_confmat_count.png')
+    plt.close(fig)
+    log.info("  → fig_04_chonsp_confmat_count.png")
+
+    # --- Legacy: combined ---
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
     sns.heatmap(confusion, annot=True, fmt='.1f', cmap='RdYlGn_r',
                 ax=axes[0], vmin=0, vmax=40,
                 cbar_kws={'label': '% por fila'}, linewidths=0.5)
-    axes[0].set_title('Distribución de elementos CHONSP por calidad atómica\n(% por fila, ordenado mayor→menor RMSD)')
-    axes[0].set_xlabel('Elemento (mayor RMSD → menor RMSD)')
+    axes[0].set_title('Distribución CHONSP por calidad\n(% por fila)')
+    axes[0].set_xlabel('Elemento')
     axes[0].set_ylabel('Calidad RMSD atómico')
-
-    confusion_abs = pd.crosstab(df['quality'], df['element']).reindex(
-        index=QUALITY_ORDER, columns=el_order, fill_value=0)
     sns.heatmap(confusion_abs, annot=True, fmt=',d', cmap='Blues',
                 ax=axes[1], cbar_kws={'label': 'N átomos'}, linewidths=0.5)
-    axes[1].set_title('Conteos absolutos de átomos por calidad y elemento')
+    axes[1].set_title('Conteos absolutos')
     axes[1].set_xlabel('Elemento')
     axes[1].set_ylabel('Calidad RMSD atómico')
-
     fig.tight_layout()
     fig.savefig(FIGURES / 'fig_04_chonsp_confmat.png')
     plt.close(fig)

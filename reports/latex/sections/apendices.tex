@@ -4,29 +4,32 @@
 
 \appendix
 
-\section{Detalles de implementaci\'on del pipeline}
+\section{Detalles de implementaci\'on del \textit{pipeline}}
 \label{appendix:pipeline}
 
-\subsection{Arquitectura del software}
+\subsection{Arquitectura del \textit{software}}
 
-El pipeline se implement\'o como un paquete Python instalable (\texttt{alphafold-comparison})
-con la siguiente estructura modular:
+El \textit{pipeline} se implement\'o como un paquete Python instalable
+(\texttt{alphafold-comparison}) con una estructura modular organizada en
+cuatro m\'odulos funcionales, como se describe en la Tabla~\ref{tab:modulos}.
 
-\begin{lstlisting}[language=bash,caption={Estructura del paquete Python}]
-src/alphafold_comparison/
-    __init__.py
-    __main__.py          # CLI dispatcher
-    config.py            # Configuracion centralizada (.env)
-    download/
-        downloader.py    # Descarga PDB + AlphaFold
-    preprocessing/
-        processor.py     # Mapeo SIFTS + superposicion Kabsch
-    analysis/
-        structural.py    # Analisis RMSD estadistico
-        atomic.py        # Analisis por elemento quimico (CHONSP)
-    visualization/
-        plots.py         # Funciones de visualizacion
-\end{lstlisting}
+\begin{table}[H]
+\centering
+\caption{M\'odulos del paquete \texttt{alphafold-comparison}.}
+\label{tab:modulos}
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{M\'odulo} & \textbf{Componente} & \textbf{Funci\'on} \\
+\midrule
+Configuraci\'on & \texttt{config.py} & Configuraci\'on centralizada mediante variables de entorno \\
+Descarga & \texttt{downloader.py} & Descarga automatizada de archivos PDB y modelos AlphaFold \\
+Preprocesamiento & \texttt{processor.py} & Mapeo SIFTS de residuos y superposici\'on con algoritmo de Kabsch \\
+An\'alisis estructural & \texttt{structural.py} & An\'alisis estad\'istico de RMSD y pruebas de hip\'otesis \\
+An\'alisis at\'omico & \texttt{atomic.py} & An\'alisis por elemento qu\'imico (CHONSP) \\
+Visualizaci\'on & \texttt{plots.py} & Generaci\'on de figuras y gr\'aficos \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Dependencias principales}
 
@@ -55,7 +58,7 @@ python-dotenv & $\geq$ 1.0.0 & Variables de entorno \\
 
 \begin{table}[H]
 \centering
-\caption{Par\'ametros configurables del pipeline.}
+\caption{Par\'ametros configurables del \textit{pipeline}.}
 \label{tab:params}
 \begin{tabular}{@{}llp{7cm}@{}}
 \toprule
@@ -67,7 +70,7 @@ python-dotenv & $\geq$ 1.0.0 & Variables de entorno \\
 \texttt{MIN\_ATOMS\_PER\_RES} & 1 & M\'inimo de \'atomos por residuo \\
 \texttt{MIN\_ALIGNMENT\_ATOMS} & 3 & M\'inimo de \'atomos para alineamiento \\
 \texttt{MIN\_COMMON\_RESIDUES} & 10 & M\'inimo de residuos comunes para an\'alisis at\'omico \\
-\texttt{MIN\_DIVERSE\_UNIPROTS} & 10.000 & Prote\'inas \'unicas objetivo en dataset diverso \\
+\texttt{MIN\_DIVERSE\_UNIPROTS} & 10.000 & Prote\'inas \'unicas objetivo en \textit{dataset} diverso \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -83,7 +86,7 @@ relevantes para el mapeo:
 
 \begin{table}[H]
 \centering
-\caption{Columnas del archivo SIFTS utilizadas en el pipeline.}
+\caption{Columnas del archivo SIFTS utilizadas en el \textit{pipeline}.}
 \label{tab:sifts_columns}
 \begin{tabular}{@{}llp{7cm}@{}}
 \toprule
@@ -172,11 +175,11 @@ $<$ 50 res & 259 & 1,87 & 1,13 & 44,8\% & 66,4\% \\
 \end{tabular}
 \end{table}
 
-\textit{Nota: Los datos corresponden al dataset validado (91 prote\'inas, 5.115 pares)
+\textit{Nota: Los datos corresponden al \textit{dataset} validado (91 prote\'inas, 5.115 pares)
 con mapeo SIFTS expl\'icito. Las variaciones entre categor\'ias reflejan la composici\'on
-del dataset m\'as que una tendencia intr\'inseca del algoritmo. V\'ease la
+del \textit{dataset} m\'as que una tendencia intr\'inseca del algoritmo. V\'ease la
 Tabla~\ref{tab:rmsd_tamano} en la secci\'on de Resultados para los datos del
-dataset diversificado de 10.432 prote\'inas \'unicas.}
+\textit{dataset} diversificado de 10.432 prote\'inas \'unicas.}
 
 \subsection{Impacto del mapeo SIFTS: comparaci\'on directa}
 

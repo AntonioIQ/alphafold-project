@@ -36,7 +36,7 @@ de tama\~no.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\textwidth]{fig_00a_pipeline.png}
-    \caption{Esquema del pipeline de procesamiento con mapeo SIFTS}
+    \caption{Esquema del \textit{pipeline} de procesamiento con mapeo SIFTS}
     \label{fig:fig00a_pipeline}
 \end{figure}
 
@@ -93,7 +93,7 @@ artificialmente elevados debido a dos problemas sistem\'aticos:
 \end{enumerate}
 
 La Tabla~\ref{tab:impacto_sifts} cuantifica el impacto dram\'atico del mapeo correcto
-sobre las estad\'isticas de RMSD en el dataset validado de 91 prote\'inas.
+sobre las estad\'isticas de RMSD en el \textit{dataset} validado de 91 prote\'inas.
 
 \begin{table}[H]
     \centering
@@ -118,7 +118,7 @@ una reducci\'on de $35\times$ en la mediana de RMSD y transforma un aparente fra
 predictivo (80,9\% con RMSD $> 10$\,\AA) en un \'exito notable (87,7\% con RMSD $< 2$\,\AA).
 
 % ═══════════════════════════════════════════════════════════════════════════
-\subsection{Estad\'istica descriptiva del dataset diversificado}
+\subsection{Estad\'istica descriptiva del \textit{dataset} diversificado}
 \label{subsec:estadistica_descriptiva}
 % ═══════════════════════════════════════════════════════════════════════════
 
@@ -133,7 +133,7 @@ RMSD C$\alpha$.
     \centering
     \includegraphics[width=0.85\textwidth]{fig_06i_stats_table.png}
     \caption{Tabla completa de estad\'isticas descriptivas del RMSD C$\alpha$ para las
-    10.432 prote\'inas del dataset diversificado. La distribuci\'on presenta una asimetr\'ia
+    10.432 prote\'inas del \textit{dataset} diversificado. La distribuci\'on presenta una asimetr\'ia
     positiva marcada (skewness = \the\numexpr 0+1\relax) y curtosis elevada, caracter\'isticas
     de una distribuci\'on log-normal. El coeficiente de variaci\'on supera el 290\%,
     indicando alta heterogeneidad que requiere an\'alisis estratificado por subgrupos.
@@ -240,7 +240,7 @@ mapeos incompletos.
     mediana (\SI{1,26}{\angstrom}, l\'inea roja) se sit\'ua en el tercio inferior del IQR,
     reflejando la asimetr\'ia de la distribuci\'on. Los numerosos valores at\'ipicos
     (puntos) por encima del bigote superior ($Q3 + 1{,}5 \times \text{IQR} \approx 6{,}6$\,\AA)
-    constituyen el 13,7\% del dataset y requieren an\'alisis individual.}
+    constituyen el 13,7\% del \textit{dataset} y requieren an\'alisis individual.}
     \label{fig:boxplot_global}
 \end{figure}
 
@@ -281,7 +281,7 @@ mapeos incompletos.
 
 \begin{table}[H]
     \centering
-    \caption{Comparaci\'on entre el dataset validado y el diversificado.}
+    \caption{Comparaci\'on entre el \textit{dataset} validado y el diversificado.}
     \label{tab:comparacion_datasets}
     \begin{tabular}{@{}lcc@{}}
         \toprule
@@ -298,15 +298,15 @@ mapeos incompletos.
     \end{tabular}
 \end{table}
 
-La degradaci\'on de m\'etricas al pasar del dataset validado al diversificado se explica
+La degradaci\'on de m\'etricas al pasar del \textit{dataset} validado al diversificado se explica
 por tres factores complementarios:
 \begin{itemize}
-    \item \textbf{Sesgo de selecci\'on}: El dataset validado est\'a dominado por prote\'inas
+    \item \textbf{Sesgo de selecci\'on}: El \textit{dataset} validado est\'a dominado por prote\'inas
     ampliamente estudiadas (e.g., lisozima, hemoglobina) con m\'ultiples estructuras PDB de
     alta resoluci\'on. Estas prote\'inas tienden a ser globulares, monoméricas y con baja
     flexibilidad, favoreciendo naturalmente RMSD bajos.
 
-    \item \textbf{Diversidad estructural}: El dataset diversificado incluye prote\'inas
+    \item \textbf{Diversidad estructural}: El \textit{dataset} diversificado incluye prote\'inas
     de membrana, complejos multidom\'inio, prote\'inas con regiones desordenadas y casos
     con conformaciones alternativas, todos los cuales incrementan el RMSD global.
 
@@ -366,7 +366,7 @@ bisagra.
 
 \begin{table}[H]
     \centering
-    \caption{RMSD por categor\'ia de tama\~no proteico (dataset diversificado, 10.432 prote\'inas).}
+    \caption{RMSD por categor\'ia de tama\~no proteico (\textit{dataset} diversificado, 10.432 prote\'inas).}
     \label{tab:rmsd_tamano}
     \begin{tabular}{@{}lrcccc@{}}
         \toprule
@@ -660,7 +660,7 @@ S (azufre) y P (f\'osforo). Estos seis elementos constituyen m\'as del 99,9\% de
 El an\'alisis se descompone en dos categor\'ias estructurales: \'atomos del \emph{backbone}
 (N, C$\alpha$, C, O ---el esqueleto pept\'idico que define el plegamiento global) y
 \'atomos de \emph{cadena lateral} (todos los dem\'as, responsables de la funci\'on
-espec\'ifica). Los \'atomos del backbone est\'an m\'as restringidos conformacionalmente
+espec\'ifica). Los \'atomos del \textit{backbone} est\'an m\'as restringidos conformacionalmente
 por los \'angulos $\phi/\psi$ del diagrama de Ramachandran, por lo que se espera ---y
 confirma--- una mayor precisi\'on en su predicci\'on.
 
@@ -671,7 +671,7 @@ confirma--- una mayor precisi\'on en su predicci\'on.
     de viol\'in, ordenados de mayor a menor RMSD medio). El hidr\'ogeno (H) presenta
     el mayor error medio por su alta movilidad t\'ermica y la mayor incertidumbre en su
     posicionamiento experimental (los \'atomos de H rara vez se resuelven en cristalograf\'ia
-    de rayos X). Los \'atomos pesados del backbone (N, C$\alpha$, C, O) alcanzan la mayor
+    de rayos X). Los \'atomos pesados del \textit{backbone} (N, C$\alpha$, C, O) alcanzan la mayor
     precisi\'on. Datos truncados en 8\,\AA.}
     \label{fig:element_analysis}
 \end{figure}
@@ -679,10 +679,10 @@ confirma--- una mayor precisi\'on en su predicci\'on.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{atom_type_analysis.png}
-    \caption{Comparaci\'on de RMSD mediano entre \'atomos de backbone y cadena lateral por
+    \caption{Comparaci\'on de RMSD mediano entre \'atomos de \textit{backbone} y cadena lateral por
     elemento qu\'imico. Los n\'umeros sobre cada par de barras ($\times$\textit{n}) indican
-    el cociente cadena lateral / backbone. Este factor es sistem\'aticamente $> 1$ para todos
-    los elementos, confirmando que el backbone es predicho con mayor precisi\'on. Sin embargo,
+    el cociente cadena lateral / \textit{backbone}. Este factor es sistem\'aticamente $> 1$ para todos
+    los elementos, confirmando que el \textit{backbone} es predicho con mayor precisi\'on. Sin embargo,
     la diferencia absoluta es peque\~na ($< 0{,}5$\,\AA), indicando que AlphaFold2 captura
     bien las orientaciones rotam\'ericas de las cadenas laterales.}
     \label{fig:atom_type_analysis}
@@ -690,13 +690,24 @@ confirma--- una mayor precisi\'on en su predicci\'on.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{fig_04_chonsp_confmat.png}
-    \caption{Matrices de confusi\'on: calidad de predicci\'on at\'omica $\times$ elemento CHONSP.
-    El patr\'on de error es relativamente uniforme entre elementos del backbone (C, N, O),
-    mientras que el azufre (S) y el hidr\'ogeno (H) muestran mayor proporci\'on de
-    predicciones Pobres. El azufre, presente solo en Cys y Met, est\'a frecuentemente
-    involucrado en puentes disulfuro cuya geometr\'ia es sensible al entorno redox.}
-    \label{fig:chonsp_confmat}
+    \includegraphics[width=0.85\textwidth]{fig_04_chonsp_confmat_prop.png}
+    \caption{Matriz de confusi\'on calidad $\times$ elemento CHONSP: distribuci\'on proporcional
+    (\% por fila). El patr\'on de error es relativamente uniforme entre elementos del
+    \textit{backbone} (C, N, O), mientras que el azufre (S) y el hidr\'ogeno (H) muestran
+    mayor proporci\'on de predicciones Pobres.}
+    \label{fig:chonsp_confmat_prop}
+\end{figure}
+
+La Figura~\ref{fig:chonsp_confmat_count} complementa la anterior mostrando los conteos
+absolutos. El azufre, presente solo en ciste\'ina y metionina, est\'a frecuentemente
+involucrado en puentes disulfuro cuya geometr\'ia es sensible al entorno redox,
+lo que contribuye a su mayor proporci\'on de predicciones con RMSD elevado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{fig_04_chonsp_confmat_count.png}
+    \caption{Matriz de confusi\'on calidad $\times$ elemento CHONSP: conteos absolutos}
+    \label{fig:chonsp_confmat_count}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -764,7 +775,7 @@ baja influencia del prior en muestras grandes.
 \label{subsec:outliers}
 % ═══════════════════════════════════════════════════════════════════════════
 
-La Figura~\ref{fig:outliers} presenta las 50 prote\'inas con mayor RMSD del dataset.
+La Figura~\ref{fig:outliers} presenta las 50 prote\'inas con mayor RMSD del \textit{dataset}.
 El 16,6\% de prote\'inas con RMSD $> \SI{5}{\angstrom}$ no representan necesariamente
 fallos del algoritmo, sino situaciones biol\'ogicas espec\'ificas que cualquier m\'etodo
 de comparaci\'on r\'igida deber\'ia reportar como discrepantes:
@@ -796,7 +807,7 @@ de comparaci\'on r\'igida deber\'ia reportar como discrepantes:
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{fig_06k_outliers.png}
-    \caption{Las 50 prote\'inas con mayor RMSD C$\alpha$ del dataset. Cada barra indica
+    \caption{Las 50 prote\'inas con mayor RMSD C$\alpha$ del \textit{dataset}. Cada barra indica
     el identificador UniProt, el PDB correspondiente y el n\'umero de residuos mapeados.
     Los valores extremos ($>$100\,\AA) corresponden casi exclusivamente a prote\'inas muy
     grandes con m\'ultiples dominios o a mapeos SIFTS incorrectos donde se infiri\'o la

@@ -19,7 +19,7 @@ a continuaci\'on.
 \subsubsection{Precisi\'on global de AlphaFold2}
 
 \begin{enumerate}
-    \item \textbf{RMSD mediano de \SI{1,26}{\angstrom} para un dataset diversificado}:
+    \item \textbf{RMSD mediano de \SI{1,26}{\angstrom} para un \textit{dataset} diversificado}:
     Sobre 10.432 prote\'inas con identificadores UniProt \'unicos, el RMSD mediano se
     sit\'ua dentro del rango de variabilidad experimental t\'ipico
     (\SIrange{0,5}{2,0}{\angstrom}). La media aritm\'etica (\SI{3,56}{\angstrom}) es
@@ -37,7 +37,7 @@ a continuaci\'on.
     margen de error cristalográfico.
 
     \item \textbf{RMSD mediano de \SI{0,64}{\angstrom} para prote\'inas bien estudiadas}:
-    El dataset validado (91 prote\'inas, 5.115 pares con mapeo SIFTS expl\'icito) demuestra
+    El \textit{dataset} validado (91 prote\'inas, 5.115 pares con mapeo SIFTS expl\'icito) demuestra
     que, para prote\'inas con abundante informaci\'on evolutiva y estructural, la
     precisi\'on de AlphaFold2 es excepcional.
 \end{enumerate}
@@ -73,7 +73,7 @@ a continuaci\'on.
     \'atomos de carbono del esqueleto mejor que los \'atomos de ox\'igeno y nitr\'ogeno
     de cadenas laterales flexibles.
 
-    \item \textbf{Los outliers tienen explicaci\'on biol\'ogica o metodol\'ogica}:
+    \item \textbf{Los \textit{outliers} tienen explicaci\'on biol\'ogica o metodol\'ogica}:
     El 9,5\% de pares con RMSD $> \SI{10}{\angstrom}$ se explica por cambios
     conformacionales ligando-inducidos (apo vs.\ holo, $\sim$35\%), dominios m\'oviles
     ($\sim$25\%), regiones intr\'insecamente desordenadas ($\sim$20\%) y errores de
@@ -90,7 +90,7 @@ M\'as all\'a de los resultados espec\'ificos sobre AlphaFold2, este estudio apor
 las siguientes contribuciones metodol\'ogicas:
 
 \begin{enumerate}
-    \item \textbf{Pipeline reproducible con mapeo SIFTS}: Un pipeline completo
+    \item \textbf{Pipeline reproducible con mapeo SIFTS}: Un \textit{pipeline} completo
     (descarga $\to$ mapeo $\to$ superposici\'on $\to$ an\'alisis) implementado en Python
     con c\'odigo abierto, que puede reutilizarse para evaluar AlphaFold3 u otros
     m\'etodos de predicci\'on estructural.
@@ -143,7 +143,7 @@ para investigadores que utilicen modelos de AlphaFold2:
     ligando (ej: dise\~no de f\'armacos basado en estructura), complementar con
     docking flexible o buscar estructuras experimentales en el estado holo.
 
-    \item \textbf{Verificar pLDDT pero no confiar exclusivamente en \'el}: El score de
+    \item \textbf{Verificar pLDDT pero no confiar exclusivamente en \'el}: El \textit{score} de
     confianza por residuo es \'util como filtro inicial, pero la validaci\'on contra
     estructuras experimentales proporciona informaci\'on cualitativamente superior.
 
@@ -153,7 +153,7 @@ para investigadores que utilicen modelos de AlphaFold2:
     (\SI{1}{\angstrom}, \SI{2}{\angstrom}, \SI{5}{\angstrom}), en lugar de \'unicamente
     la media aritm\'etica.
 
-    \item \textbf{Diversificar datasets de evaluaci\'on}: Seleccionar un PDB
+    \item \textbf{Diversificar \textit{datasets} de evaluaci\'on}: Seleccionar un PDB
     representativo por identificador UniProt para evitar conclusiones sesgadas por
     sobrerepresentaci\'on de prote\'inas muy estudiadas.
 \end{enumerate}
@@ -169,7 +169,7 @@ investigaci\'on futura:
 \begin{enumerate}
     \item \textbf{Evaluaci\'on de AlphaFold3}: Cuando los modelos de AlphaFold3
     \citep{abramson2024accurate} est\'en disponibles para descarga masiva, repetir este
-    an\'alisis con el mismo pipeline permitir\'a una comparaci\'on directa y cuantitativa
+    an\'alisis con el mismo \textit{pipeline} permitir\'a una comparaci\'on directa y cuantitativa
     de la mejora entre versiones. De particular inter\'es es la capacidad de AlphaFold3
     para modelar m\'ultiples conformaciones mediante su m\'odulo de difusi\'on, lo que
     podr\'ia reducir los RMSDs asociados a diferencias apo/holo.
@@ -182,16 +182,16 @@ investigaci\'on futura:
     \item \textbf{An\'alisis por dominio}: Descomponer prote\'inas multidominio y
     evaluar cada dominio independientemente, usando clasificaciones CATH o SCOP. Esto
     proporcionar\'ia una evaluaci\'on m\'as justa de prote\'inas con bisagras flexibles
-    y reducir\'ia el n\'umero de ``falsos outliers''.
+    y reducir\'ia el n\'umero de ``falsos \textit{outliers}''.
 
     \item \textbf{An\'alisis por resoluci\'on cristalográfica}: Estratificar por
     resoluci\'on de la estructura PDB ($< \SI{1,5}{\angstrom}$, \SIrange{1,5}{2,5}{\angstrom},
     $> \SI{2,5}{\angstrom}$) para separar el error de predicci\'on del error
     experimental.
 
-    \item \textbf{Comparaci\'on con m\'etodos alternativos}: Aplicar el pipeline a
+    \item \textbf{Comparaci\'on con m\'etodos alternativos}: Aplicar el \textit{pipeline} a
     modelos generados por RoseTTAFold \citep{baek2021accurate}, ESMFold
-    \citep{lin2023evolutionary} y OpenFold para establecer un benchmark comparativo
+    \citep{lin2023evolutionary} y OpenFold para establecer un \textit{benchmark} comparativo
     con metodolog\'ia uniforme.
 
     \item \textbf{An\'alisis por familia estructural}: Estratificar por familia
@@ -226,7 +226,7 @@ importante como el algoritmo evaluado}. Un error en el mapeo de residuos puede
 transformar un RMSD de \SI{0,64}{\angstrom} en \SI{22,54}{\angstrom}, convirtiendo
 una herramienta excelente en aparentemente deficiente. La rigurosidad metodol\'ogica
 ---incluyendo el uso de SIFTS para la correspondencia correcta de posiciones, la
-diversificaci\'on del dataset para eliminar sesgos, y la cuantificaci\'on bayesiana
+diversificaci\'on del \textit{dataset} para eliminar sesgos, y la cuantificaci\'on bayesiana
 de la incertidumbre--- no es un detalle t\'ecnico sino un requisito fundamental para
 cualquier evaluaci\'on estructural comparativa.
 

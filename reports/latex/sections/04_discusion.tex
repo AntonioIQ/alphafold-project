@@ -57,7 +57,7 @@ La log-normalidad tiene implicaciones importantes:
     cola derecha (prote\'inas con RMSD $> \SI{10}{\angstrom}$). La mediana y la media
     geom\'etrica son estad\'isticos m\'as informativos para esta distribuci\'on.
 
-    \item \textbf{Los ``outliers'' no son anomal\'ias}: En una distribuci\'on log-normal,
+    \item \textbf{Los ``\textit{outliers}'' no son anomal\'ias}: En una distribuci\'on log-normal,
     los valores extremos en la cola derecha son parte natural del proceso generador.
     El coeficiente de asimetr\'ia positivo ($\gamma_1 \approx 5,7$) y la curtosis elevada
     ($\kappa \approx 48$) son consistentes con una mezcla de procesos: predicciones
@@ -111,9 +111,9 @@ equivalente) debe considerarse con extrema precauci\'on}.
 
 Es importante se\~nalar que el 55\% de las entradas SIFTS tienen valores nulos en
 \texttt{PDB\_BEG}, lo que obliga a inferir la correspondencia de numeraci\'on. Nuestro
-pipeline asume numeraci\'on id\'entica en estos casos, lo que puede introducir errores
+\textit{pipeline} asume numeraci\'on id\'entica en estos casos, lo que puede introducir errores
 residuales. Esto contribuye parcialmente al 9,5\% de pares con RMSD $> \SI{10}{\angstrom}$
-en el dataset diversificado.
+en el \textit{dataset} diversificado.
 
 % ═══════════════════════════════════════════════════════════════════════════
 \subsection{Ausencia del ``sweet spot'' de tama\~no: un artefacto desenmascarado}
@@ -129,7 +129,7 @@ La precisi\'on de AlphaFold2 es alta y relativamente uniforme en todos los rango
 de tama\~no, como demuestran las curvas ECDF estratificadas por longitud
 (Figura~\ref{fig:ecdf_by_length}) y las distribuciones KDE superpuestas
 (Figura~\ref{fig:kde_by_length}). Las variaciones entre categor\'ias de
-tama\~no reflejan la composici\'on del dataset (qu\'e prote\'inas espec\'ificas est\'an
+tama\~no reflejan la composici\'on del \textit{dataset} (qu\'e prote\'inas espec\'ificas est\'an
 representadas y la calidad de sus mapeos SIFTS) m\'as que una tendencia intr\'inseca
 del algoritmo.
 
@@ -201,12 +201,12 @@ son demasiado escasos para conclusiones robustas.
 % ═══════════════════════════════════════════════════════════════════════════
 
 El 9,5\% de pares con RMSD $> \SI{10}{\angstrom}$ y el 16,6\% con RMSD $> \SI{5}{\angstrom}$
-en el dataset diversificado no representan necesariamente fallos de predicci\'on. El an\'alisis
+en el \textit{dataset} diversificado no representan necesariamente fallos de predicci\'on. El an\'alisis
 de los 50 principales valores extremos (Figura~\ref{fig:outliers}) permite
 clasificar las causas en cuatro categor\'ias:
 
 \begin{enumerate}
-    \item \textbf{Cambios conformacionales ligando-inducidos} ($\sim$35\% de los outliers):
+    \item \textbf{Cambios conformacionales ligando-inducidos} ($\sim$35\% de los \textit{outliers}):
     AlphaFold2 predice exclusivamente la conformaci\'on apo (sin ligando), mientras que
     muchas estructuras PDB capturan la prote\'ina unida a sustratos, inhibidores o
     cofactores. Las conformaciones apo y holo pueden diferir en decenas de angstroms,
@@ -238,7 +238,7 @@ clasificar las causas en cuatro categor\'ias:
 La distribuci\'on de estos factores sugiere que el rendimiento ``real'' de AlphaFold2
 ---excluyendo artefactos de mapeo y diferencias conformacionales biol\'ogicas--- es
 superior a lo que indican las estad\'isticas globales. Una estimaci\'on conservadora,
-eliminando el 9,5\% de outliers probablemente atribuibles a mapeo incorrecto y cambios
+eliminando el 9,5\% de \textit{outliers} probablemente atribuibles a mapeo incorrecto y cambios
 conformacionales, situar\'ia la mediana efectiva por debajo de \SI{1,0}{\angstrom}.
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -254,9 +254,9 @@ bayesianos admiten la interpretaci\'on directa: ``existe un 95\% de probabilidad
 posterior de que la verdadera proporci\'on se encuentre en este intervalo''.
 
 Los resultados bayesianos confirman los hallazgos descriptivos con cuantificaci\'on
-de incertidumbre. Para el dataset global, el HDI al 95\% para la proporci\'on con
+de incertidumbre. Para el \textit{dataset} global, el HDI al 95\% para la proporci\'on con
 RMSD $< \SI{2}{\angstrom}$ es [0,644; 0,662], un intervalo estrecho que refleja el
-alto poder estad\'istico del dataset de 10.432 observaciones. Las diferencias entre
+alto poder estad\'istico del \textit{dataset} de 10.432 observaciones. Las diferencias entre
 subgrupos (por longitud, amino\'acido, grupo funcional) son estad\'isticamente robustas:
 los HDI no se solapan para las categor\'ias extremas, confirmando que las diferencias
 observadas son genuinas y no artefactos del tama\~no muestral.
@@ -266,20 +266,20 @@ observadas son genuinas y no artefactos del tama\~no muestral.
 \label{subsec:sesgo_muestral}
 % ═══════════════════════════════════════════════════════════════════════════
 
-El dataset validado con SIFTS expl\'icito presentaba un sesgo severo: solo 91
+El \textit{dataset} validado con SIFTS expl\'icito presentaba un sesgo severo: solo 91
 prote\'inas \'unicas generaban los 5.115 pares validados inicialmente. Prote\'inas como
 la lisozima (P00698, 777 pares), la $\beta$-2-microglobulina (P61769, 672 pares) y la
-hemoglobina (P69905, 423 pares) dominaban el dataset. Este sesgo, t\'ipico de bases
+hemoglobina (P69905, 423 pares) dominaban el \textit{dataset}. Este sesgo, t\'ipico de bases
 de datos estructurales donde prote\'inas ``modelo'' acumulan cientos de entradas PDB,
 habr\'ia invalidado cualquier conclusi\'on estad\'istica sobre la ``prote\'ina t\'ipica''.
 
 La estrategia de diversificaci\'on ---seleccionar un \'unico PDB representativo por
 identificador UniProt, priorizando la mayor cobertura de secuencia seg\'un SIFTS---
 elimin\'o este sesgo. El incremento de la mediana de \SI{0,64}{\angstrom} a
-\SI{1,26}{\angstrom} confirma que el dataset validado sobreestimaba la precisi\'on de
+\SI{1,26}{\angstrom} confirma que el \textit{dataset} validado sobreestimaba la precisi\'on de
 AlphaFold2 al concentrarse en prote\'inas ``f\'aciles''.
 
-No obstante, el dataset diversificado mantiene un sesgo inherente: solo incluye
+No obstante, el \textit{dataset} diversificado mantiene un sesgo inherente: solo incluye
 prote\'inas con al menos una estructura experimental en el PDB. Las prote\'inas sin
 estructura experimental ---potencialmente las m\'as dif\'iciles de cristalizar y, por
 extensi\'on, quiz\'a las m\'as dif\'iciles de predecir--- est\'an excluidas. Los
@@ -297,9 +297,9 @@ literatura publicada:
 \begin{itemize}
     \item \citet{jumper2021highly} reportaron GDT-TS mediano $> 90$ en CASP14,
     equivalente a RMSD $< \SI{1}{\angstrom}$ para las mejores predicciones. Nuestro
-    RMSD mediano de \SI{0,64}{\angstrom} en el dataset validado (prote\'inas bien
+    RMSD mediano de \SI{0,64}{\angstrom} en el \textit{dataset} validado (prote\'inas bien
     estudiadas) es consistente con estos resultados, considerando que CASP14 evalu\'o
-    targets novedosos mientras que nuestro dataset incluye prote\'inas presentes durante
+    targets novedosos mientras que nuestro \textit{dataset} incluye prote\'inas presentes durante
     el entrenamiento.
 
     \item \citet{akdel2022structural} realizaron una evaluaci\'on comunitaria de las
@@ -315,7 +315,7 @@ literatura publicada:
     estimaciones de confianza.
 \end{itemize}
 
-La concordancia con la literatura refuerza la validez de nuestro pipeline y
+La concordancia con la literatura refuerza la validez de nuestro \textit{pipeline} y
 confirma que el mapeo SIFTS correcto es el factor clave para obtener resultados
 fiables, no un artefacto que infle la precisi\'on.
 
@@ -331,11 +331,11 @@ los resultados tienen implicaciones directas para el contexto de AlphaFold3
 
 \begin{enumerate}
     \item \textbf{L\'inea base cuantitativa}: Los RMSDs reportados aqu\'i (mediana
-    \SI{1,26}{\angstrom} para un dataset diverso de 10.432 prote\'inas) establecen el
+    \SI{1,26}{\angstrom} para un \textit{dataset} diverso de 10.432 prote\'inas) establecen el
     est\'andar contra el cual las mejoras de AlphaFold3 podr\'an cuantificarse
     directamente cuando sus modelos est\'en disponibles para descarga masiva.
 
-    \item \textbf{Metodolog\'ia transferible}: El pipeline con mapeo SIFTS, an\'alisis
+    \item \textbf{Metodolog\'ia transferible}: El \textit{pipeline} con mapeo SIFTS, an\'alisis
     jer\'arquico y marco bayesiano es directamente aplicable a la evaluaci\'on de
     AlphaFold3 o cualquier otro m\'etodo (RoseTTAFold \citep{baek2021accurate}, ESMFold
     \citep{lin2023evolutionary}).
@@ -349,7 +349,7 @@ los resultados tienen implicaciones directas para el contexto de AlphaFold3
     difusi\'on que, en principio, permite generar m\'ultiples conformaciones. Si esta
     capacidad se confirma a gran escala, podr\'ia reducir significativamente los RMSDs
     asociados a cambios conformacionales ligando-inducidos, que representan $\sim$35\%
-    de los outliers en nuestro an\'alisis.
+    de los \textit{outliers} en nuestro an\'alisis.
 \end{enumerate}
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -403,22 +403,22 @@ los resultados:
     temporal (prote\'inas depositadas despu\'es de 2018 vs.\ antes) podr\'ia cuantificar
     este efecto.
 
-    \item \textbf{Solo prote\'inas cristalizables}: El dataset excluye por definici\'on
+    \item \textbf{Solo prote\'inas cristalizables}: El \textit{dataset} excluye por definici\'on
     las prote\'inas sin estructura experimental ---notablemente, prote\'inas de membrana
     (subrepresentadas en el PDB), prote\'inas intr\'insecamente desordenadas y
     complejos transitorios. Estas categor\'ias podr\'ian presentar precisi\'on diferente.
 
     \item \textbf{Superposici\'on r\'igida}: El RMSD tras superposici\'on r\'igida
     (algoritmo de Kabsch) penaliza desproporcionadamente a prote\'inas con m\'ultiples
-    dominios m\'oviles. M\'etricas alternativas como el TM-score o el RMSD por dominio
+    dominios m\'oviles. M\'etricas alternativas como el TM-\textit{score} o el RMSD por dominio
     podr\'ian proporcionar una evaluaci\'on m\'as justa de estas prote\'inas.
 
     \item \textbf{Completitud del SIFTS}: El 55\% de las entradas SIFTS carecen de
     valores expl\'icitos para \texttt{PDB\_BEG}/\texttt{PDB\_END}, requiriendo
     inferencia de la correspondencia de numeraci\'on. Los errores de inferencia
-    contribuyen a una fracci\'on indeterminada de los outliers observados.
+    contribuyen a una fracci\'on indeterminada de los \textit{outliers} observados.
 
-    \item \textbf{Una sola estructura PDB por prote\'ina}: En el dataset diversificado,
+    \item \textbf{Una sola estructura PDB por prote\'ina}: En el \textit{dataset} diversificado,
     se seleccion\'o un \'unico PDB representativo por UniProt ID. Para prote\'inas con
     m\'ultiples conformaciones cristalizadas, el RMSD observado depende de cu\'al
     estructura se seleccion\'o, introduciendo variabilidad aleatoria.

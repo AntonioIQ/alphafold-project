@@ -54,7 +54,7 @@ a continuaci\'on los t\'erminos t\'ecnicos empleados a lo largo del documento.
     equivalente en UniProt (\texttt{PDB\_BEG} $\to$ \texttt{SP\_BEG}).
     Este mapeo es cr\'itico para este estudio: sin \'el, comparar las coordenadas por
     n\'umero de posici\'on produce RMSDs artificialmente inflados de $\sim$20\,\AA{},
-    cuando el valor real es $\sim$1\,\AA{}. Es el eslab\'on clave del pipeline.
+    cuando el valor real es $\sim$1\,\AA{}. Es el eslab\'on clave del \textit{pipeline}.
 
     \item[\textbf{pLDDT} (\textit{predicted Local Distance Difference Test})]
     M\'etrica de confianza que AlphaFold2 asigna a cada residuo, en escala 0--100.
@@ -222,7 +222,7 @@ A pesar de los resultados extraordinarios de AlphaFold2, la comunidad cient\'ifi
     \item \textbf{Aplicaciones cr\'iticas}: en contextos como el dise\~no de f\'armacos basado en estructura (\textit{structure-based drug design}, SBDD), errores peque\~nos en la geometr\'ia del sitio activo pueden tener consecuencias significativas en la predicci\'on de afinidades de uni\'on. Es fundamental conocer los l\'imites de precisi\'on de AlphaFold2 para estas aplicaciones.
 \end{enumerate}
 
-Estudios previos han abordado parcialmente esta cuesti\'on. \citet{akdel2022structural} realizaron una evaluaci\'on comprehensiva de las predicciones de AlphaFold2, encontrando que, si bien la precisi\'on global es notable, existen variaciones significativas dependiendo de la regi\'on de la prote\'ina y las condiciones experimentales. \citet{bryant2022improved} evaluaron el rendimiento de AlphaFold2 en la predicci\'on de complejos proteicos, mientras que \citet{mariani2013lddt} introdujeron la m\'etrica lDDT (\textit{local Distance Difference Test}), un score de comparaci\'on estructural libre de superposici\'on que posteriormente fue adoptado por AlphaFold2 como base de su m\'etrica de confianza por residuo (pLDDT).
+Estudios previos han abordado parcialmente esta cuesti\'on. \citet{akdel2022structural} realizaron una evaluaci\'on comprehensiva de las predicciones de AlphaFold2, encontrando que, si bien la precisi\'on global es notable, existen variaciones significativas dependiendo de la regi\'on de la prote\'ina y las condiciones experimentales. \citet{bryant2022improved} evaluaron el rendimiento de AlphaFold2 en la predicci\'on de complejos proteicos, mientras que \citet{mariani2013lddt} introdujeron la m\'etrica lDDT (\textit{local Distance Difference Test}), un \textit{score} de comparaci\'on estructural libre de superposici\'on que posteriormente fue adoptado por AlphaFold2 como base de su m\'etrica de confianza por residuo (pLDDT).
 
 \subsection{RMSD: el est\'andar de oro para la comparaci\'on estructural}
 \label{subsec:rmsd}
@@ -295,4 +295,4 @@ Desde la perspectiva de la ciencia de datos, este estudio proporciona un marco b
 \subsection{Organizaci\'on del documento}
 \label{subsec:organizacion}
 
-El resto de este documento se organiza de la siguiente manera. La Secci\'on~\ref{sec:materiales_metodos} describe las fuentes de datos, el pipeline de procesamiento con mapeo SIFTS, y el marco estad\'istico empleado. La Secci\'on~\ref{sec:resultados} presenta los resultados del an\'alisis, incluyendo la estad\'istica descriptiva global, el an\'alisis jer\'arquico en cuatro niveles y la inferencia bayesiana. La Secci\'on~\ref{sec:discusion} discute los hallazgos en el contexto de la literatura, analiza las limitaciones del estudio y sit\'ua los resultados frente a AlphaFold3. Finalmente, la Secci\'on~\ref{sec:conclusiones} resume las contribuciones principales y formula recomendaciones pr\'acticas para la comunidad.
+El resto de este documento se organiza de la siguiente manera. La Secci\'on~\ref{sec:materiales_metodos} describe las fuentes de datos, el \textit{pipeline} de procesamiento con mapeo SIFTS, y el marco estad\'istico empleado. La Secci\'on~\ref{sec:resultados} presenta los resultados del an\'alisis, incluyendo la estad\'istica descriptiva global, el an\'alisis jer\'arquico en cuatro niveles y la inferencia bayesiana. La Secci\'on~\ref{sec:discusion} discute los hallazgos en el contexto de la literatura, analiza las limitaciones del estudio y sit\'ua los resultados frente a AlphaFold3. Finalmente, la Secci\'on~\ref{sec:conclusiones} resume las contribuciones principales y formula recomendaciones pr\'acticas para la comunidad.
