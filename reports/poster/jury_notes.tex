@@ -1,0 +1,78 @@
+\documentclass[12pt]{extarticle}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\pagestyle{plain}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{navy}{HTML}{103654}
+\definecolor{teal}{HTML}{1C7C7D}
+\definecolor{linegray}{HTML}{D8E1E8}
+
+\newcommand{\Ang}{\AA}
+
+\newcommand{\sectionbar}[1]{%
+  \vspace{0.8em}
+  \noindent\colorbox{navy}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{white}\bfseries #1}}
+  \vspace{0.5em}
+}
+
+\begin{document}
+
+\begin{minipage}[c]{0.12\textwidth}
+  \includegraphics[width=\linewidth]{../latex/figures/logo_itam.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.84\textwidth}
+  {\Large\bfseries\color{navy} Guion de Presentación y Resumen para Jurado\par}
+  {\large\color{teal} Evaluación sistemática de la precisión estructural de AlphaFold2\par}
+  José Antonio Tapia Godínez \quad | \quad Maestría en Ciencia de Datos, ITAM
+\end{minipage}
+
+\sectionbar{Speech sugerido}
+Buenos días. Mi trabajo evalúa qué tan precisas son las predicciones de AlphaFold2 cuando se comparan correctamente contra estructuras experimentales del Protein Data Bank. El punto central de esta investigación es metodológico: muchas comparaciones previas entre PDB y AlphaFold se hacen sin corregir la correspondencia exacta entre residuos y cadenas, lo que infla artificialmente el error estructural.
+
+Para resolver ese problema, construí un pipeline basado en mapeo SIFTS, que permite alinear la numeración de residuos entre PDB y UniProt y seleccionar la cadena correcta antes de calcular el RMSD. Con este enfoque analicé 10,432 proteínas únicas, usando un PDB representativo por identificador UniProt, y comparé además un subconjunto validado de 5,115 pares donde el mapeo explícito es especialmente confiable.
+
+El hallazgo más importante es que gran parte del error aparente desaparece cuando la comparación se hace bien. En el subconjunto validado, el RMSD mediano cae de 22.54 angstroms sin mapeo a 0.64 angstroms con mapeo SIFTS. En el dataset diversificado completo, AlphaFold2 alcanza un RMSD mediano de 1.26 angstroms, y 65.3 por ciento de las predicciones quedan por debajo de 2 angstroms. Esto cambia la interpretación del problema: AlphaFold2 no falla masivamente; lo que falla masivamente es comparar sin control metodológico.
+
+También observé que no existe un sweet spot universal y rígido de 250 a 300 residuos como se había sugerido en análisis previos. Más bien, la precisión se mantiene alta en una franja amplia y se deteriora sobre todo en proteínas muy grandes o con cambios conformacionales complejos. Finalmente, el análisis químico a nivel atómico muestra que la precisión no es homogénea: backbone y regiones más rígidas se predicen mejor que cadenas laterales más flexibles.
+
+En conclusión, esta investigación aporta una evaluación más realista, reproducible y útil de AlphaFold2. La contribución principal no es solo reportar métricas, sino demostrar que el mapeo SIFTS debe considerarse un requisito metodológico para cualquier benchmark estructural serio entre PDB y AlphaFold.
+
+\sectionbar{Versión corta de 60 a 90 segundos}
+\begin{itemize}
+  \item Problema: comparar PDB y AlphaFold sin mapeo correcto produce artefactos grandes.
+  \item Método: pipeline con SIFTS, selección diversa por UniProt y alineamiento Kabsch.
+  \item Resultado: RMSD mediano de 1.26 \Ang{} en 10,432 proteínas; 65.3\% por debajo de 2 \Ang.
+  \item Aporte: demostrar que SIFTS es un requisito metodológico, no un detalle opcional.
+\end{itemize}
+
+\sectionbar{Resumen para jurado}
+Este trabajo presenta una evaluación sistemática de la precisión estructural de AlphaFold2 mediante comparación contra estructuras experimentales del Protein Data Bank, corrigiendo explícitamente la correspondencia entre residuos con mapeo SIFTS. El problema abordado es que muchas comparaciones PDB--AlphaFold se realizan sin alinear correctamente numeración de residuos y selección de cadena, lo que produce errores estructurales artificialmente inflados.
+
+Se desarrolló un pipeline de procesamiento y análisis basado en tres elementos: selección diversa de proteínas, mapeo SIFTS entre PDB y UniProt, y superposición estructural mediante el algoritmo de Kabsch. Con este enfoque se analizaron 10,432 proteínas únicas, además de un subconjunto validado de 5,115 pares con mapeo explícito confiable.
+
+Los resultados muestran que el impacto metodológico del mapeo es crítico. En el subconjunto validado, el RMSD mediano cae de 22.54 \Ang{} a 0.64 \Ang{} cuando se usa SIFTS. En el dataset diversificado completo, AlphaFold2 alcanza un RMSD mediano de 1.26 \Ang{} y 65.3\% de las predicciones quedan por debajo de 2 \Ang{}, lo que indica una precisión estructural alta para una fracción amplia del proteoma analizado.
+
+El estudio también muestra que el supuesto sweet spot rígido de 250--300 residuos no se sostiene como regla universal una vez corregido el mapeo. La precisión permanece alta en varios rangos de tamaño y se degrada principalmente en proteínas muy grandes o con mayor complejidad conformacional. A nivel químico, el análisis atómico indica que backbone y regiones rígidas presentan menor error que cadenas laterales más flexibles.
+
+La principal contribución de este trabajo es metodológica y científica: demuestra que el mapeo SIFTS no es opcional, sino un requisito para evaluar de manera válida a AlphaFold2 frente a estructuras experimentales. Esto permite reinterpretar resultados previos, reducir artefactos de comparación y ofrecer una base más sólida para aplicaciones en bioinformática estructural y diseño molecular.
+
+\sectionbar{Qué debería notar el jurado}
+\begin{itemize}
+  \item El trabajo no solo reporta métricas: corrige un problema metodológico de fondo.
+  \item El tamaño del análisis es sólido: 10,432 proteínas únicas.
+  \item Hay contribución computacional, estadística y de interpretación científica.
+  \item El resultado principal cambia la lectura de benchmarks previos sobre AlphaFold2.
+  \item El pipeline es transferible a AlphaFold3 y a otros métodos de predicción estructural.
+\end{itemize}
+
+\end{document}

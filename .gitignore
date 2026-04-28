@@ -94,6 +94,13 @@ reports/latex/*.fdb_latexmk
 reports/latex/*.fls
 reports/latex/*.synctex.gz
 reports/latex/sections/*.aux
+reports/poster/*.aux
+reports/poster/*.log
+reports/poster/*.out
+reports/poster/*.toc
+reports/poster/*.nav
+reports/poster/*.snm
+reports/poster/missfont.log
 
 # Logs
 *.log
@@ -103,3 +110,6 @@ reports/latex/sections/*.aux
 
 # Claude
 .claude/
+
+# macOS
+.DS_Store
